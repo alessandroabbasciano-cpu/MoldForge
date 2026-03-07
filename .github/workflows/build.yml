@@ -3,8 +3,8 @@ name: Build Mold Forge Executables
 on:
   push:
     tags:
-      - 'v*' # Si attiverà in automatico quando crei un tag tipo "v1.0"
-  workflow_dispatch: # Ti permette di far partire la compilazione a mano dal sito
+      - 'v*'
+  workflow_dispatch:
 
 jobs:
   build:
@@ -16,7 +16,7 @@ jobs:
 
     steps:
     - name: Checkout Code
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
     - name: Setup Miniconda
       uses: conda-incubator/setup-miniconda@v2
@@ -38,7 +38,7 @@ jobs:
         pyinstaller MoldForge.spec
 
     - name: Upload Artifacts
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: MoldForge-${{ runner.os }}
         path: dist/MoldForge/
