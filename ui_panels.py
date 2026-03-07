@@ -137,41 +137,26 @@ def setup_docks(app):
     app.chk_flares.stateChanged.connect(lambda: app.schedule_update())
     layout_out.addRow(app.chk_flares)
 
+    app.chk_mold_pins = QCheckBox("Truck Pins (Molds)")
+    app.chk_mold_pins.setToolTip("Replaces through-holes with marking pins on the molds (Male/Female).")
+    app.chk_mold_pins.setChecked(False)
+    app.chk_mold_pins.stateChanged.connect(lambda: app.schedule_update())
+    layout_out.addRow(app.chk_mold_pins)
+    
+    app.chk_shaper_pins = QCheckBox("Truck Pins (Shaper)")
+    app.chk_shaper_pins.setToolTip("Replaces through-holes with marking pins on the shapers (Shaper Template).")
+    app.chk_shaper_pins.setChecked(False)
+    app.chk_shaper_pins.stateChanged.connect(lambda: app.schedule_update())
+    layout_out.addRow(app.chk_shaper_pins)
+
     # Initialize dynamic visibility
     update_fillet_vis()
     update_guide_vis()
 
     left_controls_layout.addWidget(group_out)
 
-   # --- PRESETS GROUP ---
-    group_presets = QGroupBox("PRESETS")
-    layout_presets = QFormLayout(group_presets)
-    
-    app.combo_preset = QComboBox()
-    app.combo_preset.addItem("Default / Reset")
-    app.combo_preset.addItems(sorted(app.presets_data.keys()))
-    
-    lbl_preset = QLabel("Load Preset:")
-    lbl_preset.setToolTip("Load a pre-configured deck and mold setup.")
-    layout_presets.addRow(lbl_preset, app.combo_preset)
-    
-    app.btn_save_preset = QPushButton("Save Preset")
-    app.btn_save_preset.setToolTip("Save the current exact configuration into the local JSON database.")
-    
-    app.btn_delete_preset = QPushButton("Delete Preset")
-    app.btn_delete_preset.setToolTip("Permanently delete the selected preset.")
-    app.btn_delete_preset.setStyleSheet("QPushButton { color: #ff6b6b; } QPushButton:hover { background-color: #5a2a2a; }")
-    
-    layout_preset_actions = QHBoxLayout()
-    layout_preset_actions.addWidget(app.btn_save_preset)
-    layout_preset_actions.addWidget(app.btn_delete_preset)
-    
-    layout_presets.addRow("", layout_preset_actions)
-    
-    left_controls_layout.addWidget(group_presets)
-
-    # --- SHAPE STYLE GROUP ---
-    group_shape_style = QGroupBox("SHAPE STYLE")
+    # --- SHAPE STYLE & PRESETS GROUP ---
+    group_shape_style = QGroupBox("SHAPE STYLE / PRESETS")
     layout_shape_style = QFormLayout(group_shape_style)
     app.combo_shape_style = QComboBox()
     
@@ -199,6 +184,29 @@ def setup_docks(app):
     
     app.spin_shape_offset_y = add_param(app, layout_shape_style, "Shape Shift Y (mm)", -100.0, 100.0, app.params.ShapeOffsetY, "Shift the DXF shape along the length axis. Useful for asymmetric boards like Fishtails.")
     app.spin_shape_offset_y.valueChanged.connect(app.sync_editor_from_spinboxes)
+
+    # --- PRESETS 
+    
+    app.combo_preset = QComboBox()
+    app.combo_preset.addItem("Default / Reset")
+    app.combo_preset.addItems(sorted(app.presets_data.keys()))
+    
+    lbl_preset = QLabel("Load Preset:")
+    lbl_preset.setToolTip("Load a pre-configured deck and mold setup.")
+    layout_shape_style.addRow(lbl_preset, app.combo_preset)
+    
+    app.btn_save_preset = QPushButton("Save Preset")
+    app.btn_save_preset.setToolTip("Save the current exact configuration into the local JSON database.")
+    
+    app.btn_delete_preset = QPushButton("Delete Preset")
+    app.btn_delete_preset.setToolTip("Permanently delete the selected preset.")
+    app.btn_delete_preset.setStyleSheet("QPushButton { color: #ff6b6b; } QPushButton:hover { background-color: #5a2a2a; }")
+    
+    layout_preset_actions = QHBoxLayout()
+    layout_preset_actions.addWidget(app.btn_save_preset)
+    layout_preset_actions.addWidget(app.btn_delete_preset)
+    
+    layout_shape_style.addRow("", layout_preset_actions)
     
     left_controls_layout.addWidget(group_shape_style)
 

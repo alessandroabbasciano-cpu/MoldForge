@@ -22,8 +22,8 @@ def setup_menu(app):
     action_load_config.triggered.connect(app.load_config_file)
     file_menu.addSeparator()
     
-    # Export the currently viewed 3D object as an STL
-    app.action_export = file_menu.addAction("Export Current STL...")
+    # Export the currently viewed 3D object as an STL or STEP file
+    app.action_export = file_menu.addAction("Export Current Object...")
     app.action_export.setEnabled(False) # Disabled until a successful render completes
     app.action_export.triggered.connect(app.save_stl)
     

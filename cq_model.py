@@ -390,6 +390,32 @@ def build_mold(params: MoldParams):
     if params.GuideDiameter > 0.1:
         guide_holes_cutter = cq.Workplane("XY").pushPoints(guides_loc).circle(params.GuideDiameter / 2.0).extrude(500).translate((0, 0, -100))
     
+    # --- TRUCK PINS (MARKERS) ---
+    pin_radius_base = (params.TruckHoleDiam / 2.0) + 0.2
+    pin_height = (params.VeneerThickness / 2.0) - 0.1
+    tip_radius = 0.25
+    
+    # Calculate taper angle for a 0.5mm tip
+    taper_angle = math.degrees(math.atan((pin_radius_base - tip_radius) / pin_height))
+    
+    # Sink extension to prevent zero-thickness geometry on curved boolean operations
+    sink = 1.5
+    true_base_radius = pin_radius_base + (sink * math.tan(math.radians(taper_angle)))
+    total_height = pin_height + sink
+
+    # Female Mold Pin (Positive, pointing down)
+    female_pins = cq.Workplane("XY").pushPoints(trucks_loc).circle(true_base_radius).extrude(total_height, taper=taper_angle).mirror("XY").translate((0, 0, z_fem_target + sink))
+
+    # Male Mold Hole (Negative, pointing down to carve the core surface)
+    male_pin_holes = cq.Workplane("XY").pushPoints(trucks_loc).circle(true_base_radius + 0.4).extrude(total_height + 0.5, taper=taper_angle).mirror("XY").translate((0, 0, z_mount_target + sink))
+
+    # Bottom Shaper Pin (Positive, pointing up)
+    shaper_pins_up = cq.Workplane("XY").pushPoints(trucks_loc).circle(true_base_radius).extrude(total_height, taper=taper_angle).translate((0, 0, z_mount_target - sink))
+    
+    # Top Shaper Pin (Positive, pointing down)
+    z_shaper_bottom = z_mount_target - params.VeneerThickness
+    shaper_pins_down = cq.Workplane("XY").pushPoints(trucks_loc).circle(true_base_radius).extrude(total_height, taper=taper_angle).mirror("XY").translate((0, 0, z_shaper_bottom + sink))    
+    
     # Calculate total stack height
     rise_nose = params.NoseLength * math.sin(math.radians(params.NoseAngle))
     rise_tail = params.TailLength * math.sin(math.radians(params.TailAngle))
@@ -428,7 +454,11 @@ def build_mold(params: MoldParams):
                 pass
         
         final = final.cut(truck_holes_cutter)
-        
+        if getattr(params, 'AddMoldTruckPins', False):
+            final = final.cut(male_pin_holes)
+        else:
+            final = final.cut(truck_holes_cutter)
+
         if params.AddGuideHoles and guide_holes_cutter is not None:            
             final = final.cut(guide_holes_cutter)
 
@@ -480,7 +510,10 @@ def build_mold(params: MoldParams):
             except Exception:
                 pass
 
-        final = final.cut(truck_holes_cutter)
+        if getattr(params, 'AddMoldTruckPins', False):
+            final = final.union(female_pins)
+        else:
+            final = final.cut(truck_holes_cutter)
         
         if params.AddGuideHoles and guide_holes_cutter is not None:            
             final = final.cut(guide_holes_cutter)   
@@ -525,7 +558,14 @@ def build_mold(params: MoldParams):
         
         z_flat_top = z_mount_target + params.ShaperHeight
         trim_box = cq.Workplane("XY").box(500, 500, 500).translate((0, 0, z_flat_top + 250))
-        template = template.cut(trim_box).cut(truck_holes_cutter)
+
+        # 1. MAIN SHAPER (TOP SHELL)
+        template = template.cut(trim_box)
+        
+        if getattr(params, 'AddShaperTruckPins', False):
+            template = template.union(shaper_pins_down)
+        else:
+            template = template.cut(truck_holes_cutter)
         
         y_tip_nose = (params.Wheelbase / 2.0) + params.TruckHoleDistL + params.NoseKickGap + params.NoseLength
         y_tip_tail = -((params.Wheelbase / 2.0) + params.TruckHoleDistL + params.TailKickGap + params.TailLength)
@@ -555,7 +595,12 @@ def build_mold(params: MoldParams):
             # Trim the block from below so it sits exactly at ShaperHeight thickness
             z_flat_bottom = z_mount_target - params.ShaperHeight
             trim_box_bottom = cq.Workplane("XY").box(500, 500, 500).translate((0, 0, z_flat_bottom - 250))
-            bottom_template = bottom_template.cut(trim_box_bottom).cut(truck_holes_cutter)
+            bottom_template = bottom_template.cut(trim_box_bottom)
+            
+            if getattr(params, 'AddShaperTruckPins', False):
+                bottom_template = bottom_template.union(shaper_pins_up)
+            else:
+                bottom_template = bottom_template.cut(truck_holes_cutter)
             
             if params.AddIndicators:
                 # Carve the text into the flat bottom face

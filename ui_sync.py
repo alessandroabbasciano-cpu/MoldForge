@@ -4,6 +4,8 @@ Acts as the logic controller between the graphical user interface and the underl
 Handles parameter syncing, mechanical limit validation, symmetry mirroring, and interactive 2D editor updates.
 """
 
+from email.policy import default
+
 import cq_model
 import shape_loader
 
@@ -244,8 +246,16 @@ def update_params_object(app):
     p.TruckHoleDistW = app.spin_truck_w.value()
     p.TruckHoleDiam = app.spin_truck_d.value()
     
+    if hasattr(app, 'chk_sidelocks'): p.SideLocks = app.chk_sidelocks.isChecked()
+    if hasattr(app, 'chk_fillet'): p.AddFillet = app.chk_fillet.isChecked()
+    if hasattr(app, 'chk_guide_d'): p.AddGuideHoles = app.chk_guide_d.isChecked()
+    if hasattr(app, 'chk_indicators'): p.AddIndicators = app.chk_indicators.isChecked()
+    if hasattr(app, 'chk_top_shaper'): p.AddTopShaper = app.chk_top_shaper.isChecked()
     if hasattr(app, 'spin_shaper_h'): p.ShaperHeight = app.spin_shaper_h.value()
     if hasattr(app, 'spin_fillet_yellow'): p.FilletYellow = app.spin_fillet_yellow.value()
+    if hasattr(app, 'spin_shape_offset_y'): p.ShapeOffsetY = app.spin_shape_offset_y.value()
+    if hasattr(app, 'chk_mold_pins'): p.AddMoldTruckPins = app.chk_mold_pins.isChecked()
+    if hasattr(app, 'chk_shaper_pins'): p.AddShaperTruckPins = app.chk_shaper_pins.isChecked()
     if hasattr(app, 'chk_flares'):
         p.AddWheelFlares = app.chk_flares.isChecked()
         p.FlareHeight = app.spin_flare_h.value()
@@ -306,6 +316,8 @@ def reset_to_defaults(app):
         if hasattr(app, 'spin_shaper_h'): app.spin_shaper_h.setValue(default.ShaperHeight)
         if hasattr(app, 'spin_fillet_yellow'): app.spin_fillet_yellow.setValue(default.FilletYellow)
         if hasattr(app, 'spin_shape_offset_y'): app.spin_shape_offset_y.setValue(default.ShapeOffsetY)
+        if hasattr(app, 'chk_mold_pins'): app.AddMoldTruckPins = app.chk_mold_pins.isChecked()
+        if hasattr(app, 'chk_shaper_pins'): app.AddShaperTruckPins = app.chk_shaper_pins.isChecked()
         if hasattr(app, 'chk_flares'):
             app.chk_flares.setChecked(default.AddWheelFlares)
             app.spin_flare_h.setValue(default.FlareHeight)
