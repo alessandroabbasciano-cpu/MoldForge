@@ -48,4 +48,4 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: MoldForge-${{ runner.os }}
-        path: dist/MoldForge/
+        path: dist/MOLDFORGE_RELEASE/

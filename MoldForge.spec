@@ -4,7 +4,7 @@ import shutil
 import sys
 from PyInstaller.utils.hooks import collect_data_files, collect_submodules
 
-# --- CONFIGURAZIONE ---
+# --- CONFIGURATION ---
 hidden_imports = []
 hidden_imports += collect_submodules('cadquery')
 hidden_imports += collect_submodules('pyvista')
@@ -17,28 +17,20 @@ hidden_imports += [
     'ui_panels', 'ui_sync', 'viewer_3d'
 ]
 
-datas = []
+datas = [('icon.ico', '.'), ('splash.png', '.')]
 datas += collect_data_files('cadquery')
 datas += collect_data_files('pyvista')
-datas.append(('icon.ico', '.'))
-datas.append(('splash.png', '.'))
 
-# --- ANALISI ---
 a = Analysis(
     ['app.py'],
     pathex=[],
     binaries=[],
     datas=datas,
     hiddenimports=hidden_imports,
-    hookspath=[],
-    hooksconfig={},
-    runtime_hooks=[],
-    excludes=['PySide6.QtWebEngine', 'PySide6.QtWebEngineCore', 'PySide6.QtWebEngineWidgets'],
     noarchive=False,
 )
 pyz = PYZ(a.pure)
 
-# --- GESTIONE SPLASH SCREEN (FIX PER MAC E NOMI VARIABILI) ---
 show_splash = False
 final_splash_obj = None
 
@@ -56,38 +48,49 @@ if sys.platform != 'darwin':
         )
         show_splash = True
     except Exception as e:
-        print(f"DEBUG: Splash non configurato: {e}")
+        print(f"DEBUG: Splash not configured: {e}")
 
-# --- COMPILAZIONE ESEGUIBILE ---
+# Use a temp name to avoid directory collision
+exe_name = 'MoldForgeApp' if sys.platform != 'win32' else 'MoldForge'
+
 exe = EXE(
     pyz,
-    final_splash_obj if show_splash else None, # Corretto: ora il nome corrisponde!
+    final_splash_obj if show_splash else None,
     a.scripts,
     a.binaries,
     a.zipfiles,
     a.datas,
     [],
-    name='MoldForge',
+    name=exe_name,
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
     upx=True,
-    upx_exclude=[],
-    runtime_tmpdir=None,
     console=False,
-    disable_windowed_traceback=False,
-    argv_emulation=False,
-    target_arch=None,
-    codesign_identity=None,
-    entitlements_file=None,
-    icon='icon.ico',
+    icon='icon.ico', # This sets the metadata icon
 )
 
-# --- COPIA POST-BUILD DELLE RISORSE ---
-dest_base = os.path.abspath(os.path.join('dist', 'MoldForge'))
+# --- POST-BUILD ASSET MANAGEMENT ---
+release_dir = os.path.abspath(os.path.join('dist', 'MOLDFORGE_RELEASE'))
+if os.path.exists(release_dir):
+    shutil.rmtree(release_dir)
+os.makedirs(release_dir)
+
+# Move EXE to release folder with final name
+ext = '.exe' if sys.platform == 'win32' else ''
+current_exe = os.path.join('dist', exe_name + ext)
+shutil.move(current_exe, os.path.join(release_dir, 'MoldForge' + ext))
+
+# Copy Folders (Presets/Shapes and Wiki)
 for folder in ['shapes_library', 'wiki_drafts']:
     source = os.path.abspath(folder)
-    dest = os.path.join(dest_base, folder)
+    dest = os.path.join(release_dir, folder)
     if os.path.exists(source):
-        if os.path.exists(dest): shutil.rmtree(dest)
         shutil.copytree(source, dest)
+
+# Copy Files (Icon file for the UI to find it at runtime)
+# Many apps need the physical icon file in the folder to show it in the Taskbar/System
+for file in ['icon.ico', 'icon.png']:
+    if os.path.exists(file):
+        shutil.copy(file, os.path.join(release_dir, file))
+        print(f"SUCCESS: {file} copied to release folder")
