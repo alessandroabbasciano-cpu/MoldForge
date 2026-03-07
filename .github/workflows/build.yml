@@ -18,6 +18,12 @@ jobs:
     - name: Checkout Code
       uses: actions/checkout@v4
 
+    - name: Install Linux Graphics Libraries
+      if: runner.os == 'Linux'
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y libosmesa6 libglu1-mesa libxi-dev libxmu-dev libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-render-util0 libxcb-xinerama0 libxcb-xkb1 libxkbcommon-x11-0
+
     - name: Setup Miniconda
       uses: conda-incubator/setup-miniconda@v2
       with:

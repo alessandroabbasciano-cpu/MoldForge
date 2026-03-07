@@ -47,13 +47,12 @@ pyz = PYZ(a.pure)
 
 # --- NATIVE SPLASH SCREEN CONFIGURATION ---
 show_splash = False
-splash_obj = None
+splash_target = None
 
-# Se NON è un Mac, proviamo a configurare lo splash screen
 if sys.platform != 'darwin':
     try:
-        from PyInstaller.utils.win32 import icon as pyi_icon
-        splash_obj = Splash(
+        from PyInstaller.building.api import Splash
+        splash_target = Splash(
             'splash.png',
             binaries=a.binaries,
             datas=a.datas,
@@ -63,8 +62,8 @@ if sys.platform != 'darwin':
             always_on_top=True,
         )
         show_splash = True
-    except:
-        show_splash = False
+    except Exception as e:
+        print(f"DEBUG: Splash non configurato: {e}")
 
 exe = EXE(
     pyz,
