@@ -2,7 +2,7 @@
 import os
 import shutil
 import sys
-from PyInstaller.utils.hooks import collect_data_files, collect_submodules
+from PyInstaller.utils.hooks import collect_data_files, collect_submodules, collect_dynamic_libs
 
 # --- CONFIGURAZIONE E IMPORT ---
 hidden_imports = []
@@ -10,6 +10,7 @@ hidden_imports += collect_submodules('cadquery')
 hidden_imports += collect_submodules('pyvista')
 hidden_imports += collect_submodules('vtkmodules')
 hidden_imports += collect_submodules('OCP')
+hidden_imports += collect_submodules('casadi') # <--- FIX CASADI
 
 hidden_imports += [
     'cq_model', 'cq_utils', 'custom_widgets', 'file_manager', 
@@ -20,11 +21,16 @@ hidden_imports += [
 datas = [('icon.ico', '.'), ('splash.png', '.')]
 datas += collect_data_files('cadquery')
 datas += collect_data_files('pyvista')
+datas += collect_data_files('casadi') # <--- FIX CASADI
+
+# <--- FORZIAMO LA RACCOLTA DELLE DLL DI CASADI (IL PROBLEMA DI WINDOWS) --->
+binaries = []
+binaries += collect_dynamic_libs('casadi')
 
 a = Analysis(
     ['app.py'],
     pathex=[],
-    binaries=[],
+    binaries=binaries,
     datas=datas,
     hiddenimports=hidden_imports,
     noarchive=False,
@@ -51,19 +57,16 @@ if sys.platform != 'darwin':
     except Exception as e:
         print(f"DEBUG: Splash non configurato: {e}")
 
-# --- FIX: NOME ESEGUIBILE TEMPORANEO (Definito PRIMA dell'uso!) ---
 exe_name = 'MoldForgeApp' if sys.platform != 'win32' else 'MoldForge'
 
-# --- COMPILAZIONE ESEGUIBILE (FIX MAC NONE-TYPE) ---
+# --- COMPILAZIONE (MODALITÀ CARTELLA / ONEDIR) ---
 if show_splash and final_splash_obj:
     exe = EXE(
         pyz,
-        final_splash_obj,
         a.scripts,
-        a.binaries,
-        a.zipfiles,
-        a.datas,
+        final_splash_obj,
         [],
+        exclude_binaries=True, # <--- Questo dice a PyInstaller di NON compattare tutto
         name=exe_name,
         debug=False,
         bootloader_ignore_signals=False,
@@ -76,10 +79,8 @@ else:
     exe = EXE(
         pyz,
         a.scripts,
-        a.binaries,
-        a.zipfiles,
-        a.datas,
         [],
+        exclude_binaries=True,
         name=exe_name,
         debug=False,
         bootloader_ignore_signals=False,
@@ -89,17 +90,36 @@ else:
         icon='icon.ico',
     )
 
+# Questo blocco genera la cartella con l'eseguibile e _internal
+coll = COLLECT(
+    exe,
+    a.binaries,
+    a.zipfiles,
+    a.datas,
+    strip=False,
+    upx=True,
+    upx_exclude=[],
+    name='MoldForge_Bin'
+)
+
 # --- GESTIONE POST-BUILD ---
 release_dir = os.path.abspath(os.path.join('dist', 'MOLDFORGE_RELEASE'))
+built_dir = os.path.abspath(os.path.join('dist', 'MoldForge_Bin'))
+
 if os.path.exists(release_dir):
     shutil.rmtree(release_dir)
-os.makedirs(release_dir)
 
-ext = '.exe' if sys.platform == 'win32' else ''
-current_exe = os.path.join('dist', exe_name + ext)
-if os.path.exists(current_exe):
-    shutil.move(current_exe, os.path.join(release_dir, 'MoldForge' + ext))
+# Trasforma la cartella base in quella di rilascio
+os.rename(built_dir, release_dir)
 
+# Rinomina l'eseguibile per Mac/Linux per pulizia
+if sys.platform != 'win32':
+    old_exe = os.path.join(release_dir, 'MoldForgeApp')
+    new_exe = os.path.join(release_dir, 'MoldForge')
+    if os.path.exists(old_exe):
+        os.rename(old_exe, new_exe)
+
+# Copia cartelle utente e icone
 for folder in ['shapes_library', 'wiki_drafts']:
     source = os.path.abspath(folder)
     dest = os.path.join(release_dir, folder)
