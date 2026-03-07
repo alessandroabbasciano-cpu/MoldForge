@@ -1,5 +1,6 @@
 # -*- mode: python ; coding: utf-8 -*-
 import os
+import sys
 import shutil
 from PyInstaller.utils.hooks import collect_data_files, collect_dynamic_libs, collect_submodules
 

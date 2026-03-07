@@ -4,6 +4,9 @@ Constructs the top menu bar for the MOLD F.O.R.G.E. application,
 linking UI actions to their respective application methods.
 """
 
+import webbrowser
+
+
 def setup_menu(app):
     """
     Builds the main menu bar (File, View, Help) and connects all 
@@ -68,6 +71,13 @@ def setup_menu(app):
     # About dialog and community support links.
     # ==========================================
     help_menu = app.menuBar().addMenu("Help")
+
+    # Wiki
+    action_wiki = help_menu.addAction("User Manual")
+    action_wiki.setShortcut("F1")  
+    action_wiki.triggered.connect(lambda: webbrowser.open("https://github.com/alessandroabbasciano-cpu/MoldForge/blob/main/wiki_drafts/1-Introduction.md"))
+    
+    help_menu.addSeparator()
     
     # Opens external browser to PayPal
     action_donate = help_menu.addAction("Support the Project (Donate)")
