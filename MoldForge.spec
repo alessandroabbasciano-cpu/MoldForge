@@ -32,12 +32,12 @@ a = Analysis(
 pyz = PYZ(a.pure)
 
 show_splash = False
-final_splash_obj = None
+splash_obj = None
 
 if sys.platform != 'darwin':
     try:
         from PyInstaller.building.api import Splash
-        final_splash_obj = Splash(
+        splash_obj = Splash(
             'splash.png',
             binaries=a.binaries,
             datas=a.datas,
@@ -48,7 +48,41 @@ if sys.platform != 'darwin':
         )
         show_splash = True
     except Exception as e:
-        print(f"DEBUG: Splash not configured: {e}")
+        print(f"DEBUG: Splash non configurato: {e}")
+
+if show_splash and splash_obj:
+    exe = EXE(
+        pyz,
+        splash_obj,
+        a.scripts,
+        a.binaries,
+        a.zipfiles,
+        a.datas,
+        [],
+        name=exe_name,
+        debug=False,
+        bootloader_ignore_signals=False,
+        strip=False,
+        upx=True,
+        console=False,
+        icon='icon.ico',
+    )
+else:
+    exe = EXE(
+        pyz,
+        a.scripts,
+        a.binaries,
+        a.zipfiles,
+        a.datas,
+        [],
+        name=exe_name,
+        debug=False,
+        bootloader_ignore_signals=False,
+        strip=False,
+        upx=True,
+        console=False,
+        icon='icon.ico',
+    )
 
 # Use a temp name to avoid directory collision
 exe_name = 'MoldForgeApp' if sys.platform != 'win32' else 'MoldForge'
