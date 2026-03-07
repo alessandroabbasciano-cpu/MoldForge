@@ -1,0 +1,44 @@
+name: Build Mold Forge Executables
+
+on:
+  push:
+    tags:
+      - 'v*' # Si attiverà in automatico quando crei un tag tipo "v1.0"
+  workflow_dispatch: # Ti permette di far partire la compilazione a mano dal sito
+
+jobs:
+  build:
+    name: Build on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [windows-latest, ubuntu-20.04, macos-latest]
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v3
+
+    - name: Setup Miniconda
+      uses: conda-incubator/setup-miniconda@v2
+      with:
+        python-version: "3.10"
+        auto-update-conda: true
+        activate-environment: moldforge
+
+    - name: Install Dependencies
+      shell: bash -l {0}
+      run: |
+        conda install -c cadquery -c conda-forge cadquery
+        pip install -r requirements.txt
+        pip install pyinstaller
+
+    - name: Build with PyInstaller
+      shell: bash -l {0}
+      run: |
+        pyinstaller MoldForge.spec
+
+    - name: Upload Artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: MoldForge-${{ runner.os }}
+        path: dist/MoldForge/

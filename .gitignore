@@ -23,3 +23,6 @@ env/
 # Custom / Temp files
 bb-man
 bb-man/
+MF_Mem.txt
+MF_Mem/
+MF_Mem*
