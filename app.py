@@ -1,0 +1,442 @@
+"""
+Main Application Entry Point - MOLD F.O.R.G.E.
+Initializes the PySide6 UI, manages the multi-threaded rendering pipeline, 
+and orchestrates communication between the UI components and the CadQuery 3D engine.
+"""
+
+import sys
+import os
+import datetime
+from PySide6.QtWidgets import QApplication, QMainWindow, QMessageBox
+from PySide6.QtCore import Qt, QThread, Signal, QTimer, QUrl, QObject
+from PySide6.QtGui import QTextCursor, QDesktopServices, QIcon
+
+# Application Modules
+import cq_model
+import file_manager
+import ui_builder
+import ui_sync
+import viewer_3d
+
+class EmittingStream(QObject):
+    """
+    Custom stream object used to intercept standard output (stdout) and 
+    standard error (stderr) from the console and redirect it to the UI Log widget.
+    """
+    textWritten = Signal(str)
+    
+    def write(self, text):
+        self.textWritten.emit(str(text))
+        
+    def flush(self):
+        pass
+
+class GeneratorWorker(QThread):
+    """
+    Background worker thread dedicated to executing the heavy CadQuery 3D geometry generation.
+    Prevents the main Qt GUI thread from freezing during complex lofting operations.
+    """
+    # Emits the finished 3D object upon success
+    work_finished = Signal(object) 
+    # Emits the traceback string upon failure
+    error = Signal(str)
+
+    def __init__(self, params):
+        super().__init__()
+        self.params = params
+
+    def run(self):
+        import time
+        start_time = time.time()
+        try:
+            result = cq_model.build_mold(self.params)
+            elapsed = time.time() - start_time
+            self.work_finished.emit(result)
+        except Exception as e:
+            import traceback
+            self.error.emit(str(e) + "\n" + traceback.format_exc())
+
+class MoldApp(QMainWindow):
+    """
+    The Main Window class. Holds the UI state, centralizes event routing,
+    and manages the timer for live preview updates.
+    """
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle("MOLD F.O.R.G.E. - Fingerboard Design Suite")
+        self.resize(1450, 950)
+
+        # Global Application Stylesheet (Dark Industrial Theme)
+        self.setStyleSheet("""
+            QMainWindow, QWidget { background-color: #2b2b2b; color: #e0e0e0; }
+            QGroupBox { font-weight: bold; border: 1px solid #4a6984; border-radius: 6px; margin-top: 15px; padding-top: 15px; }
+            QGroupBox::title { subcontrol-origin: margin; subcontrol-position: top left; padding: 0 5px; color: #66b2ff; }
+            QComboBox, QDoubleSpinBox, QSpinBox, QLineEdit { background-color: #3b3b3b; border: 1px solid #555; padding: 4px; border-radius: 3px; }
+            QSplitter::handle { background-color: #1a1a1a; width: 4px; }
+            QSplitter::handle:hover { background-color: #66b2ff; }
+        """)
+        
+        # Core State Variables
+        self.params = cq_model.MoldParams()
+        self.is_metric = True
+        self.clipping_enabled = False
+        self.presets_data = {}
+        self.current_result = None
+
+        # --- UPDATE SCHEDULER ---
+        # Uses a delayed single-shot timer to prevent firing off a new render 
+        # for every single tick of a spinbox while the user is actively scrolling it.
+        self.update_timer = QTimer(self)
+        self.update_timer.setSingleShot(True)
+        self.update_timer.setInterval(1000) # 1000ms delay after last input before rendering
+        self.update_timer.timeout.connect(self.start_preview)
+        
+        # Initialize sub-modules
+        file_manager.load_databases(self)
+        ui_builder.setup_ui(self)
+        ui_builder.setup_menu(self)
+
+        # --- STARTUP RENDERING GUARD ---
+        # Temporarily silence the UI logic so the timer isn't accidentally 
+        # triggered during the initial widget value population.
+        self.is_updating_preset = True
+        self.setup_connections()
+        self.sync_editor_from_spinboxes()
+        self.is_updating_preset = False
+
+        # --- CONSOLE REDIRECTION ---
+        self.stdout_stream = EmittingStream()
+        self.stdout_stream.textWritten.connect(self.normal_output_written)
+        sys.stdout = self.stdout_stream
+
+        self.stderr_stream = EmittingStream()
+        self.stderr_stream.textWritten.connect(self.error_output_written)
+        sys.stderr = self.stderr_stream
+
+        # --- INITIALIZATION LOG ---
+        self.log("======================================================", "INFO")
+        self.log("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;M O L D&nbsp;&nbsp;F . O . R . G . E .", "INFO")
+        self.log("Mold FORGE Outputs Realistic Gnarly Equipment.", "INFO")
+        self.log("System initialized. Ready to shred.", "INFO")
+        
+        # Force the first explicit render
+        QTimer.singleShot(200, self.start_preview)
+        
+        # --- CLOSE NATIVE SPLASH SCREEN ---
+        try:
+            import pyi_splash  # type: ignore
+            pyi_splash.close()
+        except ImportError:
+            pass # Only triggers when running the raw Python script, safe to ignore.
+
+    def setup_connections(self):
+        """
+        Binds all UI interactive elements (Spinboxes, Checkboxes, Dropdowns) 
+        to their respective logic handlers or update triggers.
+        """
+        self.combo_preset.currentTextChanged.connect(self.apply_main_preset)
+        self.combo_shape_style.currentTextChanged.connect(self.on_shape_style_changed)
+        self.btn_save_preset.clicked.connect(self.save_preset)
+        self.btn_delete_preset.clicked.connect(self.delete_preset)
+
+        # Connect Nose parameter changes to the Symmetry mirroring function
+        for spin in [self.spin_nose_ang, self.spin_nose_len, self.spin_n_trans, self.spin_n_gap, 
+                     self.spin_n_c1x, self.spin_n_c1y, self.spin_n_c2x, self.spin_n_s_y]:
+            spin.valueChanged.connect(lambda: self.sync_symmetry("Nose"))
+            
+        # Connect Tail parameter changes to the Symmetry mirroring function
+        for spin in [self.spin_tail_ang, self.spin_tail_len, self.spin_t_trans, self.spin_t_gap, 
+                     self.spin_t_c1x, self.spin_t_c1y, self.spin_t_c2x, self.spin_t_s_y]:
+            spin.valueChanged.connect(lambda: self.sync_symmetry("Tail"))
+
+        # Connect parameters that affect the 2D Interactive preview drawing
+        for spin in [self.spin_nose_len, self.spin_tail_len, self.spin_board_w, self.spin_n_gap, 
+                     self.spin_t_gap, self.spin_truck_l, self.spin_truck_w, self.spin_truck_d]:
+            spin.valueChanged.connect(self.sync_editor_from_spinboxes)
+
+        if hasattr(self, 'spin_fillet_yellow'):
+            self.spin_fillet_yellow.valueChanged.connect(self.sync_editor_from_spinboxes)
+
+        if hasattr(self, 'chk_flares'):
+            self.chk_flares.stateChanged.connect(self.sync_editor_from_spinboxes)
+            self.spin_flare_l.valueChanged.connect(self.sync_editor_from_spinboxes)
+            self.spin_flare_w.valueChanged.connect(self.sync_editor_from_spinboxes)
+            self.spin_flare_py.valueChanged.connect(self.sync_editor_from_spinboxes)
+            
+        # Connect parameters that have strict mechanical dependencies (e.g., Board Width vs Core Width)
+        for spin in [self.spin_width, self.spin_base_w, self.spin_board_w, self.spin_wb,
+                     self.spin_nose_len, self.spin_tail_len, self.spin_truck_l, 
+                     self.spin_n_gap, self.spin_t_gap, self.spin_n_trans, self.spin_t_trans]:
+            spin.valueChanged.connect(self.validate_cross_dependencies)
+            
+        # Run an initial validation pass
+        self.validate_cross_dependencies()    
+
+    # ==========================================
+    # MODULE WRAPPER FUNCTIONS
+    # These act as localized endpoints for signals, routing the execution 
+    # to the specific external modules holding the logic.
+    # ==========================================
+    
+    def on_shape_style_changed(self, text):
+        ui_sync.on_shape_style_changed(self, text)
+
+    def sync_editor_from_spinboxes(self):
+        ui_sync.sync_editor_from_spinboxes(self)
+
+    def update_params_object(self):
+        ui_sync.update_params_object(self)
+
+    def validate_cross_dependencies(self):
+        ui_sync.validate_cross_dependencies(self)
+
+    def reset_to_defaults(self):
+        ui_sync.reset_to_defaults(self)
+
+    def sync_symmetry(self, source):
+        ui_sync.sync_symmetry(self, source)
+
+    def apply_main_preset(self, preset_name):
+        file_manager.apply_main_preset(self, preset_name)
+
+    def save_preset(self):
+        file_manager.save_preset(self)
+
+    def delete_preset(self):
+        file_manager.delete_preset(self)
+
+    def load_config_file(self):
+        file_manager.load_config_file(self)
+
+    def save_stl(self):
+        file_manager.save_stl(self)
+
+    def batch_export(self):
+        file_manager.batch_export(self)
+
+    def on_success(self, result):
+        """Callback triggered when the background generation thread finishes successfully."""
+        self.current_result = result
+        self.ui_loading(False)
+        self.action_export.setEnabled(True)
+        # Pass the 3D solid to the viewer for display
+        viewer_3d.render_mold(self, result)
+
+    def on_graphical_shape_changed(self, sy, c1x, c1y, c2x):
+        """
+        Receives updated Bezier percentages dynamically from the 2D Custom Widget
+        and applies them to the corresponding UI SpinBoxes.
+        """
+        self._updating_from_editor = True 
+        if self.combo_edit_target.currentText() == "Nose":
+            self.spin_n_s_y.setValue(sy)
+            self.spin_n_c1x.setValue(c1x)
+            self.spin_n_c1y.setValue(c1y)
+            self.spin_n_c2x.setValue(c2x)
+        else:
+            self.spin_t_s_y.setValue(sy)
+            self.spin_t_c1x.setValue(c1x)
+            self.spin_t_c1y.setValue(c1y)
+            self.spin_t_c2x.setValue(c2x)
+        self._updating_from_editor = False
+        self.schedule_update()
+
+    def schedule_update(self):
+        """Restarts the delay timer. Pushes the actual calculation 600ms into the future."""
+        if getattr(self, 'is_updating_preset', False): return 
+        if hasattr(self, 'update_timer'):
+            self.update_timer.start()
+
+    # ==========================================
+    # LOGGING AND UI FEEDBACK
+    # ==========================================
+    
+    def normal_output_written(self, text):
+        t = text.strip()
+        if t: self.log(t, "INFO")
+
+    def error_output_written(self, text):
+        t = text.strip()
+        if t: self.log(t, "ERROR")
+
+    def log(self, message, type="INFO"):
+        """Formats and appends text to the internal Log Console with specific color coding."""
+        timestamp = datetime.datetime.now().strftime("%H:%M:%S")
+        color_map = {"INFO": "#3498db", "ERROR": "#e74c3c", "WARN": "#f1c40f"}
+        color = color_map.get(type, "#e0e0e0")
+        message_html = str(message).replace("\n", "<br>")
+        self.log_console.appendHtml(
+            f"<font color='#888'>[{timestamp}]</font> "
+            f"<font color='{color}'><b>{type}:</b></font> "
+            f"<font color='#e0e0e0'>{message_html}</font>"
+        )
+        self.log_console.moveCursor(QTextCursor.End)
+
+    def flash_widget(self, widget):
+        """Briefly turns a widget orange to warn the user that a parameter was auto-corrected."""
+        if not hasattr(widget, "orig_style"): widget.orig_style = widget.styleSheet()
+        widget.setStyleSheet("background-color: #e67e22; color: #ffffff; font-weight: bold;")
+        QTimer.singleShot(500, lambda: widget.setStyleSheet(widget.orig_style))
+
+    def on_type_changed(self, text):
+        """Enables/Disables certain mold-specific features based on the selected output type."""
+        is_mold = text in ["Male_Mold", "Female_Mold"]
+        self.chk_sidelocks.setEnabled(is_mold)
+        self.chk_fillet.setEnabled(is_mold)
+        self.chk_guide_d.setEnabled(is_mold)
+        
+        # Reset the camera flag so the view re-centers on the newly selected object type
+        self._has_rendered_once = False
+        self.schedule_update()
+
+    def toggle_controls(self):
+        """Shows or hides all peripheral dock panels to allow fullscreen 3D viewing."""
+        is_visible = self.dock_left.isVisible() or self.dock_right.isVisible() or self.dock_bottom.isVisible() or self.dock_designer.isVisible()
+        self.dock_left.setVisible(not is_visible)
+        self.dock_right.setVisible(not is_visible)
+        self.dock_bottom.setVisible(not is_visible)
+        self.dock_designer.setVisible(not is_visible)
+        state = "Hidden" if is_visible else "Visible"
+        self.log(f"Dock panels {state}. Press F11 to toggle.", "INFO")
+
+    def toggle_clipping(self, enabled):
+        """Activates a cross-sectional cutting plane in the 3D viewport."""
+        self.clipping_enabled = enabled
+        self.log(f"Clipping plane {'activated' if enabled else 'deactivated'}.", "INFO")
+        self.start_preview()
+
+    def toggle_units(self):
+        """Switches the output dimension format in the log console."""
+        self.is_metric = not self.is_metric
+        unit = "Metric (mm)" if self.is_metric else "Imperial (in)"
+        self.action_units.setText(f"Unit: {unit}")
+        if self.is_metric:
+            self.log("Max Dimensions in the Log will now be displayed in Millimeters (mm).", "INFO")
+        else:
+            self.log("Max Dimensions in the Log will now be displayed in Inches (in). All input parameters remain in mm.", "INFO")
+        if self.current_result: self.start_preview()
+
+    def open_donation_link(self):
+        QDesktopServices.openUrl(QUrl("https://www.paypal.me/AlessandroAbbasciano"))
+
+    def show_about_dialog(self):
+        """Renders the stylized HTML information pane."""
+        about_html = (
+            "<div style='text-align: center;'>"
+            
+            "<h1 style='color: #66b2ff; margin-bottom: 0px;'>MOLD F.O.R.G.E.</h1>"
+            "<p style='color: #aaa; margin-top: 2px; font-size: 12px;'>"
+            "<i><b>F</b>ORGE <b>O</b>utputs <b>R</b>ealistic <b>G</b>narly <b>E</b>quipment.</i></p>"
+            
+            "<hr style='background-color: #4a6984; height: 1px; border: none; margin-top: 10px; margin-bottom: 10px;'>"
+            
+            "<table align='left' style='font-size: 13px;'>"
+            "<tr><td align='right' style='padding-right: 15px;'><b>Version:</b></td><td align='left' style='color: #2ecc71;'><b>1.0 Standalone</b></td></tr>"
+            "<tr><td align='right' style='padding-right: 15px;'><b>Geometry Engine:</b></td><td align='left' style='color: #e0e0e0;'>CadQuery / OpenCASCADE</td></tr>"
+            "<tr><td align='right' style='padding-right: 15px;'><b>Render Engine:</b></td><td align='left' style='color: #e0e0e0;'>PyVista / VTK</td></tr>"
+            "<tr><td align='right' style='padding-right: 15px;'><b>GUI Framework:</b></td><td align='left' style='color: #e0e0e0;'>PySide6 (Qt Core)</td></tr>"
+            "</table>"
+            
+            "<hr style='background-color: #4a6984; height: 1px; border: none; margin-top: 10px; margin-bottom: 10px;'>"
+            
+            "<p style='font-size: 14px; line-height: 1.4; text-align: center;'>"
+            "A professional, standalone parametric CAD suite, <br>"
+            "engineered for high-fidelity fingerboard design and mold generation.</p>"
+
+            "<ul style='font-size: 12px; color: #ddd; text-align: left; padding-left: 20px;'>"
+            "<li><b>Dynamic Asymmetry:</b> Independent nose/tail shaping & custom DXF support.</li>"
+            "<li><b>Press-Ready:</b> Automated clearances, mold gaps, and toolpath alignment.</li>"
+            "<li><b>Real-Time Sync:</b> Live 2D/3D visualization with geometric collision prevention.</li>"
+            "</ul>"
+            
+            "<p style='color: #e67e22; font-weight: bold; margin-top: 15px;'>"
+            "Developed with passion for the fingerboard community.</p>"
+            
+            "<p style='font-size: 14px; color: #888; margin-top: 15px;'>"
+            "<b>License:</b> Code LGPLv2.1 / Design CC BY-NC-SA 4.0</p>"
+            
+            "</div>" 
+        )
+        # Note: Fixed the missing <ul> opening tag inside your original string
+        QMessageBox.about(self, "About MOLD F.O.R.G.E.", about_html)
+
+    # ==========================================
+    # CORE EXECUTION PIPELINE
+    # ==========================================
+    
+    def start_preview(self):
+        """
+        Initiates the background generation of the 3D model.
+        Manages thread state to prevent concurrent calculations.
+        """
+        # Always purge the timer before starting a fresh calculation
+        if hasattr(self, 'update_timer'):
+            self.update_timer.stop()
+
+        # If the engine is already calculating something, queue the new request
+        if getattr(self, 'worker', None) and self.worker.isRunning():
+            self._render_pending = True
+            self.log("Calculation queued...", "INFO")
+            return
+            
+        self._render_pending = False
+        
+        # Commit the latest UI values to the internal data structure
+        self.update_params_object()
+        
+        # Trigger the visual loading state and launch the thread
+        self.ui_loading(True)
+        self.worker = GeneratorWorker(self.params)
+        self.worker.work_finished.connect(self.on_success)
+        self.worker.error.connect(self.on_error)
+        self.worker.start()
+
+    def on_error(self, msg):
+        """Catches and displays any internal exceptions raised by the CadQuery engine."""
+        self.ui_loading(False)
+        QMessageBox.critical(self, "Error", msg)
+        
+        # If a render was queued while this one crashed, retry the calculation
+        if getattr(self, '_render_pending', False):
+            QTimer.singleShot(100, self.start_preview)
+
+    def ui_loading(self, loading):
+        if loading: 
+            self.progress_bar.setRange(0, 100) 
+            self.progress_bar.setValue(0)
+            self.progress_bar.show()
+            self.log(">>> CALCULATING HIGH-RES GEOMETRY... PLEASE WAIT <<<", "WARN")
+            
+            # --- FAKE FILL TIMER ---
+            if not hasattr(self, 'fake_timer'):
+                from PySide6.QtCore import QTimer
+                self.fake_timer = QTimer(self)
+                self.fake_timer.timeout.connect(lambda: self.progress_bar.setValue(min(95, self.progress_bar.value() + 5)))
+            self.fake_timer.start(100)
+            
+        else: 
+            if hasattr(self, 'fake_timer'):
+                self.fake_timer.stop()
+            self.progress_bar.setValue(100)
+            self.progress_bar.hide()
+
+# Execution Boilerplate
+if __name__ == "__main__":
+    app = QApplication(sys.argv)
+    app.setStyle("Fusion")
+    if getattr(sys, 'frozen', False):
+        base_dir = os.path.dirname(sys.executable)
+    else:
+        base_dir = os.path.dirname(os.path.abspath(__file__))
+        
+    icon_path = os.path.join(base_dir, 'icon.ico')
+    if os.path.exists(icon_path):
+        app.setWindowIcon(QIcon(icon_path))
+        
+    w = MoldApp()
+    w.setWindowFlags(w.windowFlags() | Qt.WindowStaysOnTopHint)
+    w.showMaximized()
+    w.setWindowFlags(w.windowFlags() & ~Qt.WindowStaysOnTopHint)
+    w.showMaximized()
+    w.activateWindow()
+    sys.exit(app.exec())

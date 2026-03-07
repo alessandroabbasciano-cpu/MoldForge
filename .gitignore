@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# PyInstaller
+build/
+dist/
+*.manifest
+
+# OS Files
+.DS_Store
+Thumbs.db
+
+# Virtual Environments
+venv/
+env/
+
+# IDEs and Editors
+.vscode/
+.idea/
+
+# Custom / Temp files
+bb-man
+bb-man/
