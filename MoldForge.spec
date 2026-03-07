@@ -1,9 +1,10 @@
 # -*- mode: python ; coding: utf-8 -*-
 import os
-import sys
 import shutil
-from PyInstaller.utils.hooks import collect_data_files, collect_dynamic_libs, collect_submodules
+import sys
+from PyInstaller.utils.hooks import collect_data_files, collect_submodules
 
+# --- CONFIGURAZIONE ---
 hidden_imports = []
 hidden_imports += collect_submodules('cadquery')
 hidden_imports += collect_submodules('pyvista')
@@ -20,16 +21,9 @@ datas = []
 datas += collect_data_files('cadquery')
 datas += collect_data_files('pyvista')
 datas.append(('icon.ico', '.'))
+datas.append(('splash.png', '.'))
 
-# --- AGGRESSIVE SIZE REDUCTION ---
-exclude_list = [
-    'PySide6.QtWebEngine', 'PySide6.QtWebEngineCore', 'PySide6.QtWebEngineWidgets',
-    'PySide6.QtQml', 'PySide6.QtQuick', 'PySide6.QtQuickWidgets', 'PySide6.QtQuick3D',
-    'PySide6.QtBluetooth', 'PySide6.QtMultimedia', 'PySide6.QtSql', 'PySide6.QtNetwork',
-    'PySide6.QtPdf', 'PySide6.QtSensors', 'PySide6.QtLocation', 'PySide6.QtPositioning',
-    'pandas', 'scipy', 'IPython', 'jupyter', 'notebook', 'tkinter', 'PyQt5', 'PyQt6'
-]
-
+# --- ANALISI ---
 a = Analysis(
     ['app.py'],
     pathex=[],
@@ -39,20 +33,19 @@ a = Analysis(
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
-    excludes=exclude_list,
+    excludes=['PySide6.QtWebEngine', 'PySide6.QtWebEngineCore', 'PySide6.QtWebEngineWidgets'],
     noarchive=False,
 )
-
 pyz = PYZ(a.pure)
 
-# --- NATIVE SPLASH SCREEN CONFIGURATION ---
+# --- GESTIONE SPLASH SCREEN (FIX PER MAC E NOMI VARIABILI) ---
 show_splash = False
-splash_target = None
+final_splash_obj = None
 
 if sys.platform != 'darwin':
     try:
         from PyInstaller.building.api import Splash
-        splash_target = Splash(
+        final_splash_obj = Splash(
             'splash.png',
             binaries=a.binaries,
             datas=a.datas,
@@ -65,57 +58,36 @@ if sys.platform != 'darwin':
     except Exception as e:
         print(f"DEBUG: Splash non configurato: {e}")
 
+# --- COMPILAZIONE ESEGUIBILE ---
 exe = EXE(
     pyz,
+    final_splash_obj if show_splash else None, # Corretto: ora il nome corrisponde!
     a.scripts,
-    splash,            
-    splash.binaries,   
+    a.binaries,
+    a.zipfiles,
+    a.datas,
     [],
-    exclude_binaries=True,
     name='MoldForge',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
     upx=True,
+    upx_exclude=[],
+    runtime_tmpdir=None,
     console=False,
     disable_windowed_traceback=False,
     argv_emulation=False,
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
-    icon='icon.ico',   
+    icon='icon.ico',
 )
 
-coll = COLLECT(
-    exe,
-    a.binaries,
-    a.datas,
-    strip=False,
-    upx=True,
-    upx_exclude=[],
-    name='MoldForge',
-)
-
-# =========================================================================
-# AZIONE POST-BUILD: COPIA FISICA DELLA LIBRERIA SHAPES
-# =========================================================================
-# Una volta terminata la compilazione, questo script copia l'intera cartella
-# originale dei DXF direttamente nella cartella di destinazione.
-print("\n--- ESECUZIONE POST-BUILD: COPIA SHAPES LIBRARY ---")
-# 1. Copia shapes_library
-source_shapes = os.path.abspath('shapes_library')
-dest_shapes = os.path.abspath(os.path.join('dist', 'MoldForge', 'shapes_library'))
-
-if os.path.exists(source_shapes):
-    if os.path.exists(dest_shapes):
-        shutil.rmtree(dest_shapes)
-    shutil.copytree(source_shapes, dest_shapes)
-    print(f"SUCCESS: shapes_library copiata con successo in {dest_shapes}")
-
-# 2. Copia l'icona
-source_icon = os.path.abspath('icon.ico')
-dest_icon = os.path.abspath(os.path.join('dist', 'MoldForge', 'icon.ico'))
-
-if os.path.exists(source_icon):
-    shutil.copyfile(source_icon, dest_icon)
-    print(f"SUCCESS: icon.ico copiata con successo in {dest_icon}")
+# --- COPIA POST-BUILD DELLE RISORSE ---
+dest_base = os.path.abspath(os.path.join('dist', 'MoldForge'))
+for folder in ['shapes_library', 'wiki_drafts']:
+    source = os.path.abspath(folder)
+    dest = os.path.join(dest_base, folder)
+    if os.path.exists(source):
+        if os.path.exists(dest): shutil.rmtree(dest)
+        shutil.copytree(source, dest)
