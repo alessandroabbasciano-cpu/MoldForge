@@ -24,23 +24,20 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y libosmesa6 libglu1-mesa libxi-dev libxmu-dev libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-render-util0 libxcb-xinerama0 libxcb-xkb1 libxkbcommon-x11-0
 
-    - name: Setup Miniconda
-      uses: conda-incubator/setup-miniconda@v2
+    - name: Setup Python
+      uses: actions/setup-python@v5
       with:
-        miniconda-version: "latest"
         python-version: "3.10"
-        auto-update-conda: true
-        activate-environment: moldforge
 
     - name: Install Dependencies
-      shell: bash -l {0}
+      shell: bash
       run: |
-        conda install -c cadquery -c conda-forge cadquery
+        pip install cadquery
         pip install -r requirements.txt
         pip install PySide6==6.6.3 pyinstaller
 
     - name: Build with PyInstaller
-      shell: bash -l {0}
+      shell: bash
       run: |
         pyinstaller MoldForge.spec
 
