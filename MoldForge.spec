@@ -2,6 +2,7 @@
 import os
 import shutil
 import sys
+import glob
 from PyInstaller.utils.hooks import collect_data_files, collect_submodules, collect_dynamic_libs
 
 # --- CONFIGURAZIONE E IMPORT ---
@@ -10,7 +11,7 @@ hidden_imports += collect_submodules('cadquery')
 hidden_imports += collect_submodules('pyvista')
 hidden_imports += collect_submodules('vtkmodules')
 hidden_imports += collect_submodules('OCP')
-hidden_imports += collect_submodules('casadi') # <--- FIX CASADI
+hidden_imports += collect_submodules('casadi')
 
 hidden_imports += [
     'cq_model', 'cq_utils', 'custom_widgets', 'file_manager', 
@@ -21,15 +22,26 @@ hidden_imports += [
 datas = [('icon.ico', '.'), ('splash.png', '.')]
 datas += collect_data_files('cadquery')
 datas += collect_data_files('pyvista')
-datas += collect_data_files('casadi') # <--- FIX CASADI
+datas += collect_data_files('casadi')
 
-# <--- FORZIAMO LA RACCOLTA DELLE DLL DI CASADI (IL PROBLEMA DI WINDOWS) --->
 binaries = []
 binaries += collect_dynamic_libs('casadi')
 
+# --- FIX DEFINITIVO DLL CONDA PER WINDOWS ---
+pathex_dirs = []
+if sys.platform == 'win32':
+    # Aggiungiamo la cartella segreta di Conda ai percorsi di ricerca di PyInstaller
+    conda_bin = os.path.join(sys.prefix, 'Library', 'bin')
+    pathex_dirs.append(conda_bin)
+    
+    # Peschiamo esplicitamente tutte le DLL di casadi da Conda
+    if os.path.exists(conda_bin):
+        for dll in glob.glob(os.path.join(conda_bin, '*casadi*.dll')):
+            binaries.append((dll, '.'))
+
 a = Analysis(
     ['app.py'],
-    pathex=[],
+    pathex=pathex_dirs,  # <--- Fondamentale per far trovare le DLL
     binaries=binaries,
     datas=datas,
     hiddenimports=hidden_imports,

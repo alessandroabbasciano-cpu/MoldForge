@@ -37,7 +37,7 @@ jobs:
       run: |
         conda install -c cadquery -c conda-forge cadquery
         pip install -r requirements.txt
-          pip install PySide6==6.6.3 pyinstaller casadi
+        pip install PySide6==6.6.3 pyinstaller
 
     - name: Build with PyInstaller
       shell: bash -l {0}
