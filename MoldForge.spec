@@ -2,27 +2,29 @@
 import sys
 import os
 import shutil
-from PyInstaller.utils.hooks import collect_data_files, collect_submodules, collect_dynamic_libs
+from PyInstaller.utils.hooks import collect_all
 
-# --- IMPORT E DATI ---
-hidden_imports = collect_submodules('cadquery') + collect_submodules('pyvista') + collect_submodules('vtkmodules') + collect_submodules('casadi') + [
+# --- INIZIALIZZAZIONE LISTE ---
+datas = [('icon.ico', '.'), ('splash.png', '.')]
+binaries = []
+hidden_imports = [
     'cq_model', 'cq_utils', 'custom_widgets', 'file_manager', 
     'params', 'shape_loader', 'ui_builder', 'ui_menus', 
     'ui_panels', 'ui_sync', 'viewer_3d'
 ]
 
-datas = [('icon.ico', '.'), ('splash.png', '.')]
-datas += collect_data_files('cadquery')
-datas += collect_data_files('pyvista')
-datas += collect_data_files('casadi')
-
-# ECCO LA RIGA CHE AVEVO DIMENTICATO: dico a PyInstaller di prendere i .dll e .pyd di Pip
-binaries = collect_dynamic_libs('casadi') + collect_dynamic_libs('cadquery')
+# --- LA SOLUZIONE DEFINITIVA: COLLECT_ALL ---
+# Clona le cartelle intere senza rompere i collegamenti interni delle DLL
+for pkg in ['cadquery', 'casadi', 'OCP', 'pyvista', 'vtkmodules']:
+    pkg_datas, pkg_binaries, pkg_hiddenimports = collect_all(pkg)
+    datas += pkg_datas
+    binaries += pkg_binaries
+    hidden_imports += pkg_hiddenimports
 
 a = Analysis(
     ['app.py'],
     pathex=[],
-    binaries=binaries,  # <--- INSERITA QUI
+    binaries=binaries,
     datas=datas,
     hiddenimports=hidden_imports,
     noarchive=False,

@@ -22,8 +22,8 @@ jobs:
       if: runner.os == 'Linux'
       run: |
         sudo apt-get update
-        sudo apt-get install -y libosmesa6 libglu1-mesa libxi-dev libxmu-dev libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-render-util0 libxcb-xinerama0 libxcb-xkb1 libxkbcommon-x11-0
-
+        sudo apt-get install -y libosmesa6 libglu1-mesa libxi-dev libxmu-dev libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-render-util0 libxcb-xinerama0 libxcb-xkb1 libxkbcommon-x11-0 libxcb-shape0 libxcb-cursor0
+    
     - name: Setup Python
       uses: actions/setup-python@v5
       with:

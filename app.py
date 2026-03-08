@@ -6,6 +6,12 @@ and orchestrates communication between the UI components and the CadQuery 3D eng
 
 import sys
 import os
+if getattr(sys, 'frozen', False) and sys.platform == 'win32':
+    # Diciamo a Windows di cercare le DLL anche nelle sottocartelle critiche
+    for module_dir in ['casadi', 'cadquery', 'OCP']:
+        dll_path = os.path.join(sys._MEIPASS, module_dir)
+        if os.path.exists(dll_path):
+            os.add_dll_directory(dll_path)
 import datetime
 from PySide6.QtWidgets import QApplication, QMainWindow, QMessageBox
 from PySide6.QtCore import Qt, QThread, Signal, QTimer, QUrl, QObject
