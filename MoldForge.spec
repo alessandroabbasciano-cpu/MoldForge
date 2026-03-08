@@ -30,19 +30,22 @@ binaries += collect_dynamic_libs('casadi')
 # --- FIX DEFINITIVO DLL CONDA PER WINDOWS ---
 pathex_dirs = []
 if sys.platform == 'win32':
-    # Aggiungiamo la cartella segreta di Conda ai percorsi di ricerca di PyInstaller
-    conda_bin = os.path.join(sys.prefix, 'Library', 'bin')
-    pathex_dirs.append(conda_bin)
+    # sys.prefix punta alla root dell'ambiente Conda
+    conda_bin_dir = os.path.join(sys.prefix, 'Library', 'bin')
+    pathex_dirs.append(conda_bin_dir)
     
-    # Peschiamo esplicitamente tutte le DLL di casadi da Conda
-    if os.path.exists(conda_bin):
-        for dll in glob.glob(os.path.join(conda_bin, '*casadi*.dll')):
+    if os.path.exists(conda_bin_dir):
+        print(f"DEBUG: Trovata cartella bin di Conda: {conda_bin_dir}")
+        # FORZA BRUTA: Prendi TUTTE le DLL della cartella, nessuna esclusa
+        for dll in glob.glob(os.path.join(conda_bin_dir, '*.dll')):
             binaries.append((dll, '.'))
+    else:
+        print("ATTENZIONE: Cartella Library/bin di Conda non trovata!")
 
 a = Analysis(
     ['app.py'],
-    pathex=pathex_dirs,  # <--- Fondamentale per far trovare le DLL
-    binaries=binaries,
+    pathex=pathex_dirs,  # Aiuta PyInstaller a risolvere i percorsi interni
+    binaries=binaries,   # Qui ci sono TUTTE le DLL di Conda
     datas=datas,
     hiddenimports=hidden_imports,
     noarchive=False,
