@@ -2,7 +2,7 @@
 import sys
 import os
 import shutil
-from PyInstaller.utils.hooks import collect_data_files, collect_submodules
+from PyInstaller.utils.hooks import collect_data_files, collect_submodules, collect_dynamic_libs
 
 # --- IMPORT E DATI ---
 hidden_imports = collect_submodules('cadquery') + collect_submodules('pyvista') + collect_submodules('vtkmodules') + collect_submodules('casadi') + [
@@ -16,10 +16,13 @@ datas += collect_data_files('cadquery')
 datas += collect_data_files('pyvista')
 datas += collect_data_files('casadi')
 
+# ECCO LA RIGA CHE AVEVO DIMENTICATO: dico a PyInstaller di prendere i .dll e .pyd di Pip
+binaries = collect_dynamic_libs('casadi') + collect_dynamic_libs('cadquery')
+
 a = Analysis(
     ['app.py'],
     pathex=[],
-    binaries=[],
+    binaries=binaries,  # <--- INSERITA QUI
     datas=datas,
     hiddenimports=hidden_imports,
     noarchive=False,
@@ -40,7 +43,7 @@ if sys.platform != 'darwin':
             text_pos=None,
             text_size=12,
             minify_script=True,
-            always_on_top=False,  # <--- IL FIX È QUI: Ora gli errori appariranno SOPRA lo splash!
+            always_on_top=False,
         )
         show_splash = True
     except Exception as e:
