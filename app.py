@@ -6,12 +6,20 @@ and orchestrates communication between the UI components and the CadQuery 3D eng
 
 import sys
 import os
+# --- PLATFORM SPECIFIC FIXES ---
+if sys.platform == 'linux':
+    os.environ['QT_QPA_PLATFORM'] = 'xcb'
+    os.environ['LIBGL_DRI3_DISABLE'] = '1'
+
+if sys.platform == 'darwin':
+    os.environ['QT_LOGGING_RULES'] = 'qt.gui.painting.warning=false;qt.qpa.fonts.warning=false'
+
 if getattr(sys, 'frozen', False) and sys.platform == 'win32':
-    # Diciamo a Windows di cercare le DLL anche nelle sottocartelle critiche
     for module_dir in ['casadi', 'cadquery', 'OCP']:
         dll_path = os.path.join(sys._MEIPASS, module_dir)
         if os.path.exists(dll_path):
             os.add_dll_directory(dll_path)
+
 import datetime
 from PySide6.QtWidgets import QApplication, QMainWindow, QMessageBox
 from PySide6.QtCore import Qt, QThread, Signal, QTimer, QUrl, QObject
@@ -75,14 +83,14 @@ class MoldApp(QMainWindow):
 
         # Global Application Stylesheet (Dark Industrial Theme)
         self.setStyleSheet("""
+            * { font-family: 'Consolas', 'Menlo', monospace; }
             QMainWindow, QWidget { background-color: #2b2b2b; color: #e0e0e0; }
             QGroupBox { font-weight: bold; border: 1px solid #4a6984; border-radius: 6px; margin-top: 15px; padding-top: 15px; }
             QGroupBox::title { subcontrol-origin: margin; subcontrol-position: top left; padding: 0 5px; color: #66b2ff; }
             QComboBox, QDoubleSpinBox, QSpinBox, QLineEdit { background-color: #3b3b3b; border: 1px solid #555; padding: 4px; border-radius: 3px; }
             QSplitter::handle { background-color: #1a1a1a; width: 4px; }
             QSplitter::handle:hover { background-color: #66b2ff; }
-        """)
-        
+        """)        
         # Core State Variables
         self.params = cq_model.MoldParams()
         self.is_metric = True
@@ -205,14 +213,30 @@ class MoldApp(QMainWindow):
     def sync_symmetry(self, source):
         ui_sync.sync_symmetry(self, source)
 
+    def _clean_modded_combo(self):
+        self.combo_preset.blockSignals(True)
+        for i in range(self.combo_preset.count()):
+            t = self.combo_preset.itemText(i)
+            if t.startswith("[M] "):
+                self.combo_preset.setItemText(i, t.replace("[M] ", ""))
+        self.combo_preset.blockSignals(False)
+
     def apply_main_preset(self, preset_name):
-        file_manager.apply_main_preset(self, preset_name)
+        clean_name = preset_name.replace("[M] ", "")
+        self._clean_modded_combo()
+        file_manager.apply_main_preset(self, clean_name)
 
     def save_preset(self):
+        self._clean_modded_combo()
         file_manager.save_preset(self)
 
     def delete_preset(self):
-        file_manager.delete_preset(self)
+        current_selection = self.combo_preset.currentText()
+        if current_selection == "Custom":
+            self.reset_to_defaults()
+        else:
+            self._clean_modded_combo()
+            file_manager.delete_preset(self)
 
     def load_config_file(self):
         file_manager.load_config_file(self)
@@ -253,6 +277,17 @@ class MoldApp(QMainWindow):
     def schedule_update(self):
         """Restarts the delay timer. Pushes the actual calculation 600ms into the future."""
         if getattr(self, 'is_updating_preset', False): return 
+
+        # --- PRESET MODDED FLAG ---
+        # Safely check if combo_preset exists (prevents crashes during UI initialization)
+        if hasattr(self, 'combo_preset'):
+            idx = self.combo_preset.currentIndex()
+            text = self.combo_preset.currentText()
+            if text != "Custom" and not text.startswith("[M] "):
+                self.combo_preset.blockSignals(True)
+                self.combo_preset.setItemText(idx, f"[M] {text}")
+                self.combo_preset.blockSignals(False)
+
         if hasattr(self, 'update_timer'):
             self.update_timer.start()
 

@@ -188,7 +188,7 @@ def setup_docks(app):
     # --- PRESETS 
     
     app.combo_preset = QComboBox()
-    app.combo_preset.addItem("Default / Reset")
+    app.combo_preset.addItem("Custom")
     app.combo_preset.addItems(sorted(app.presets_data.keys()))
     
     lbl_preset = QLabel("Load Preset:")
@@ -198,10 +198,27 @@ def setup_docks(app):
     app.btn_save_preset = QPushButton("Save")
     app.btn_save_preset.setToolTip("Save the current exact configuration into the local JSON database.")
     
-    app.btn_delete_preset = QPushButton("Delete")
-    app.btn_delete_preset.setToolTip("Permanently delete the selected preset.")
-    app.btn_delete_preset.setStyleSheet("QPushButton { color: #ff6b6b; } QPushButton:hover { background-color: #5a2a2a; }")
+    app.btn_delete_preset = QPushButton("Reset")
+    app.btn_delete_preset.setToolTip("Reset all parameters to factory defaults.")
     
+    layout_preset_actions = QHBoxLayout()
+    layout_preset_actions.addWidget(app.btn_save_preset)
+    layout_preset_actions.addWidget(app.btn_delete_preset)
+    
+    layout_shape_style.addRow("", layout_preset_actions)
+    
+    def update_delete_btn_state(text):
+        if text == "Custom":
+            app.btn_delete_preset.setText("Reset")
+            app.btn_delete_preset.setToolTip("Reset all parameters to factory defaults.")
+            app.btn_delete_preset.setStyleSheet("QPushButton { color: #ff6b6b; } QPushButton:hover { background-color: #fa5b21; }")
+        else:
+            app.btn_delete_preset.setText("Delete")
+            app.btn_delete_preset.setToolTip("Permanently delete the selected preset.")
+            app.btn_delete_preset.setStyleSheet("QPushButton { color: #ff6b6b; } QPushButton:hover { background-color: #5a2a2a; }")
+
+    app.combo_preset.currentTextChanged.connect(update_delete_btn_state)
+
     layout_preset_actions = QHBoxLayout()
     layout_preset_actions.addWidget(app.btn_save_preset)
     layout_preset_actions.addWidget(app.btn_delete_preset)

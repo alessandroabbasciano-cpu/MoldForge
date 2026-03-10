@@ -4,7 +4,6 @@ import os
 import shutil
 from PyInstaller.utils.hooks import collect_all
 
-# --- INIZIALIZZAZIONE LISTE ---
 datas = [('icon.ico', '.'), ('splash.png', '.')]
 binaries = []
 hidden_imports = [
@@ -13,8 +12,6 @@ hidden_imports = [
     'ui_panels', 'ui_sync', 'viewer_3d'
 ]
 
-# --- LA SOLUZIONE DEFINITIVA: COLLECT_ALL ---
-# Clona le cartelle intere senza rompere i collegamenti interni delle DLL
 for pkg in ['cadquery', 'casadi', 'OCP', 'pyvista', 'vtkmodules']:
     pkg_datas, pkg_binaries, pkg_hiddenimports = collect_all(pkg)
     datas += pkg_datas
@@ -29,9 +26,18 @@ a = Analysis( # type: ignore
     hiddenimports=hidden_imports,
     noarchive=False,
 )
+
+# --- LINUX HOST SYSTEM LIBRARY EXCLUSION ---
+if sys.platform == 'linux':
+    exclude_prefixes = (
+        'libX11', 'libXext', 'libXdamage', 'libXfixes', 'libXrender',
+        'libGL', 'libEGL', 'libGLES', 'libstdc++', 'libgcc_s', 
+        'libdrm', 'libgbm', 'libglapi', 'libxshmfence'
+    )
+    a.binaries = [b for b in a.binaries if not b[0].startswith(exclude_prefixes)]
+
 pyz = PYZ(a.pure) # type: ignore
 
-# --- GESTIONE SPLASH SCREEN ---
 show_splash = False
 final_splash_obj = None
 
@@ -49,11 +55,10 @@ if sys.platform != 'darwin':
         )
         show_splash = True
     except Exception as e:
-        print(f"DEBUG: Splash non configurato: {e}")
+        print(f"Splash screen error: {e}")
 
 exe_name = 'MoldForgeApp' if sys.platform != 'win32' else 'MoldForge'
 
-# --- COMPILAZIONE (MODALITÀ CARTELLA) ---
 if show_splash and final_splash_obj:
     exe = EXE(pyz, a.scripts, final_splash_obj, [], exclude_binaries=True, name=exe_name, debug=False, bootloader_ignore_signals=False, strip=False, upx=True, console=False, icon='icon.ico') # type: ignore
 else:
@@ -61,7 +66,15 @@ else:
 
 coll = COLLECT(exe, a.binaries, a.zipfiles, a.datas, strip=False, upx=True, upx_exclude=[], name='MoldForge_Bin') # type: ignore
 
-# --- GESTIONE POST-BUILD ---
+# --- MACOS BUNDLE ---
+if sys.platform == 'darwin':
+    app = BUNDLE(
+        coll,
+        name='MoldForge.app',
+        icon='icon.ico',
+        bundle_identifier='com.moldforge.app',
+    )
+
 release_dir = os.path.abspath(os.path.join('dist', 'MOLDFORGE_RELEASE'))
 built_dir = os.path.abspath(os.path.join('dist', 'MoldForge_Bin'))
 

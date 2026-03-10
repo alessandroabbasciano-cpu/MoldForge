@@ -12,7 +12,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [windows-latest, ubuntu-22.04, macos-latest]
+        os: [windows-latest, ubuntu-22.04, macos-14]
 
     steps:
     - name: Checkout Code
@@ -40,6 +40,17 @@ jobs:
       shell: bash
       run: |
         pyinstaller MoldForge.spec
+
+    - name: Codesign ad-hoc per Apple Silicon
+      if: runner.os == 'macOS'
+      run: codesign --force --deep --sign - dist/MoldForge.app
+
+    - name: Pacchettizzazione per il rilascio macOS
+      if: runner.os == 'macOS'
+      run: |
+        cd dist
+        ditto -c -k --keepParent MoldForge.app MoldForge-macOS-ARM64.zip
+        mv MoldForge-macOS-ARM64.zip MOLDFORGE_RELEASE/
 
     - name: Upload Artifacts
       uses: actions/upload-artifact@v4
