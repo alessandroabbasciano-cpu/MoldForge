@@ -195,10 +195,10 @@ def setup_docks(app):
     lbl_preset.setToolTip("Load a pre-configured deck and mold setup.")
     layout_shape_style.addRow(lbl_preset, app.combo_preset)
     
-    app.btn_save_preset = QPushButton("Save Preset")
+    app.btn_save_preset = QPushButton("Save")
     app.btn_save_preset.setToolTip("Save the current exact configuration into the local JSON database.")
     
-    app.btn_delete_preset = QPushButton("Delete Preset")
+    app.btn_delete_preset = QPushButton("Delete")
     app.btn_delete_preset.setToolTip("Permanently delete the selected preset.")
     app.btn_delete_preset.setStyleSheet("QPushButton { color: #ff6b6b; } QPushButton:hover { background-color: #5a2a2a; }")
     

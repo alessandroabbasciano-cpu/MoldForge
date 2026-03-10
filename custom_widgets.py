@@ -5,11 +5,97 @@ non-scrolling spinbox and an interactive 2D Bezier shape editor
 for real-time board outline design.self.setSingleStep(1.0)
 """
 
-from PySide6.QtWidgets import QWidget, QDoubleSpinBox
+from PySide6.QtWidgets import QWidget, QDoubleSpinBox, QHBoxLayout, QLabel, QPushButton, QSizePolicy
 from PySide6.QtCore import Qt, Signal, QRectF, QPointF
 from PySide6.QtGui import QPainter, QPen, QColor, QBrush, QPainterPath
 import math
+class CollapsibleDockTitleBar(QWidget):
+    def __init__(self, dock_widget, title="Panel"):
+        super().__init__()
+        self.dock = dock_widget
+        self.title_text = title.upper()
+        self._is_collapsed = False
+        
+        layout = QHBoxLayout(self)
+        layout.setContentsMargins(10, 4, 10, 4)
+        
+        self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+        self.setFixedHeight(30)
+        self.setMinimumWidth(250)
 
+        self.title_label = QLabel(self.title_text)
+        self.title_label.setStyleSheet("font-weight: bold; color: #888; font-size: 11px;")
+        layout.addWidget(self.title_label)
+        
+        layout.addStretch()
+
+        btn_style = """
+            QPushButton { 
+                background-color: transparent; border: none; border-radius: 3px; 
+                color: #888; font-weight: bold; font-size: 14px;
+            }
+            QPushButton:hover { background-color: #4a6984; color: #fff; }
+            QPushButton:pressed { background-color: #1a1a1a; }
+        """
+        close_style = btn_style + "QPushButton:hover { background-color: #c0392b; }"
+
+        self.btn_collapse = QPushButton("–")
+        self.btn_float = QPushButton("🗗")
+        self.btn_close = QPushButton("✕")
+        
+        for btn in [self.btn_collapse, self.btn_float, self.btn_close]:
+            btn.setFixedSize(24, 24)
+            btn.setStyleSheet(close_style if btn == self.btn_close else btn_style)
+            layout.addWidget(btn)
+
+        self.btn_collapse.clicked.connect(self.toggle_collapse)
+        self.btn_float.clicked.connect(self.toggle_float)
+        self.btn_close.clicked.connect(self.dock.close)
+
+    def toggle_collapse(self):
+        inner_widget = self.dock.widget()
+        if not inner_widget: return
+        
+        main_window = self.dock.window()
+        
+        if not self._is_collapsed:
+            self._is_collapsed = True
+            self.btn_collapse.setText("+")
+            
+            # Squash height to keep width intact
+            self._old_min_h = inner_widget.minimumHeight()
+            self._old_max_h = inner_widget.maximumHeight()
+            inner_widget.setMinimumHeight(0)
+            inner_widget.setMaximumHeight(0)
+            
+            # Reclaim space for 3D Viewer (stops Log from shooting up)
+            if not self.dock.isFloating() and hasattr(main_window, 'dockWidgetArea'):
+                area = main_window.dockWidgetArea(self.dock)
+                orient = Qt.Horizontal if area in (Qt.LeftDockWidgetArea, Qt.RightDockWidgetArea) else Qt.Vertical
+                main_window.resizeDocks([self.dock], [10], orient)
+                
+        else:
+            self._is_collapsed = False
+            self.btn_collapse.setText("–")
+            
+            # Restore widget height
+            inner_widget.setMinimumHeight(getattr(self, '_old_min_h', 0))
+            inner_widget.setMaximumHeight(getattr(self, '_old_max_h', 16777215))
+            
+            # Restore Dock size
+            if not self.dock.isFloating() and hasattr(main_window, 'dockWidgetArea'):
+                area = main_window.dockWidgetArea(self.dock)
+                orient = Qt.Horizontal if area in (Qt.LeftDockWidgetArea, Qt.RightDockWidgetArea) else Qt.Vertical
+                size = 350 if orient == Qt.Horizontal else 400
+                main_window.resizeDocks([self.dock], [size], orient)
+            elif self.dock.isFloating():
+                self.dock.adjustSize()
+
+    def toggle_float(self):
+        is_floating = self.dock.isFloating()
+        self.dock.setFloating(not is_floating)
+        if not is_floating:
+            self.dock.adjustSize()
 class NoScrollSpinBox(QDoubleSpinBox):
     """
     A customized QDoubleSpinBox that ignores mouse wheel events 

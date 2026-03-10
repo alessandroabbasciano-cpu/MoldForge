@@ -21,7 +21,7 @@ for pkg in ['cadquery', 'casadi', 'OCP', 'pyvista', 'vtkmodules']:
     binaries += pkg_binaries
     hidden_imports += pkg_hiddenimports
 
-a = Analysis(
+a = Analysis( # type: ignore
     ['app.py'],
     pathex=[],
     binaries=binaries,
@@ -29,7 +29,7 @@ a = Analysis(
     hiddenimports=hidden_imports,
     noarchive=False,
 )
-pyz = PYZ(a.pure)
+pyz = PYZ(a.pure) # type: ignore
 
 # --- GESTIONE SPLASH SCREEN ---
 show_splash = False
@@ -55,11 +55,11 @@ exe_name = 'MoldForgeApp' if sys.platform != 'win32' else 'MoldForge'
 
 # --- COMPILAZIONE (MODALITÀ CARTELLA) ---
 if show_splash and final_splash_obj:
-    exe = EXE(pyz, a.scripts, final_splash_obj, [], exclude_binaries=True, name=exe_name, debug=False, bootloader_ignore_signals=False, strip=False, upx=True, console=False, icon='icon.ico')
+    exe = EXE(pyz, a.scripts, final_splash_obj, [], exclude_binaries=True, name=exe_name, debug=False, bootloader_ignore_signals=False, strip=False, upx=True, console=False, icon='icon.ico') # type: ignore
 else:
-    exe = EXE(pyz, a.scripts, [], exclude_binaries=True, name=exe_name, debug=False, bootloader_ignore_signals=False, strip=False, upx=True, console=False, icon='icon.ico')
+    exe = EXE(pyz, a.scripts, [], exclude_binaries=True, name=exe_name, debug=False, bootloader_ignore_signals=False, strip=False, upx=True, console=False, icon='icon.ico') # type: ignore
 
-coll = COLLECT(exe, a.binaries, a.zipfiles, a.datas, strip=False, upx=True, upx_exclude=[], name='MoldForge_Bin')
+coll = COLLECT(exe, a.binaries, a.zipfiles, a.datas, strip=False, upx=True, upx_exclude=[], name='MoldForge_Bin') # type: ignore
 
 # --- GESTIONE POST-BUILD ---
 release_dir = os.path.abspath(os.path.join('dist', 'MOLDFORGE_RELEASE'))

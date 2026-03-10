@@ -69,6 +69,7 @@ class MoldApp(QMainWindow):
     """
     def __init__(self):
         super().__init__()
+        self._is_loading = True
         self.setWindowTitle("MOLD F.O.R.G.E. - Fingerboard Design Suite")
         self.resize(1450, 950)
 
@@ -124,6 +125,8 @@ class MoldApp(QMainWindow):
         self.log("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;M O L D&nbsp;&nbsp;F . O . R . G . E .", "INFO")
         self.log("Mold FORGE Outputs Realistic Gnarly Equipment.", "INFO")
         self.log("System initialized. Ready to shred.", "INFO")
+
+        self._is_loading = False
         
         # Force the first explicit render
         QTimer.singleShot(200, self.start_preview)
@@ -375,6 +378,8 @@ class MoldApp(QMainWindow):
         Initiates the background generation of the 3D model.
         Manages thread state to prevent concurrent calculations.
         """
+        if getattr(self, '_is_loading', False):
+            return
         # Always purge the timer before starting a fresh calculation
         if hasattr(self, 'update_timer'):
             self.update_timer.stop()

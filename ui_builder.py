@@ -7,6 +7,7 @@ setting up the camera toolbar overlay, and assembling the various dock panels.
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QFrame, QGridLayout, QMainWindow
 from PySide6.QtCore import Qt
 from pyvistaqt import QtInteractor
+from custom_widgets import CollapsibleDockTitleBar
 import ui_panels
 import ui_menus
 
@@ -74,6 +75,19 @@ def setup_ui(app):
     # --- DOCK PANELS INITIALIZATION ---
     # Delegate the creation of sliders, toggles, and UI logic to the ui_panels module
     ui_panels.setup_docks(app)
+
+    # Apply the custom collapsible title bar to all generated docks
+    docks_to_upgrade = [
+        app.dock_left, 
+        app.dock_right, 
+        app.dock_designer, 
+        app.dock_bottom
+    ]
+    
+    for dock in docks_to_upgrade:
+        original_title = dock.windowTitle()
+        custom_bar = CollapsibleDockTitleBar(dock, original_title)
+        dock.setTitleBarWidget(custom_bar)
 
     # Stack the 2D Bezier Designer and the Log Console vertically at the bottom of the screen
     app.splitDockWidget(app.dock_designer, app.dock_bottom, Qt.Vertical)
