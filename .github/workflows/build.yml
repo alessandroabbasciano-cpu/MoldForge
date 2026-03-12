@@ -17,12 +17,12 @@ jobs:
       fail-fast: false 
       matrix:
         include:
-          # Windows: Zero activation. Direct explicit .exe calls.
+          # Windows: Barre dritte (Forward slashes) per aggirare il bug di PowerShell
           - os-label: windows-local
             method: native
             base_python: python
-            venv_python: venv\Scripts\python.exe
-            venv_pyinstaller: venv\Scripts\pyinstaller.exe
+            venv_python: venv/Scripts/python.exe
+            venv_pyinstaller: venv/Scripts/pyinstaller.exe
           
           # Mac: Posix explicit calls
           - os-label: mac-local
@@ -82,7 +82,8 @@ jobs:
     - name: Compile in Docker (Arch Linux Only)
       if: matrix.method == 'docker'
       run: |
-        docker run --rm -v ${{ github.workspace }}:/workspace -w /workspace moldforge-ubuntu-builder bash -c "pip install -r requirements.txt && pyinstaller MoldForge.spec && chown -R \$(stat -c '%u:%g' .) ."
+        # Run PyInstaller, capture exit code, ALWAYS chown to fix permissions, then exit with captured code
+        docker run --rm -v ${{ github.workspace }}:/workspace -w /workspace moldforge-ubuntu-builder bash -c "pip install -r requirements.txt && pyinstaller MoldForge.spec; EXIT_STATUS=\$?; chown -R \$(stat -c '%u:%g' .) .; exit \$EXIT_STATUS"
 
     # ==========================================
     # POST-BUILD & RELEASE PACKAGING
