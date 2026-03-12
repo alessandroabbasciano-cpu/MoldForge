@@ -17,19 +17,21 @@ jobs:
       fail-fast: false 
       matrix:
         include:
-          # Windows: Native build via PowerShell activation
+          # Windows: Zero activation. Direct explicit .exe calls.
           - os-label: windows-local
             method: native
-            python_cmd: python
-            activate: .\venv\Scripts\Activate.ps1
+            base_python: python
+            venv_python: venv\Scripts\python.exe
+            venv_pyinstaller: venv\Scripts\pyinstaller.exe
           
-          # Mac: Native build via POSIX activation
+          # Mac: Posix explicit calls
           - os-label: mac-local
             method: native
-            python_cmd: python3
-            activate: source venv/bin/activate
+            base_python: python3
+            venv_python: venv/bin/python
+            venv_pyinstaller: venv/bin/pyinstaller
             
-          # Arch Linux: Docker build (Ubuntu 22.04 for Python 3.10 support)
+          # Arch Linux: Docker container
           - os-label: arch-local
             method: docker
 
@@ -42,21 +44,19 @@ jobs:
     # ==========================================
     - name: Setup Virtual Environment (Windows & Mac)
       if: matrix.method == 'native'
-      run: ${{ matrix.python_cmd }} -m venv venv
+      run: ${{ matrix.base_python }} -m venv venv
 
     - name: Install Dependencies (Windows & Mac)
       if: matrix.method == 'native'
       run: |
-        ${{ matrix.activate }}
-        python -m pip install --upgrade pip
-        pip install cadquery PySide6==6.6.3 pyinstaller
-        pip install -r requirements.txt
+        ${{ matrix.venv_python }} -m pip install --upgrade pip
+        ${{ matrix.venv_python }} -m pip install cadquery PySide6==6.6.3 pyinstaller
+        ${{ matrix.venv_python }} -m pip install -r requirements.txt
 
     - name: Build with PyInstaller (Windows & Mac)
       if: matrix.method == 'native'
       run: |
-        ${{ matrix.activate }}
-        pyinstaller MoldForge.spec
+        ${{ matrix.venv_pyinstaller }} MoldForge.spec
 
     # ==========================================
     # DOCKER BUILD PIPELINE (Arch Linux)
@@ -69,7 +69,7 @@ jobs:
         ENV DEBIAN_FRONTEND=noninteractive
         
         # Install system dependencies (Cached)
-        RUN apt-get update && apt-get install -y python3 python3-pip python3-venv libosmesa6 libglu1-mesa libxi-dev libxmu-dev libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-render-util0 libxcb-xinerama0 libxcb-xkb1 libxkbcommon-x11-0 libxcb-shape0 libxcb-cursor0
+        RUN apt-get update && apt-get install -y python3 python3-pip python3-venv libgl1 libgl1-mesa-glx libosmesa6 libglu1-mesa libxi-dev libxmu-dev libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-render-util0 libxcb-xinerama0 libxcb-xkb1 libxkbcommon-x11-0 libxcb-shape0 libxcb-cursor0 python3-tk libglib2.0-0 libxrender1 libdbus-1-3
         
         # Create venv and install heavy Python libraries (Cached)
         RUN python3 -m venv /opt/venv
