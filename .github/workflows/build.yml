@@ -17,21 +17,21 @@ jobs:
       fail-fast: false 
       matrix:
         include:
-          # Windows: Native build using isolated virtual environment
+          # Windows: PowerShell strict paths
           - os-label: windows-local
             method: native
             base_python: python
-            env_python: venv/Scripts/python
-            pyinstaller: venv/Scripts/pyinstaller
+            env_python: .\venv\Scripts\python.exe
+            pyinstaller: .\venv\Scripts\pyinstaller.exe
           
-          # Mac: Native build using isolated virtual environment
+          # Mac: POSIX strict paths
           - os-label: mac-local
             method: native
             base_python: python3
-            env_python: venv/bin/python
-            pyinstaller: venv/bin/pyinstaller
+            env_python: ./venv/bin/python
+            pyinstaller: ./venv/bin/pyinstaller
             
-          # Arch Linux: Docker-based build with layer caching for Ubuntu 20.04 compatibility
+          # Arch Linux: Docker containerized build
           - os-label: arch-local
             method: docker
 
@@ -82,7 +82,6 @@ jobs:
     - name: Compile in Docker (Arch Linux Only)
       if: matrix.method == 'docker'
       run: |
-        # The 'chown -R ... .' command at the end ensures ALL files created by Docker are given back to your Arch user
         docker run --rm -v ${{ github.workspace }}:/workspace -w /workspace moldforge-ubuntu-builder bash -c "pip install -r requirements.txt && pyinstaller MoldForge.spec && chown -R \$(stat -c '%u:%g' .) ."
 
     # ==========================================
