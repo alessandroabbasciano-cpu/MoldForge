@@ -81,7 +81,23 @@ jobs:
     - name: Compile in Docker (Arch Linux Only)
       if: matrix.os-label == 'arch-local'
       run: |
-        docker run --rm -v ${{ github.workspace }}:/workspace -w /workspace moldforge-ubuntu-builder bash -c "pip install -r requirements.txt && pyinstaller MoldForge.spec; EXIT_STATUS=\$?; chown -R \$(stat -c '%u:%g' .) .; exit \$EXIT_STATUS"
+        cat << 'EOF' > build_linux.sh
+        pip install -r requirements.txt
+        
+        # Modify spec to enable console for debugging and ensure consistent naming
+        sed -i 's/console=False/console=True/g' MoldForge.spec
+        
+        # Build using PyInstaller forcing onedir
+        pyinstaller --onedir --windowed --name MoldForgeApp app.py --hidden-import vtkmodules --hidden-import cadquery --hidden-import PySide6
+        
+        # Clean up the problematic library that conflicts with Arch Linux's Mesa
+        rm -f dist/MoldForgeApp/libstdc++.so.6
+        
+        # Restore permissions to the workspace
+        chown -R $(stat -c '%u:%g' .) .
+        EOF
+        chmod +x build_linux.sh
+        docker run --rm -v ${{ github.workspace }}:/workspace -w /workspace moldforge-ubuntu-builder bash build_linux.sh
 
     # ==========================================
     # ARTIFACT UPLOAD
@@ -93,9 +109,16 @@ jobs:
         name: MoldForge-mac-local
         path: dist/MOLDFORGE_RELEASE/
 
-    - name: Upload Artifacts (Windows & Arch)
-      if: matrix.os-label != 'mac-local'
+    - name: Upload Artifacts (Windows)
+      if: matrix.os-label == 'windows-local'
       uses: actions/upload-artifact@v4
       with:
         name: MoldForge-${{ matrix.os-label }}
         path: dist/
+        
+    - name: Upload Artifacts (Arch)
+      if: matrix.os-label == 'arch-local'
+      uses: actions/upload-artifact@v4
+      with:
+        name: MoldForge-${{ matrix.os-label }}
+        path: dist/MoldForgeApp/
