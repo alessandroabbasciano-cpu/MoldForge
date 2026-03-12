@@ -21,21 +21,11 @@ jobs:
 
     - name: Build with PyInstaller
       run: |
-        # Usiamo --collect-all per forzare PyInstaller a prendere ogni singolo pezzo di VTK e CadQuery
-        pyinstaller --noconfirm --onedir --windowed \
-          --collect-all vtkmodules \
-          --collect-all casadi \
-          --collect-all cadquery \
-          --collect-all OCP \
-          --add-data "shapes_library:shapes_library" \
-          --add-data "fb_presets.json:." \
-          --add-data "icon.ico:." \
-          --icon "icon.ico" \
-          app.py
+        python3 -m PyInstaller --noconfirm MoldForge.spec
     
     - name: Ad-hoc Codesign for ARM64
       run: |
-        find dist/MOLDFORGE_RELEASE -type f \( -name "*.dylib" -o -name "*.so" -o -name "MoldForge" \) -exec codesign --force --deep --sign - {} \;
+        find dist/MOLDFORGE_RELEASE -type f \( -name "*.dylib" -o -name "*.so" -o -name "MoldForgeApp" \) -exec codesign --force --deep --sign - {} \;
 
     - name: Upload Artifact
       uses: actions/upload-artifact@v4
