@@ -2,10 +2,18 @@
 import sys
 import os
 import shutil
-import re
 from PyInstaller.utils.hooks import collect_all
+from PyInstaller.building.api import EXE, PYZ, Analysis, COLLECT, Tree 
 
-datas = [('icon.ico', '.'), ('splash.png', '.')]
+block_cipher = None
+
+# Prepariamo le liste per raccogliere tutto
+datas = [
+    ('shapes_library', 'shapes_library'),
+    ('fb_presets.json', '.'),
+    ('icon.ico', '.'),
+    ('splash.png', '.')
+]
 binaries = []
 hidden_imports = [
     'cq_model', 'cq_utils', 'custom_widgets', 'file_manager', 
@@ -13,20 +21,31 @@ hidden_imports = [
     'ui_panels', 'ui_sync', 'viewer_3d'
 ]
 
+# Usiamo collect_all per le librerie difficili (VTK, CadQuery, ecc.)
 for pkg in ['cadquery', 'casadi', 'OCP', 'pyvista', 'vtkmodules']:
     pkg_datas, pkg_binaries, pkg_hiddenimports = collect_all(pkg)
     datas += pkg_datas
     binaries += pkg_binaries
     hidden_imports += pkg_hiddenimports
 
-a = Analysis( # type: ignore
+a = Analysis(
     ['app.py'],
     pathex=[],
-    binaries=binaries,
-    datas=datas,
-    hiddenimports=hidden_imports,
+    binaries=binaries,     
+    datas=datas,           
+    hiddenimports=hidden_imports, 
+    hookspath=[],
+    hooksconfig={},
+    runtime_hooks=[],
+    excludes=[],
+    win_no_prefer_redirects=False,
+    win_private_assemblies=False,
+    cipher=block_cipher,
     noarchive=False,
 )
+import vtkmodules
+vtk_path = os.path.dirname(vtkmodules.__file__)
+a.datas += Tree(vtk_path, prefix='vtkmodules')
 
 # --- LINUX HOST SYSTEM LIBRARY EXCLUSION ---
 if sys.platform == 'linux':

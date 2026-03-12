@@ -8,6 +8,8 @@ import sys
 import os
 import locale
 
+# --- FORZATURA LOCALE (COMPATIBILE CON QT) ---
+# Forza l'uso del punto decimale americano mantenendo l'encoding UTF-8
 os.environ["LC_NUMERIC"] = "en_US.UTF-8"
 os.environ["LANG"] = "en_US.UTF-8"
 try:
@@ -18,6 +20,8 @@ except Exception:
 # --- PLATFORM SPECIFIC FIXES ---
 if sys.platform == 'darwin':
     os.environ['QT_LOGGING_RULES'] = 'qt.gui.painting.warning=false;qt.qpa.fonts.warning=false'
+    os.environ["EVENT_NOKQUEUE"] = "1" # Fix for certain VTK event loop issues on Mac
+    os.environ["OBJC_DISABLE_INITIALIZE_FORK_SAFETY"] = "YES"
 
 if getattr(sys, 'frozen', False) and sys.platform == 'win32':
     for module_dir in ['casadi', 'cadquery', 'OCP']:

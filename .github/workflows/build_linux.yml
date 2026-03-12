@@ -32,9 +32,6 @@ jobs:
         chmod +x MOLDFORGE_LINUX/install.sh
         chmod +x MOLDFORGE_LINUX/run.sh
         
-        # Zip the release folder
-        zip -r MoldForge-Linux.zip MOLDFORGE_LINUX
-
     - name: Upload Linux Artifact
       uses: actions/upload-artifact@v4
       with:

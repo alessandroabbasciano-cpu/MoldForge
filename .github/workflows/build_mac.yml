@@ -8,27 +8,37 @@ on:
 
 jobs:
   build-mac:
-    runs-on: [self-hosted, mac-local]
+    runs-on: [self-hosted, macos-local]
     steps:
     - name: Checkout Code
       uses: actions/checkout@v4
 
-    - name: Build on Mac
+    - name: Install dependencies
       run: |
-        python3 -m venv venv
-        venv/bin/python -m pip install --upgrade pip
-        venv/bin/pip install cadquery PySide6==6.6.3 pyinstaller
-        venv/bin/pip install -r requirements.txt
-        venv/bin/pyinstaller MoldForge.spec
+        python3 -m pip install --upgrade pip
+        python3 -m pip install -r requirements.txt
+        python3 -m pip install pyinstaller
 
+    - name: Build with PyInstaller
+      run: |
+        # Usiamo --collect-all per forzare PyInstaller a prendere ogni singolo pezzo di VTK e CadQuery
+        pyinstaller --noconfirm --onedir --windowed \
+          --collect-all vtkmodules \
+          --collect-all casadi \
+          --collect-all cadquery \
+          --collect-all OCP \
+          --add-data "shapes_library:shapes_library" \
+          --add-data "fb_presets.json:." \
+          --add-data "icon.ico:." \
+          --icon "icon.ico" \
+          app.py
+    
     - name: Ad-hoc Codesign for ARM64
       run: |
-        # Apply ad-hoc signature to bypass Apple Silicon execution kill
-        codesign --force --deep --sign - dist/MOLDFORGE_RELEASE/MoldForge
-        find dist/MOLDFORGE_RELEASE/_internal -name "*.dylib" -exec codesign --force --sign - {} \;
+        find dist/MOLDFORGE_RELEASE -type f \( -name "*.dylib" -o -name "*.so" -o -name "MoldForge" \) -exec codesign --force --deep --sign - {} \;
 
-    - name: Upload Artifacts
+    - name: Upload Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: MoldForge-mac-local
-        path: dist/MOLDFORGE_RELEASE/
+        name: MoldForge-Mac
+        path: dist/
