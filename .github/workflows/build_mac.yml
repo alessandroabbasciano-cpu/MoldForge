@@ -1,0 +1,34 @@
+name: Build Mac (Self-Hosted)
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  build-mac:
+    runs-on: [self-hosted, mac-local]
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    - name: Build on Mac
+      run: |
+        python3 -m venv venv
+        venv/bin/python -m pip install --upgrade pip
+        venv/bin/pip install cadquery PySide6==6.6.3 pyinstaller
+        venv/bin/pip install -r requirements.txt
+        venv/bin/pyinstaller MoldForge.spec
+
+    - name: Ad-hoc Codesign for ARM64
+      run: |
+        # Apply ad-hoc signature to bypass Apple Silicon execution kill
+        codesign --force --deep --sign - dist/MOLDFORGE_RELEASE/MoldForge
+        find dist/MOLDFORGE_RELEASE/_internal -name "*.dylib" -exec codesign --force --sign - {} \;
+
+    - name: Upload Artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: MoldForge-mac-local
+        path: dist/MOLDFORGE_RELEASE/

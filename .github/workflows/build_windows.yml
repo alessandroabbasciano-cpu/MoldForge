@@ -1,0 +1,29 @@
+name: Build Windows (Self-Hosted)
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  build-windows:
+    runs-on: [self-hosted, windows-local]
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    - name: Build on Windows
+      shell: cmd
+      run: |
+        py -3.10 -m venv venv
+        venv\Scripts\python.exe -m pip install --upgrade pip
+        venv\Scripts\pip.exe install cadquery PySide6==6.6.3 pyinstaller
+        venv\Scripts\pip.exe install -r requirements.txt
+        venv\Scripts\pyinstaller.exe MoldForge.spec
+
+    - name: Upload Artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: MoldForge-windows-local
+        path: dist/MOLDFORGE_RELEASE/

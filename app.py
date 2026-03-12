@@ -8,13 +8,12 @@ import sys
 import os
 import locale
 
+os.environ["LC_NUMERIC"] = "en_US.UTF-8"
+os.environ["LANG"] = "en_US.UTF-8"
 try:
-    locale.setlocale(locale.LC_ALL, 'C')
+    locale.setlocale(locale.LC_NUMERIC, 'en_US.UTF-8')
 except Exception:
     pass
-os.environ["LC_NUMERIC"] = "C"
-os.environ["LC_ALL"] = "C"
-os.environ["LANG"] = "C"
 
 # --- PLATFORM SPECIFIC FIXES ---
 if sys.platform == 'darwin':
