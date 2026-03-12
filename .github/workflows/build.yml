@@ -14,24 +14,29 @@ jobs:
     name: Build on ${{ matrix.os-label }}
     runs-on: [self-hosted, "${{ matrix.os-label }}"]
     strategy:
+      fail-fast: false # Se uno fallisce, gli altri continuano a compilare
       matrix:
-        os-label: [windows-local, arch-local, mac-local]
+        include:
+          - os-label: windows-local
+            python_cmd: python # Comando Python per Windows
+          - os-label: arch-local
+            python_cmd: python3 # Comando Python per Linux
+          - os-label: mac-local
+            python_cmd: python3 # Comando Python per Mac
 
     steps:
     - name: Checkout Code
       uses: actions/checkout@v4
     
     - name: Install Dependencies
-      shell: bash
       run: |
-        pip install cadquery
-        pip install -r requirements.txt
-        pip install PySide6==6.6.3 pyinstaller
+        ${{ matrix.python_cmd }} -m pip install --upgrade pip
+        ${{ matrix.python_cmd }} -m pip install cadquery PySide6==6.6.3 pyinstaller
+        ${{ matrix.python_cmd }} -m pip install -r requirements.txt
 
     - name: Build with PyInstaller
-      shell: bash
       run: |
-        pyinstaller MoldForge.spec
+        ${{ matrix.python_cmd }} -m PyInstaller MoldForge.spec
 
     - name: Codesign ad-hoc per Apple Silicon (Solo su Mac)
       if: matrix.os-label == 'mac-local'
@@ -42,6 +47,7 @@ jobs:
       run: |
         cd dist
         ditto -c -k --keepParent MoldForge.app MoldForge-macOS-ARM64.zip
+        mkdir -p MOLDFORGE_RELEASE
         mv MoldForge-macOS-ARM64.zip MOLDFORGE_RELEASE/
 
     - name: Upload Artifacts
