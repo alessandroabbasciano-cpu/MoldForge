@@ -17,21 +17,19 @@ jobs:
       fail-fast: false 
       matrix:
         include:
-          # Windows: PowerShell strict paths
+          # Windows: Native build via PowerShell activation
           - os-label: windows-local
             method: native
-            base_python: python
-            env_python: .\venv\Scripts\python.exe
-            pyinstaller: .\venv\Scripts\pyinstaller.exe
+            python_cmd: python
+            activate: .\venv\Scripts\Activate.ps1
           
-          # Mac: POSIX strict paths
+          # Mac: Native build via POSIX activation
           - os-label: mac-local
             method: native
-            base_python: python3
-            env_python: ./venv/bin/python
-            pyinstaller: ./venv/bin/pyinstaller
+            python_cmd: python3
+            activate: source venv/bin/activate
             
-          # Arch Linux: Docker containerized build
+          # Arch Linux: Docker build (Ubuntu 22.04 for Python 3.10 support)
           - os-label: arch-local
             method: docker
 
@@ -44,19 +42,21 @@ jobs:
     # ==========================================
     - name: Setup Virtual Environment (Windows & Mac)
       if: matrix.method == 'native'
-      run: ${{ matrix.base_python }} -m venv venv
+      run: ${{ matrix.python_cmd }} -m venv venv
 
     - name: Install Dependencies (Windows & Mac)
       if: matrix.method == 'native'
       run: |
-        ${{ matrix.env_python }} -m pip install --upgrade pip
-        ${{ matrix.env_python }} -m pip install cadquery PySide6==6.6.3 pyinstaller
-        ${{ matrix.env_python }} -m pip install -r requirements.txt
+        ${{ matrix.activate }}
+        python -m pip install --upgrade pip
+        pip install cadquery PySide6==6.6.3 pyinstaller
+        pip install -r requirements.txt
 
     - name: Build with PyInstaller (Windows & Mac)
       if: matrix.method == 'native'
       run: |
-        ${{ matrix.pyinstaller }} MoldForge.spec
+        ${{ matrix.activate }}
+        pyinstaller MoldForge.spec
 
     # ==========================================
     # DOCKER BUILD PIPELINE (Arch Linux)
@@ -65,7 +65,7 @@ jobs:
       if: matrix.method == 'docker'
       run: |
         cat << 'EOF' > Dockerfile.builder
-        FROM ubuntu:20.04
+        FROM ubuntu:22.04
         ENV DEBIAN_FRONTEND=noninteractive
         
         # Install system dependencies (Cached)
