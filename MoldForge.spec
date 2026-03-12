@@ -2,12 +2,12 @@
 import sys
 import os
 import shutil
+import re
 from PyInstaller.utils.hooks import collect_all
-from PyInstaller.building.api import EXE, PYZ, Analysis, COLLECT, Tree 
 
 block_cipher = None
 
-# Prepariamo le liste per raccogliere tutto
+# Prepare lists to collect all assets
 datas = [
     ('shapes_library', 'shapes_library'),
     ('fb_presets.json', '.'),
@@ -21,14 +21,14 @@ hidden_imports = [
     'ui_panels', 'ui_sync', 'viewer_3d'
 ]
 
-# Usiamo collect_all per le librerie difficili (VTK, CadQuery, ecc.)
+# Use collect_all for complex libraries (VTK, CadQuery, etc.)
 for pkg in ['cadquery', 'casadi', 'OCP', 'pyvista', 'vtkmodules']:
     pkg_datas, pkg_binaries, pkg_hiddenimports = collect_all(pkg)
     datas += pkg_datas
     binaries += pkg_binaries
     hidden_imports += pkg_hiddenimports
 
-a = Analysis(
+a = Analysis( # type: ignore
     ['app.py'],
     pathex=[],
     binaries=binaries,     
@@ -43,9 +43,10 @@ a = Analysis(
     cipher=block_cipher,
     noarchive=False,
 )
+
 import vtkmodules
 vtk_path = os.path.dirname(vtkmodules.__file__)
-a.datas += Tree(vtk_path, prefix='vtkmodules')
+a.datas += Tree(vtk_path, prefix='vtkmodules') # type: ignore
 
 # --- LINUX HOST SYSTEM LIBRARY EXCLUSION ---
 if sys.platform == 'linux':
@@ -74,8 +75,7 @@ final_splash_obj = None
 
 if sys.platform != 'darwin':
     try:
-        from PyInstaller.building.api import Splash
-        final_splash_obj = Splash(
+        final_splash_obj = Splash( # type: ignore
             'splash.png',
             binaries=a.binaries,
             datas=a.datas,

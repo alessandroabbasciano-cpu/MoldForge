@@ -10,30 +10,24 @@ jobs:
   build-linux:
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout Code
-      uses: actions/checkout@v4
+      - name: Checkout Code
+        uses: actions/checkout@v4
 
-    - name: Create Linux Release Package
-      run: |
-        mkdir MOLDFORGE_LINUX
-        
-        # Copy source code and assets
-        cp *.py MOLDFORGE_LINUX/
-        cp requirements.txt MOLDFORGE_LINUX/
-        cp icon.ico MOLDFORGE_LINUX/ || true
-        cp fb_presets.json MOLDFORGE_LINUX/ || true
-        cp -r shapes_library MOLDFORGE_LINUX/
-        
-        # Copy scripts FROM the subfolder TO the root of the release
-        cp linux_scripts/install.sh MOLDFORGE_LINUX/
-        cp linux_scripts/run.sh MOLDFORGE_LINUX/
-        
-        # Make scripts executable
-        chmod +x MOLDFORGE_LINUX/install.sh
-        chmod +x MOLDFORGE_LINUX/run.sh
-        
-    - name: Upload Linux Artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: MoldForge-Linux
-        path: MOLDFORGE_LINUX/
+      - name: Create Linux Release Package
+        run: |
+          mkdir -p MOLDFORGE_LINUX
+          cp *.py MOLDFORGE_LINUX/
+          cp requirements.txt MOLDFORGE_LINUX/
+          cp icon.ico MOLDFORGE_LINUX/ || true
+          cp fb_presets.json MOLDFORGE_LINUX/ || true
+          cp -r shapes_library MOLDFORGE_LINUX/
+          cp linux_scripts/install.sh MOLDFORGE_LINUX/
+          cp linux_scripts/run.sh MOLDFORGE_LINUX/
+          chmod +x MOLDFORGE_LINUX/install.sh
+          chmod +x MOLDFORGE_LINUX/run.sh
+
+      - name: Upload Linux Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: MoldForge-Linux
+          path: MOLDFORGE_LINUX/
