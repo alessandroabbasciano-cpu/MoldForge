@@ -17,21 +17,18 @@ jobs:
       fail-fast: false 
       matrix:
         include:
-          # Windows: Barre dritte (Forward slashes) per aggirare il bug di PowerShell
           - os-label: windows-local
             method: native
             base_python: python
             venv_python: venv/Scripts/python.exe
             venv_pyinstaller: venv/Scripts/pyinstaller.exe
           
-          # Mac: Posix explicit calls
           - os-label: mac-local
             method: native
             base_python: python3
             venv_python: venv/bin/python
             venv_pyinstaller: venv/bin/pyinstaller
             
-          # Arch Linux: Docker container
           - os-label: arch-local
             method: docker
 
@@ -42,6 +39,13 @@ jobs:
     # ==========================================
     # NATIVE BUILD PIPELINE (Windows & Mac)
     # ==========================================
+    # --- NEW STEP: GUARANTEE PYTHON 3.10 ---
+    - name: Setup Python 3.10 (Windows & Mac)
+      if: matrix.method == 'native'
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.10'
+
     - name: Setup Virtual Environment (Windows & Mac)
       if: matrix.method == 'native'
       run: ${{ matrix.base_python }} -m venv venv
