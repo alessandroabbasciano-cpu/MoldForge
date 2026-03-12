@@ -8,7 +8,7 @@ on:
 
 jobs:
   build-mac:
-    runs-on: [self-hosted, macos-local]
+    runs-on: [self-hosted, mac-local]
     steps:
     - name: Checkout Code
       uses: actions/checkout@v4
