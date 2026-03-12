@@ -47,6 +47,11 @@ def render_mold(app, result):
         # PyVista Mesh Processing
         mesh = pv.read(tmp_path)
         mesh = mesh.clean()
+
+        # --- TOPOLOGICAL GATEKEEPER ---
+        if mesh.n_points == 0 or mesh.n_cells == 0:
+            raise ValueError("The 3D engine generated empty or invalid geometry. "
+                             "Possible extreme asymmetry or boolean operation failure.")
         
         # Compute normals for smooth shading. split_vertices prevents shading artifacts on sharp edges
         mesh.compute_normals(cell_normals=False, point_normals=True, split_vertices=True, feature_angle=45, inplace=True)

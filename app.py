@@ -6,11 +6,17 @@ and orchestrates communication between the UI components and the CadQuery 3D eng
 
 import sys
 import os
-# --- PLATFORM SPECIFIC FIXES ---
-if sys.platform == 'linux':
-    os.environ['QT_QPA_PLATFORM'] = 'xcb'
-    os.environ['LIBGL_DRI3_DISABLE'] = '1'
+import locale
 
+try:
+    locale.setlocale(locale.LC_ALL, 'C')
+except Exception:
+    pass
+os.environ["LC_NUMERIC"] = "C"
+os.environ["LC_ALL"] = "C"
+os.environ["LANG"] = "C"
+
+# --- PLATFORM SPECIFIC FIXES ---
 if sys.platform == 'darwin':
     os.environ['QT_LOGGING_RULES'] = 'qt.gui.painting.warning=false;qt.qpa.fonts.warning=false'
 
