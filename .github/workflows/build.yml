@@ -22,12 +22,14 @@ jobs:
             method: native
             base_python: python
             env_python: venv/Scripts/python
+            pyinstaller: venv/Scripts/pyinstaller
           
           # Mac: Native build using isolated virtual environment
           - os-label: mac-local
             method: native
             base_python: python3
             env_python: venv/bin/python
+            pyinstaller: venv/bin/pyinstaller
             
           # Arch Linux: Docker-based build with layer caching for Ubuntu 20.04 compatibility
           - os-label: arch-local
@@ -54,7 +56,7 @@ jobs:
     - name: Build with PyInstaller (Windows & Mac)
       if: matrix.method == 'native'
       run: |
-        ${{ matrix.env_python }} -m PyInstaller MoldForge.spec
+        ${{ matrix.pyinstaller }} MoldForge.spec
 
     # ==========================================
     # DOCKER BUILD PIPELINE (Arch Linux)
@@ -80,7 +82,8 @@ jobs:
     - name: Compile in Docker (Arch Linux Only)
       if: matrix.method == 'docker'
       run: |
-        docker run --rm -v ${{ github.workspace }}:/workspace -w /workspace moldforge-ubuntu-builder bash -c "pip install -r requirements.txt && pyinstaller MoldForge.spec && chown -R $(stat -c '%u:%g' .) dist/"
+        # The 'chown -R ... .' command at the end ensures ALL files created by Docker are given back to your Arch user
+        docker run --rm -v ${{ github.workspace }}:/workspace -w /workspace moldforge-ubuntu-builder bash -c "pip install -r requirements.txt && pyinstaller MoldForge.spec && chown -R \$(stat -c '%u:%g' .) ."
 
     # ==========================================
     # POST-BUILD & RELEASE PACKAGING
