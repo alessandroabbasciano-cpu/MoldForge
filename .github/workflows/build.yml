@@ -18,81 +18,39 @@ jobs:
       matrix:
         include:
           - os-label: windows-local
-            method: native
-            base_python: python
-            venv_python: venv/Scripts/python.exe
-            venv_pyinstaller: venv/Scripts/pyinstaller.exe
-          
           - os-label: mac-local
-            method: native
-            base_python: python3
-            venv_python: venv/bin/python
-            venv_pyinstaller: venv/bin/pyinstaller
-            
           - os-label: arch-local
-            method: docker
 
     steps:
     - name: Checkout Code
       uses: actions/checkout@v4
 
     # ==========================================
-    # NATIVE BUILD PIPELINE (Windows & Mac)
+    # WINDOWS PIPELINE (CMD Shell explicitly)
     # ==========================================
-    # --- NEW STEP: GUARANTEE PYTHON 3.10 ---
-    - name: Setup Python 3.10 (Windows & Mac)
-      if: matrix.method == 'native'
-      uses: actions/setup-python@v5
-      with:
-        python-version: '3.10'
-
-    - name: Setup Virtual Environment (Windows & Mac)
-      if: matrix.method == 'native'
-      run: ${{ matrix.base_python }} -m venv venv
-
-    - name: Install Dependencies (Windows & Mac)
-      if: matrix.method == 'native'
+    - name: Build on Windows
+      if: matrix.os-label == 'windows-local'
+      shell: cmd
       run: |
-        ${{ matrix.venv_python }} -m pip install --upgrade pip
-        ${{ matrix.venv_python }} -m pip install cadquery PySide6==6.6.3 pyinstaller
-        ${{ matrix.venv_python }} -m pip install -r requirements.txt
+        py -3.10 -m venv venv
+        venv\Scripts\python.exe -m pip install --upgrade pip
+        venv\Scripts\pip.exe install cadquery PySide6==6.6.3 pyinstaller
+        venv\Scripts\pip.exe install -r requirements.txt
+        venv\Scripts\pyinstaller.exe MoldForge.spec
 
-    - name: Build with PyInstaller (Windows & Mac)
-      if: matrix.method == 'native'
+    # ==========================================
+    # MAC PIPELINE (POSIX Native)
+    # ==========================================
+    - name: Build on Mac
+      if: matrix.os-label == 'mac-local'
       run: |
-        ${{ matrix.venv_pyinstaller }} MoldForge.spec
+        python3 -m venv venv
+        venv/bin/python -m pip install --upgrade pip
+        venv/bin/pip install cadquery PySide6==6.6.3 pyinstaller
+        venv/bin/pip install -r requirements.txt
+        venv/bin/pyinstaller MoldForge.spec
 
-    # ==========================================
-    # DOCKER BUILD PIPELINE (Arch Linux)
-    # ==========================================
-    - name: Prepare Docker Image (Arch Linux Only)
-      if: matrix.method == 'docker'
-      run: |
-        cat << 'EOF' > Dockerfile.builder
-        FROM ubuntu:22.04
-        ENV DEBIAN_FRONTEND=noninteractive
-        
-        # Install system dependencies (Cached)
-        RUN apt-get update && apt-get install -y python3 python3-pip python3-venv libgl1 libgl1-mesa-glx libosmesa6 libglu1-mesa libxi-dev libxmu-dev libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-render-util0 libxcb-xinerama0 libxcb-xkb1 libxkbcommon-x11-0 libxcb-shape0 libxcb-cursor0 python3-tk libglib2.0-0 libxrender1 libdbus-1-3
-        
-        # Create venv and install heavy Python libraries (Cached)
-        RUN python3 -m venv /opt/venv
-        ENV PATH="/opt/venv/bin:$PATH"
-        RUN pip install --upgrade pip cadquery PySide6==6.6.3 pyinstaller
-        EOF
-        
-        docker build -t moldforge-ubuntu-builder -f Dockerfile.builder .
-
-    - name: Compile in Docker (Arch Linux Only)
-      if: matrix.method == 'docker'
-      run: |
-        # Run PyInstaller, capture exit code, ALWAYS chown to fix permissions, then exit with captured code
-        docker run --rm -v ${{ github.workspace }}:/workspace -w /workspace moldforge-ubuntu-builder bash -c "pip install -r requirements.txt && pyinstaller MoldForge.spec; EXIT_STATUS=\$?; chown -R \$(stat -c '%u:%g' .) .; exit \$EXIT_STATUS"
-
-    # ==========================================
-    # POST-BUILD & RELEASE PACKAGING
-    # ==========================================
-    - name: Ad-hoc Codesign for Apple Silicon (Mac Only)
+    - name: Ad-hoc Codesign (Mac Only)
       if: matrix.os-label == 'mac-local'
       run: codesign --force --deep --sign - dist/MoldForge.app
 
@@ -104,8 +62,40 @@ jobs:
         mkdir -p MOLDFORGE_RELEASE
         mv MoldForge-macOS-ARM64.zip MOLDFORGE_RELEASE/
 
-    - name: Upload Artifacts
+    # ==========================================
+    # ARCH LINUX PIPELINE (Docker Ubuntu 22.04)
+    # ==========================================
+    - name: Prepare Docker Image (Arch Linux Only)
+      if: matrix.os-label == 'arch-local'
+      run: |
+        cat << 'EOF' > Dockerfile.builder
+        FROM ubuntu:22.04
+        ENV DEBIAN_FRONTEND=noninteractive
+        RUN apt-get update && apt-get install -y python3 python3-pip python3-venv libgl1 libgl1-mesa-glx libosmesa6 libglu1-mesa libxi-dev libxmu-dev libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-render-util0 libxcb-xinerama0 libxcb-xkb1 libxkbcommon-x11-0 libxcb-shape0 libxcb-cursor0 python3-tk libglib2.0-0 libxrender1 libdbus-1-3
+        RUN python3 -m venv /opt/venv
+        ENV PATH="/opt/venv/bin:$PATH"
+        RUN pip install --upgrade pip cadquery PySide6==6.6.3 pyinstaller
+        EOF
+        docker build -t moldforge-ubuntu-builder -f Dockerfile.builder .
+
+    - name: Compile in Docker (Arch Linux Only)
+      if: matrix.os-label == 'arch-local'
+      run: |
+        docker run --rm -v ${{ github.workspace }}:/workspace -w /workspace moldforge-ubuntu-builder bash -c "pip install -r requirements.txt && pyinstaller MoldForge.spec; EXIT_STATUS=\$?; chown -R \$(stat -c '%u:%g' .) .; exit \$EXIT_STATUS"
+
+    # ==========================================
+    # ARTIFACT UPLOAD
+    # ==========================================
+    - name: Upload Artifacts (Mac)
+      if: matrix.os-label == 'mac-local'
+      uses: actions/upload-artifact@v4
+      with:
+        name: MoldForge-mac-local
+        path: dist/MOLDFORGE_RELEASE/
+
+    - name: Upload Artifacts (Windows & Arch)
+      if: matrix.os-label != 'mac-local'
       uses: actions/upload-artifact@v4
       with:
         name: MoldForge-${{ matrix.os-label }}
-        path: dist/MOLDFORGE_RELEASE/
+        path: dist/
