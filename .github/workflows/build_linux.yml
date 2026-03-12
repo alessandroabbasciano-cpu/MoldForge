@@ -36,4 +36,4 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: MoldForge-Linux
-        path: MoldForge-Linux.zip
+        path: MOLDFORGE_LINUX/
