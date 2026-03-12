@@ -14,19 +14,22 @@ jobs:
     name: Build on ${{ matrix.os-label }}
     runs-on: [self-hosted, "${{ matrix.os-label }}"]
     strategy:
-      fail-fast: false # Se uno cade, gli altri continuano l'assalto
+      fail-fast: false 
       matrix:
         include:
+          # Windows: Native build using isolated virtual environment
           - os-label: windows-local
             method: native
-            python_cmd: python
-            env_python: python
+            base_python: python
+            env_python: venv/Scripts/python
           
+          # Mac: Native build using isolated virtual environment
           - os-label: mac-local
             method: native
-            python_cmd: python3
+            base_python: python3
             env_python: venv/bin/python
             
+          # Arch Linux: Docker-based build with layer caching for Ubuntu 20.04 compatibility
           - os-label: arch-local
             method: docker
 
@@ -34,53 +37,59 @@ jobs:
     - name: Checkout Code
       uses: actions/checkout@v4
 
-    - name: Setup Virtual Environment (Solo Mac)
-      if: matrix.os-label == 'mac-local'
-      run: python3 -m venv venv
+    # ==========================================
+    # NATIVE BUILD PIPELINE (Windows & Mac)
+    # ==========================================
+    - name: Setup Virtual Environment (Windows & Mac)
+      if: matrix.method == 'native'
+      run: ${{ matrix.base_python }} -m venv venv
 
-    - name: Install Dependencies (Windows/Mac)
+    - name: Install Dependencies (Windows & Mac)
       if: matrix.method == 'native'
       run: |
         ${{ matrix.env_python }} -m pip install --upgrade pip
         ${{ matrix.env_python }} -m pip install cadquery PySide6==6.6.3 pyinstaller
         ${{ matrix.env_python }} -m pip install -r requirements.txt
 
-    - name: Build with PyInstaller (Windows/Mac)
+    - name: Build with PyInstaller (Windows & Mac)
       if: matrix.method == 'native'
       run: |
         ${{ matrix.env_python }} -m PyInstaller MoldForge.spec
 
-    - name: Build in Ubuntu 20.04 Container (Solo Arch)
+    # ==========================================
+    # DOCKER BUILD PIPELINE (Arch Linux)
+    # ==========================================
+    - name: Prepare Docker Image (Arch Linux Only)
       if: matrix.method == 'docker'
       run: |
-        cat << 'EOF' > build_linux.sh
-        apt-get update
-        # Installa python, venv e tutte le dipendenze grafiche per CadQuery/VTK
-        DEBIAN_FRONTEND=noninteractive apt-get install -y python3 python3-pip python3-venv libosmesa6 libglu1-mesa libxi-dev libxmu-dev libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-render-util0 libxcb-xinerama0 libxcb-xkb1 libxkbcommon-x11-0 libxcb-shape0 libxcb-cursor0
+        cat << 'EOF' > Dockerfile.builder
+        FROM ubuntu:20.04
+        ENV DEBIAN_FRONTEND=noninteractive
         
-        # Isola le librerie python
-        python3 -m venv venv
-        source venv/bin/activate
-        pip install --upgrade pip
-        pip install cadquery PySide6==6.6.3 pyinstaller
-        pip install -r requirements.txt
+        # Install system dependencies (Cached)
+        RUN apt-get update && apt-get install -y python3 python3-pip python3-venv libosmesa6 libglu1-mesa libxi-dev libxmu-dev libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-render-util0 libxcb-xinerama0 libxcb-xkb1 libxkbcommon-x11-0 libxcb-shape0 libxcb-cursor0
         
-        # Compila!
-        pyinstaller MoldForge.spec
-        
-        # Ripristina i permessi della cartella generata in modo che Arch possa caricarla
-        chown -R $(stat -c "%u:%g" .) dist/
+        # Create venv and install heavy Python libraries (Cached)
+        RUN python3 -m venv /opt/venv
+        ENV PATH="/opt/venv/bin:$PATH"
+        RUN pip install --upgrade pip cadquery PySide6==6.6.3 pyinstaller
         EOF
-        chmod +x build_linux.sh
         
-        # Lancia il container agganciando la cartella di lavoro di GitHub Actions
-        docker run --rm -v ${{ github.workspace }}:/workspace -w /workspace ubuntu:20.04 bash build_linux.sh
+        docker build -t moldforge-ubuntu-builder -f Dockerfile.builder .
 
-    - name: Codesign ad-hoc per Apple Silicon (Solo su Mac)
+    - name: Compile in Docker (Arch Linux Only)
+      if: matrix.method == 'docker'
+      run: |
+        docker run --rm -v ${{ github.workspace }}:/workspace -w /workspace moldforge-ubuntu-builder bash -c "pip install -r requirements.txt && pyinstaller MoldForge.spec && chown -R $(stat -c '%u:%g' .) dist/"
+
+    # ==========================================
+    # POST-BUILD & RELEASE PACKAGING
+    # ==========================================
+    - name: Ad-hoc Codesign for Apple Silicon (Mac Only)
       if: matrix.os-label == 'mac-local'
       run: codesign --force --deep --sign - dist/MoldForge.app
 
-    - name: Pacchettizzazione per il rilascio macOS (Solo su Mac)
+    - name: Package macOS Release (Mac Only)
       if: matrix.os-label == 'mac-local'
       run: |
         cd dist
