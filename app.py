@@ -105,6 +105,8 @@ class MoldApp(QMainWindow):
         self.update_timer.setSingleShot(True)
         self.update_timer.setInterval(1000) # 1000ms delay after last input before rendering
         self.update_timer.timeout.connect(self.start_preview)
+
+        self.is_updating_preset = True
         
         # Initialize sub-modules
         file_manager.load_databases(self)
@@ -114,7 +116,6 @@ class MoldApp(QMainWindow):
         # --- STARTUP RENDERING GUARD ---
         # Temporarily silence the UI logic so the timer isn't accidentally 
         # triggered during the initial widget value population.
-        self.is_updating_preset = True
         self.setup_connections()
         self.sync_editor_from_spinboxes()
         self.is_updating_preset = False
@@ -142,9 +143,10 @@ class MoldApp(QMainWindow):
         # --- CLOSE NATIVE SPLASH SCREEN ---
         try:
             import pyi_splash  # type: ignore
-            pyi_splash.close()
-        except ImportError:
-            pass # Only triggers when running the raw Python script, safe to ignore.
+            if pyi_splash.is_alive():
+                pyi_splash.close()
+        except Exception:
+            pass 
 
     def setup_connections(self):
         """

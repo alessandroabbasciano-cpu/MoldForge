@@ -1,4 +1,4 @@
-name: Build Mold Forge Executables
+name: Build Mold Forge Executables (Self-Hosted)
 
 on:
   push:
@@ -6,29 +6,21 @@ on:
       - 'v*'
   workflow_dispatch:
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   build:
-    name: Build on ${{ matrix.os }}
-    runs-on: ${{ matrix.os }}
+    name: Build on ${{ matrix.os-label }}
+    runs-on: [self-hosted, "${{ matrix.os-label }}"]
     strategy:
       matrix:
-        os: [windows-latest, ubuntu-22.04, macos-14]
+        os-label: [windows-local, arch-local, mac-local]
 
     steps:
     - name: Checkout Code
       uses: actions/checkout@v4
-
-    - name: Install Linux Graphics Libraries
-      if: runner.os == 'Linux'
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y libosmesa6 libglu1-mesa libxi-dev libxmu-dev libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-render-util0 libxcb-xinerama0 libxcb-xkb1 libxkbcommon-x11-0 libxcb-shape0 libxcb-cursor0
     
-    - name: Setup Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: "3.10"
-
     - name: Install Dependencies
       shell: bash
       run: |
@@ -41,12 +33,12 @@ jobs:
       run: |
         pyinstaller MoldForge.spec
 
-    - name: Codesign ad-hoc per Apple Silicon
-      if: runner.os == 'macOS'
+    - name: Codesign ad-hoc per Apple Silicon (Solo su Mac)
+      if: matrix.os-label == 'mac-local'
       run: codesign --force --deep --sign - dist/MoldForge.app
 
-    - name: Pacchettizzazione per il rilascio macOS
-      if: runner.os == 'macOS'
+    - name: Pacchettizzazione per il rilascio macOS (Solo su Mac)
+      if: matrix.os-label == 'mac-local'
       run: |
         cd dist
         ditto -c -k --keepParent MoldForge.app MoldForge-macOS-ARM64.zip
@@ -55,5 +47,5 @@ jobs:
     - name: Upload Artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: MoldForge-${{ runner.os }}
+        name: MoldForge-${{ matrix.os-label }}
         path: dist/MOLDFORGE_RELEASE/
