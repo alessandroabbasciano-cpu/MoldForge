@@ -1,5 +1,7 @@
 import os
+import sys
 import shutil
+import re
 from PyInstaller.utils.hooks import collect_all
 
 datas = [
@@ -34,6 +36,18 @@ a = Analysis( # type: ignore
     noarchive=False,
 )
 
+# --- MACOS VTK DUPLICATE PURGE ---
+# This block is crucial to prevent the Mac from freezing during 3D initialization
+if sys.platform == 'darwin':
+    filtered_binaries = []
+    for binary in a.binaries:
+        dest, src, typecode = binary
+        # Ignore VTK libraries without version numbers to prevent Objective-C class conflicts
+        if "libvtk" in dest and dest.endswith(".dylib") and not re.search(r'-\d+\.\d+', dest):
+            continue
+        filtered_binaries.append(binary)
+    a.binaries = filtered_binaries
+
 pyz = PYZ(a.pure) # type: ignore
 
 exe = EXE( # type: ignore
@@ -46,7 +60,7 @@ exe = EXE( # type: ignore
     bootloader_ignore_signals=False, 
     strip=False, 
     upx=True, 
-    console=False, 
+    console=True, # Keep the console open for debugging output
     icon='icon.ico'
 )
 
@@ -69,10 +83,11 @@ if os.path.exists(release_dir):
 
 os.rename(built_dir, release_dir)
 
+# Copy extra required folders
 for folder in ['shapes_library', 'wiki_drafts']:
     source = os.path.abspath(folder)
     dest = os.path.join(release_dir, folder)
-    if os.path.exists(source) and not os.path.exists(dest):
+    if os.path.exists(source):
         shutil.copytree(source, dest)
 
 for file in ['icon.ico', 'icon.png']:

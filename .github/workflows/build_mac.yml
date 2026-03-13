@@ -15,18 +15,24 @@ jobs:
 
     - name: Setup Virtual Environment, Install and Build (x86_64)
       run: |
+        # Create virtual environment using absolute path for Universal Python
+        # Ensure the version number matches your installation (e.g., 3.10 or 3.11)
         arch -x86_64 /Library/Frameworks/Python.framework/Versions/3.11/bin/python3 -m venv venv
         
+        # Activate the environment
         source venv/bin/activate
         
+        # Install dependencies using the correct architecture
         arch -x86_64 python3 -m pip install --upgrade pip
         arch -x86_64 python3 -m pip install -r requirements.txt
         arch -x86_64 python3 -m pip install pyinstaller
         
+        # Build the application
         arch -x86_64 python3 -m PyInstaller --noconfirm MoldForge_mac.spec
     
     - name: Ad-hoc Codesign for x86_64
       run: |
+        # Sign the libraries and the final executable
         find dist/MOLDFORGE_RELEASE -type f \( -name "*.dylib" -o -name "*.so" \) -exec codesign --force --sign - {} \;
         
         codesign --force --sign - dist/MOLDFORGE_RELEASE/MoldForge
