@@ -1,4 +1,4 @@
-name: Build Mac (Self-Hosted)
+name: Build Mac (Self-Hosted Intel/Rosetta)
 
 on:
   push:
@@ -13,18 +13,18 @@ jobs:
     - name: Checkout Code
       uses: actions/checkout@v4
 
-    - name: Setup Virtual Environment, Install and Build
+    - name: Setup Virtual Environment, Install and Build (x86_64)
       run: |
-        python3 -m venv venv
+        arch -x86_64 python3 -m venv venv
         source venv/bin/activate
         
-        python3 -m pip install --upgrade pip
-        python3 -m pip install -r requirements.txt
-        python3 -m pip install pyinstaller
+        arch -x86_64 python3 -m pip install --upgrade pip
+        arch -x86_64 python3 -m pip install -r requirements.txt
+        arch -x86_64 python3 -m pip install pyinstaller
         
-        python3 -m PyInstaller --noconfirm MoldForge_mac.spec
+        arch -x86_64 python3 -m PyInstaller --noconfirm MoldForge_mac.spec
     
-    - name: Ad-hoc Codesign for ARM64
+    - name: Ad-hoc Codesign for x86_64
       run: |
         find dist/MOLDFORGE_RELEASE -type f \( -name "*.dylib" -o -name "*.so" \) -exec codesign --force --sign - {} \;
         
