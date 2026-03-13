@@ -57,17 +57,6 @@ if sys.platform == 'linux':
     )
     a.binaries = [b for b in a.binaries if not b[0].startswith(exclude_prefixes)]
 
-# --- MACOS VTK DUPLICATE PURGE ---
-if sys.platform == 'darwin':
-    filtered_binaries = []
-    for binary in a.binaries:
-        dest, src, typecode = binary
-        # Ignore unversioned VTK libraries to prevent Objective-C class conflicts
-        if "libvtk" in dest and dest.endswith(".dylib") and not re.search(r'-\d+\.\d+', dest):
-            continue
-        filtered_binaries.append(binary)
-    a.binaries = filtered_binaries
-
 pyz = PYZ(a.pure) # type: ignore
 
 show_splash = False

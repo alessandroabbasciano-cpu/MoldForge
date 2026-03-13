@@ -13,19 +13,22 @@ jobs:
     - name: Checkout Code
       uses: actions/checkout@v4
 
-    - name: Install dependencies
+    - name: Setup Virtual Environment, Install and Build
       run: |
+        python3 -m venv venv
+        source venv/bin/activate
+        
         python3 -m pip install --upgrade pip
         python3 -m pip install -r requirements.txt
         python3 -m pip install pyinstaller
-
-    - name: Build with PyInstaller
-      run: |
+        
         python3 -m PyInstaller --noconfirm MoldForge.spec
     
     - name: Ad-hoc Codesign for ARM64
       run: |
-        find dist/MOLDFORGE_RELEASE -type f \( -name "*.dylib" -o -name "*.so" -o -name "MoldForgeApp" \) -exec codesign --force --deep --sign - {} \;
+        find dist/MOLDFORGE_RELEASE -type f \( -name "*.dylib" -o -name "*.so" \) -exec codesign --force --sign - {} \;
+        
+        codesign --force --sign - dist/MOLDFORGE_RELEASE/MoldForge
 
     - name: Upload Artifact
       uses: actions/upload-artifact@v4
