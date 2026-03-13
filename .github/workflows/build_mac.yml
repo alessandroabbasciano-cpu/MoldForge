@@ -22,7 +22,7 @@ jobs:
         python3 -m pip install -r requirements.txt
         python3 -m pip install pyinstaller
         
-        python3 -m PyInstaller --noconfirm MoldForge.spec
+        python3 -m PyInstaller --noconfirm MoldForge_mac.spec
     
     - name: Ad-hoc Codesign for ARM64
       run: |

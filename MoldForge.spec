@@ -44,11 +44,6 @@ a = Analysis( # type: ignore
     noarchive=False,
 )
 
-import vtkmodules
-vtk_path = os.path.dirname(vtkmodules.__file__)
-a.datas += Tree(vtk_path, prefix='vtkmodules') # type: ignore
-
-# --- LINUX HOST SYSTEM LIBRARY EXCLUSION ---
 if sys.platform == 'linux':
     exclude_prefixes = (
         'libX11', 'libXext', 'libXdamage', 'libXfixes', 'libXrender',
