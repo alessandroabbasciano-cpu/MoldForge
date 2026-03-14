@@ -1,4 +1,4 @@
-name: Build Linux (Self-Hosted Arch)
+name: Build Linux (Universal AppImage)
 
 on:
   push:
@@ -8,38 +8,39 @@ on:
 
 jobs:
   build-linux:
+    # Use your local Arch machine for hardware power...
     runs-on: [self-hosted, arch-local]
+    
+    # ...but run all steps inside an isolated Debian 11 container.
+    # Debian 11 has glibc 2.31, making the final AppImage compatible 
+    # with almost every Linux distribution from 2020 onwards.
+    container:
+      image: python:3.10-bullseye
     
     steps:
     - name: Checkout Code
       uses: actions/checkout@v4
 
-    - name: Set up isolated Python 3.10
-      uses: actions/setup-python@v5
-      with:
-        python-version: '3.10'
-        # This action automatically downloads Python 3.10 into a temporary cache 
-        # and adds it to the PATH only for the duration of this job.
-        # It leaves your Arch Linux host system completely untouched.
-
-    - name: Build with PyInstaller on Local Machine
-      shell: bash
+    - name: Install System Dependencies for Build and AppImage
       run: |
-        # 1. Create and activate virtual environment
-        # This will now safely use the portable Python 3.10 we just downloaded
-        python -m venv venv
-        source venv/bin/activate
-        
-        # 2. Install dependencies
+        apt-get update
+        # Install libraries required by OpenGL/VTK during compilation
+        # and tools required to build the AppImage (wget, file)
+        apt-get install -y libgl1 libglib2.0-0 libxext6 libxrender1 libx11-6 file wget desktop-file-utils
+
+    - name: Install Python Dependencies
+      run: |
+        # We are inside the python:3.10 container, so 'python' is already v3.10
         python -m pip install --upgrade pip
         pip install cadquery PySide6==6.6.3 pyinstaller
         pip install -r requirements.txt
-        
-        # 3. Compile using the clean Linux spec file
+
+    - name: Build with PyInstaller
+      run: |
+        # Compile using the clean Linux spec file
         pyinstaller MoldForge_linux.spec
 
-    - name: Pack into AppImage
-      shell: bash
+    - name: Pack into Universal AppImage
       run: |
         # Create AppDir structure for AppImage
         mkdir -p AppDir
@@ -66,15 +67,18 @@ jobs:
         EOF
         chmod +x AppDir/AppRun
 
-        # Download official AppImageKit tool and pack
+        # Download official AppImageKit tool
         wget -q -O appimagetool "https://github.com/AppImage/AppImageKit/releases/download/13/appimagetool-x86_64.AppImage"
         chmod +x appimagetool
+        
+        # Run AppImageTool. The '--appimage-extract-and-run' flag is crucial here 
+        # because standard AppImages require FUSE, which is often blocked inside Docker containers.
         ./appimagetool --appimage-extract-and-run AppDir MoldForge-Linux-x86_64.AppImage
 
     - name: Upload Linux Artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: MoldForge-linux-local
+        name: MoldForge-Linux-Universal
         path: |
           dist/MOLDFORGE_RELEASE/
           MoldForge-Linux-x86_64.AppImage
