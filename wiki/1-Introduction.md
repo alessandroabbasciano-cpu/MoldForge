@@ -29,7 +29,9 @@ Developed with passion for the fingerboard community.
 * **Code License:** LGPLv2.1
 * **Design License:** CC BY-NC-SA 4.0
 
-If you find this tool useful for your fingerboard crafting, consider checking out the "Support the Project" link in the Help menu!
+Curious about what powers the engine? Check out the **About MOLD F.O.R.G.E.** window in the Help menu for a breakdown of the open-source technologies used (CadQuery, OpenCASCADE, PyVista, and PySide6).
+
+If you find this tool useful for your fingerboard crafting, consider checking out the "Support the Project" link in the same menu!
 
 ---
 **[Next: User Interface & Workflow ➡️](2-User-Interface-&-Workflow-Guide.md)**

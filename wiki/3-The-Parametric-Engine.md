@@ -7,29 +7,29 @@ This page provides a comprehensive breakdown of every parameter available in the
 These settings determine what the engine builds and toggle specific geometric features for the manufacturing process.
 
 * **Object Type:** Selects which part of the project to generate for export in the 3D viewport.
-* `Board_Preview`: A realistic 3D representation of the final deck to check the shape.
-* `Male_Mold`: The bottom part of the press (convex).
-* `Female_Mold`: The top part of the press (concave).
-* `Shaper_Template`: The 2D-outline guide used to cut the board after pressing.
+  * `Board_Preview`: A realistic 3D representation of the final deck to check the shape.
+  * `Male_Mold`: The bottom part of the press.
+  * `Female_Mold`: The top part of the press.
+  * `Shaper_Template`: The 2D-outline guide used to cut the board after pressing.
 * **Clean Wireframe (Feature Edges):** Toggles the 3D viewport rendering style. When checked, it hides the dense triangular mesh and displays only the sharp feature edges for a cleaner CAD look.
 * **Add N/T Indicators:** Embosses 'N' (Nose) and 'T' (Tail) markers on the molds and shaper to prevent accidental misalignment during pressing.
 * **Enable SideLocks (Vertical Print):** Generates interlocking side tabs on the mold halves. These prevent the parts from sliding sideways when applying heavy pressure with a vise.
 * **Add Top Shaper Shell:** Generates an additional mating top shell next to the Shaper Template. This allows you to "sandwich" the wood veneers during the trimming phase, preventing splintering.
-* **Base Reinforcement (AddFillet):** Adds a curved fillet where the mold core meets the base plate to prevent stress fractures.
+* **Add Base Fillet:** Adds a curved reinforcement fillet where the mold core meets the base plate to prevent stress fractures.
 * **Fillet Radius (mm):** The radius of the base reinforcement curve. Appears only when the reinforcement toggle is active.
 * **Add Guide Holes:** Generates vertical holes through the mold for metal alignment pins (e.g., M6 threaded rods).
 * **Guide Diameter (mm):** The diameter of the alignment pin holes. Appears only when guide holes are enabled.
 * **Enable Wheel Flares:** Toggles the generation of 3D wheel flares on the deck surface. Activating this makes the "WHEEL FLARES" group visible in the right panel.
-* **Truck Pins (Molds):** Replaces the through-holes with small embossing marking pins on the Male and Female molds to help align the veneer stack before pressing.
-* **Truck Pins (Shaper):** Replaces the through-holes with marking pins on the Shaper Template to ensure your cutting guide is perfectly centered.
+* **Add Mold Truck Pins:** Replaces the through-holes with small embossing marking pins on the Male and Female molds to help align the veneer stack before pressing.
+* **Add Shaper Truck Pins:** Replaces the through-holes with marking pins on the Shaper Template to ensure your cutting guide is perfectly centered.
 
 ---
 
 ## 🎨 SHAPE STYLE / PRESETS
 
 * **Select Shape:** Defines the source of the board's outline.
-* `Custom`: Uses the internal interactive Bezier mathematical generator.
-* `[Filename]`: Loads a specific DXF vector outline from the `shapes_library` folder.
+  * `Custom`: Uses the internal interactive Bezier mathematical generator.
+  * `[Filename]`: Loads a specific DXF vector outline from the `shapes_library` folder.
 * **Shape Shift Y (mm):** Shifts the DXF shape along the length axis. This is vital for asymmetrical boards (like Fishtails) where the visual center does not align with the truck holes.
 * **Load Preset:** A dropdown to instantly load a pre-configured deck and mold setup from your local JSON database.
 * **Save / Delete Preset:** Buttons to permanently save your current configuration to the database or remove it.
@@ -46,6 +46,7 @@ These settings control the overall physical size and structural thickness of the
 * **Base Width (mm):** The total width of the mold block, including the side shoulders. *Pro Tip: Set this equal to 'Core Width' to create flush, flat sides for vertical printing.*
 * **Min. Core Thickness (mm):** The thickness of the core at its lowest/thinnest point.
 * **Mold Gap (mm):** The modeled distance between the male and female molds. Usually equals your veneer thickness plus a tiny margin for glue.
+* **Mold Corner Radius (mm):** The radius of the mold's outer vertical corners. Softening the sharp edges makes the mold much safer to handle and visually more refined.
 
 ---
 

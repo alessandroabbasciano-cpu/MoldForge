@@ -10,9 +10,9 @@ This guide explains how to master the 3D viewport, use the interactive designers
 The central area of the application is your real-time 3D workspace.
 
 * **Navigation Controls:**
-* **Rotate:** Left-click and drag[cite: 23].
-* **Zoom:** Use the mouse wheel or Right-click and drag[cite: 23].
-* **Pan:** Middle-click (scroll wheel click) and drag[cite: 23].
+* **Rotate:** Left-click and drag.
+* **Zoom:** Use the mouse wheel or Right-click and drag.
+* **Pan:** Middle-click (scroll wheel click) and drag.
 * **Camera Overlays:** In the top-left corner, quick-snap buttons (**ISO, TOP, FRONT, SIDE**)
 allow you to instantly align the view to standard engineering perspectives.
 
@@ -50,9 +50,9 @@ The editor performs a live geometric analysis, visualizing how the **Edge Roundi
 
 MOLD F.O.R.G.E. automates data management to ensure you can replicate your best designs perfectly.
 
-* **JSON Presets:** Every parameter can be saved into the `fb_presets.json` database[cite: 20, 21].
-* **DXF Library:** Any `.dxf` file placed in the `/shapes_library/` folder is automatically detected and can be scaled to fit your wheelbase[cite: 17].
-* **Config Reports:** Every export includes a `_Config.txt` file containing the "DNA" of your deck, which can be re-imported later[cite: 20, 21].
+* **JSON Presets:** Every parameter can be saved into the `fb_presets.json` database.
+* **DXF Library:** Any `.dxf` file placed in the `/shapes_library/` folder is automatically detected and can be scaled to fit your wheelbase.
+* **Config Reports:** Every export includes a `_Config.txt` file containing the "DNA" of your deck, which can be re-imported later.
 
 ---
 
@@ -63,6 +63,7 @@ The bottom console provides real-time feedback on the geometry engine's state.
 * **Diagnostic Info:** The console reports the **Max Dimensions** (Length, Width, Height) of the generated object. This is your final check to ensure the part will fit on your 3D printer's bed.
 * **Unit Toggle:** Use the **View > Unit** menu to switch the console output between **Metric (mm)** and **Imperial (in)**. Note: Input sliders always remain in mm for engineering precision.
 * **Validation Warnings:** If you enter a parameter that is physically impossible (e.g., a board wider than the mold), the software will auto-correct the value and flash the widget in **Orange**, logging a warning in the console.
+* **Standard Output Redirection (Pro-Tip):** For advanced users and debugging, all standard output (`stdout`) and standard error (`stderr`) from the underlying Python environment and CAD engine are automatically intercepted and printed directly to this console.
 * **Progress Bar:** 3D generation is a heavy mathematical process. The orange progress bar indicates that the CadQuery kernel is currently calculating the complex lofts and boolean subtractions.
 
 ---
@@ -72,24 +73,24 @@ The bottom console provides real-time feedback on the geometry engine's state.
 MOLD F.O.R.G.E. utilizes a combination of hotkeys and menu commands to optimize the design-to-manufacturing pipeline.
 
 * **F11:** Instantly toggles the visibility of the Left, Right, Bottom, and Interactive Designer panels.
-This maximizes the 3D workspace for detailed inspection or high-resolution screenshots without interface clutter[cite: 19].
-* **Export Current Object...:** Located in the **File Menu**. This action exports the specific 3D model currently visible in the viewport (Male Mold, Female Mold, etc..) as an STL or STEP file. It remains disabled until the engine successfully renders an object.
+This maximizes the 3D workspace for detailed inspection or high-resolution screenshots without interface clutter.
+* **Export Current Object...:** Located in the **File Menu**. This action exports the specific 3D model currently visible in the viewport (Male Mold, Female Mold, etc.) as an STL or STEP file. It remains disabled until the engine successfully renders an object.
 * **Batch Export:** Found in the **File Menu**, this is the primary production command.
-It generates the Male Mold, Female Mold, and Shaper Template in a single sequence, saving them into a timestamped project folder alongside a technical `_Config.txt` report[cite: 20].
+It generates the Male Mold, Female Mold, and Shaper Template in a single sequence, saving them into a timestamped project folder alongside a technical `_Config.txt` report.
 * **Load Config File:** Imports parameters from a previously exported text report.
-This allows you to instantly restore every slider and toggle to a specific production state[cite: 20].
-* **Unit Toggle:** Found in the **View Menu**, this command instantly converts all console measurements (Length, Width, Height) between **Metric (mm)** and **Imperial (in)**[cite: 19].
+This allows you to instantly restore every slider and toggle to a specific production state.
+* **Unit Toggle:** Found in the **View Menu**, this command instantly converts all console measurements (Length, Width, Height) between **Metric (mm)** and **Imperial (in)**.
 * **Enable Clipping Plane:** Found in the **View Menu**, this command triggers a dynamic cross-section cut.
-Use this to visually verify the internal `MoldGap` and ensure the `VeneerThickness` is correctly accounted for[cite: 19, 23].
-* **Show Scale Grid:** Displays a persistent 3D bounding box with axis labels and measurements around the model[cite: 23]. This is used for a final "sanity check" of the absolute physical footprint before starting a 3D print[cite: 23].
+Use this to visually verify the internal `MoldGap` and ensure the `VeneerThickness` is correctly accounted for.
+* **Show Scale Grid:** Displays a persistent 3D bounding box with axis labels and measurements around the model. This is used for a final "sanity check" of the absolute physical footprint before starting a 3D print.
 * **Interactive Symmetry Lock:** A toggle in the designer that mirrors Bezier changes symmetrically between the Nose and Tail. Uncheck this to unlock independent "Directional" design capabilities.
 
 ---
 
 ## 💾 File & Preset Actions
 
-* **Save Preset:** Commits the current UI configuration to the local JSON database[cite: 20].
-* **Delete Preset:** Permanently removes the selected custom configuration from your library[cite: 20].
+* **Save Preset:** Commits the current UI configuration to the local JSON database.
+* **Delete Preset:** Permanently removes the selected custom configuration from your library.
 * **Target Swap:** In the 2D Designer, use the **Target Dropdown** to quickly switch focus between editing the Nose and Tail planes.
 
 ---
