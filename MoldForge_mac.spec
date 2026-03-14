@@ -48,8 +48,7 @@ exe = EXE( # type: ignore
     bootloader_ignore_signals=False, 
     strip=False, 
     upx=True, 
-    console=False, 
-    target_arch='x86_64', # <--- THIS STRIPS OUT THE APPLE SILICON CODE
+    console=True, 
     icon='icon.ico'
 )
 

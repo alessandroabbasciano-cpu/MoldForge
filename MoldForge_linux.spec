@@ -12,7 +12,10 @@ datas = [
     ('shapes_library', 'shapes_library'),
     ('fb_presets.json', '.'),
     ('icon.ico', '.'),
-    ('splash.png', '.')
+    ('icon.png', '.'),
+    ('splash.png', '.'),
+    ('README_LINUX.md', '.'),
+    ('wiki', 'wiki')
 ]
 binaries = []
 hidden_imports = [

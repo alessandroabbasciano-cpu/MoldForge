@@ -92,6 +92,6 @@ for folder in ['shapes_library', 'wiki']:
     if os.path.exists(source) and not os.path.exists(dest):
         shutil.copytree(source, dest)
 
-for file in ['icon.ico', 'icon.png']:
+for file in ['icon.ico', 'icon.png', 'README_WINDOWS.md']:
     if os.path.exists(file):
         shutil.copy(file, os.path.join(release_dir, file))
