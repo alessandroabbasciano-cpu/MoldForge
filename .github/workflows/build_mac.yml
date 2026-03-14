@@ -1,4 +1,4 @@
-name: Build Mac (Self-Hosted)
+name: Build Mac (Self-Hosted x64 Maximum Compatibility)
 
 on:
   push:
@@ -9,14 +9,21 @@ on:
 jobs:
   build-mac:
     runs-on: [self-hosted, mac-local]
+    env:
+      RUNNER_TOOL_CACHE: /Users/abba/actions-runner/_work/_tool
     steps:
     - name: Checkout Code
       uses: actions/checkout@v4
 
-    - name: Setup Pristine Python
+    - name: Prepare Local Tool Cache Directory
+      run: |
+        mkdir -p /Users/abba/actions-runner/_work/_tool
+
+    - name: Setup Pristine Python (Intel x64)
       uses: actions/setup-python@v5
       with:
         python-version: "3.10"
+        architecture: "x64"
 
     - name: Install Dependencies
       run: |
@@ -28,8 +35,9 @@ jobs:
       run: |
         python -m PyInstaller --noconfirm MoldForge_mac.spec
 
-    - name: Minimal Ad-hoc Codesign
+    - name: Ad-hoc Codesign
       run: |
+        find dist/MOLDFORGE_RELEASE -type f \( -name "*.dylib" -o -name "*.so" \) -exec codesign --force --sign - {} \;
         codesign --force --sign - dist/MOLDFORGE_RELEASE/MoldForge
 
     - name: Upload Artifact

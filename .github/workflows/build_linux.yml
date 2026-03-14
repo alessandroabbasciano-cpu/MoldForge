@@ -44,14 +44,18 @@ jobs:
         mkdir -p AppDir
         cp -r dist/MOLDFORGE_RELEASE/* AppDir/
         
-        # Create .desktop launcher
+        # Create a STRICTLY VALID .desktop launcher
+        # AppImageTool (exit code 8) crashes if Categories violate FreeDesktop specs!
         cat <<EOF > AppDir/MoldForge.desktop
         [Desktop Entry]
+        Version=1.0
         Type=Application
         Name=Mold Forge
+        Comment=Parametric Fingerboard CAD
         Exec=MoldForge %F
         Icon=icon
-        Categories=Engineering;3DGraphics;
+        Terminal=false
+        Categories=Graphics;3DGraphics;Science;Engineering;
         EOF
         
         # Set icon (fallback to splash.png)
@@ -69,9 +73,8 @@ jobs:
         wget -q -O appimagetool "https://github.com/AppImage/AppImageKit/releases/download/13/appimagetool-x86_64.AppImage"
         chmod +x appimagetool
         
-        # Run AppImageTool. The '--appimage-extract-and-run' flag is crucial here 
-        # because standard AppImages require FUSE, which is often blocked inside Docker containers.
-        ./appimagetool --appimage-extract-and-run AppDir MoldForge-Linux-x86_64.AppImage
+        # Run AppImageTool with environment variable to bypass Docker FUSE limits
+        APPIMAGE_EXTRACT_AND_RUN=1 ./appimagetool AppDir MoldForge-Linux-x86_64.AppImage
 
     - name: Upload Linux Artifacts
       uses: actions/upload-artifact@v4
