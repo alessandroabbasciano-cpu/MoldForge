@@ -1,4 +1,4 @@
-name: Build Linux (Universal AppImage)
+name: Build Linux (Universal Portable Folder)
 
 on:
   push:
@@ -10,8 +10,7 @@ jobs:
   build-linux:
     runs-on: [self-hosted, arch-local]
     
-    # Run all steps inside an isolated Debian 11 container.
-    # Debian 11 provides glibc 2.31, ensuring massive cross-distro compatibility.
+    # Run inside Debian 11 container to ensure glibc 2.31 compatibility across all Linux distros
     container:
       image: python:3.10-bullseye
     
@@ -19,67 +18,28 @@ jobs:
     - name: Checkout Code
       uses: actions/checkout@v4
 
-    - name: Install System Dependencies for Build and AppImage
+    - name: Install System Dependencies for Build
       run: |
         apt-get update
         # Install libraries required by OpenGL/VTK during compilation
-        # and tools required to build the AppImage (wget, file)
-        apt-get install -y libgl1 libglib2.0-0 libxext6 libxrender1 libx11-6 file wget desktop-file-utils
+        apt-get install -y libgl1 libglib2.0-0 libxext6 libxrender1 libx11-6
 
     - name: Install Python Dependencies
       run: |
-        # We are inside the python:3.10 container, so 'python' is already v3.10
         python -m pip install --upgrade pip
         pip install cadquery PySide6==6.6.3 pyinstaller
         pip install -r requirements.txt
 
-    - name: Build with PyInstaller
+    - name: Build with PyInstaller (OneDir Mode)
       run: |
-        # Compile using the clean Linux spec file
+        # Compile using the Linux spec file. 
+        # The spec file is already configured to create dist/MOLDFORGE_RELEASE 
+        # and copy 'shapes_library' and 'wiki_drafts' into it perfectly.
         pyinstaller MoldForge_linux.spec
 
-    - name: Pack into Universal AppImage
-      run: |
-        # Create AppDir structure for AppImage
-        mkdir -p AppDir
-        cp -r dist/MOLDFORGE_RELEASE/* AppDir/
-        
-        # Create a STRICTLY VALID .desktop launcher
-        cat <<EOF > AppDir/MoldForge.desktop
-        [Desktop Entry]
-        Version=1.0
-        Type=Application
-        Name=Mold Forge
-        Comment=Parametric Fingerboard CAD
-        Exec=MoldForge %F
-        Icon=icon
-        Terminal=false
-        Categories=Graphics;3DGraphics;Science;Engineering;
-        EOF
-        
-        # Set icon (fallback to splash.png)
-        cp icon.png AppDir/icon.png 2>/dev/null || cp splash.png AppDir/icon.png 2>/dev/null || true
-        
-        # Entry point execution script
-        cat <<EOF > AppDir/AppRun
-        #!/bin/sh
-        HERE="\$(dirname "\$(readlink -f "\${0}")")"
-        exec "\${HERE}/MoldForge" "\$@"
-        EOF
-        chmod +x AppDir/AppRun
-
-        # Download official AppImageKit tool (Continuous release)
-        # We removed -q to see any download errors in the logs
-        wget -O appimagetool "https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage"
-        chmod +x appimagetool
-        
-        # Run AppImageTool with environment variable to bypass Docker FUSE limits
-        APPIMAGE_EXTRACT_AND_RUN=1 ./appimagetool AppDir MoldForge-Linux-x86_64.AppImage
-
-    - name: Upload Linux Artifacts
+    - name: Upload Linux Portable Folder
       uses: actions/upload-artifact@v4
       with:
-        name: MoldForge-Linux-Universal
-        path: |
-          dist/MOLDFORGE_RELEASE/
-          MoldForge-Linux-x86_64.AppImage
+        name: MoldForge-Linux-Portable
+        # Upload the entire folder so users have direct access to shapes_library
+        path: dist/MOLDFORGE_RELEASE/

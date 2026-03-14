@@ -8,8 +8,6 @@ import sys
 import os
 import locale
 
-# --- FORZATURA LOCALE (COMPATIBILE CON QT) ---
-# Forza l'uso del punto decimale americano mantenendo l'encoding UTF-8
 os.environ["LC_NUMERIC"] = "en_US.UTF-8"
 os.environ["LANG"] = "en_US.UTF-8"
 try:
@@ -22,6 +20,10 @@ if sys.platform == 'darwin':
     os.environ['QT_LOGGING_RULES'] = 'qt.gui.painting.warning=false;qt.qpa.fonts.warning=false'
     os.environ["EVENT_NOKQUEUE"] = "1" # Fix for certain VTK event loop issues on Mac
     os.environ["OBJC_DISABLE_INITIALIZE_FORK_SAFETY"] = "YES"
+
+# LINUX FIX: Force X11/XWayland backend. VTK/OpenGL crashes natively on Wayland.
+if sys.platform == 'linux':
+    os.environ['QT_QPA_PLATFORM'] = 'xcb'
 
 if getattr(sys, 'frozen', False) and sys.platform == 'win32':
     for module_dir in ['casadi', 'cadquery', 'OCP']:
@@ -481,16 +483,26 @@ class MoldApp(QMainWindow):
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     app.setStyle("Fusion")
+    
+    # LINUX FIX: Bind the application window to the OS taskbar/dock icon
+    app.setDesktopFileName("MoldForge")
+    
     if getattr(sys, 'frozen', False):
         base_dir = os.path.dirname(sys.executable)
     else:
         base_dir = os.path.dirname(os.path.abspath(__file__))
         
-    icon_path = os.path.join(base_dir, 'icon.ico')
-    if os.path.exists(icon_path):
-        app.setWindowIcon(QIcon(icon_path))
+    # LINUX FIX: Linux Window Managers strongly prefer PNG over ICO for the taskbar
+    icon_png = os.path.join(base_dir, 'icon.png')
+    icon_ico = os.path.join(base_dir, 'icon.ico')
+    
+    if sys.platform == 'linux' and os.path.exists(icon_png):
+        app.setWindowIcon(QIcon(icon_png))
+    elif os.path.exists(icon_ico):
+        app.setWindowIcon(QIcon(icon_ico))
         
     w = MoldApp()
+    
     # LINUX FIX: Avoid rapid window flag toggling which causes X11 BadWindow crashes
     if sys.platform == 'linux':
         w.showMaximized()
