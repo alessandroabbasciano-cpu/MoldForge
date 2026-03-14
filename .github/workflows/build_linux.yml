@@ -45,7 +45,6 @@ jobs:
         cp -r dist/MOLDFORGE_RELEASE/* AppDir/
         
         # Create a STRICTLY VALID .desktop launcher
-        # AppImageTool (exit code 8) crashes if Categories violate FreeDesktop specs!
         cat <<EOF > AppDir/MoldForge.desktop
         [Desktop Entry]
         Version=1.0
@@ -69,8 +68,9 @@ jobs:
         EOF
         chmod +x AppDir/AppRun
 
-        # Download official AppImageKit tool
-        wget -q -O appimagetool "https://github.com/AppImage/AppImageKit/releases/download/13/appimagetool-x86_64.AppImage"
+        # Download official AppImageKit tool (Continuous release)
+        # We removed -q to see any download errors in the logs
+        wget -O appimagetool "https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage"
         chmod +x appimagetool
         
         # Run AppImageTool with environment variable to bypass Docker FUSE limits
