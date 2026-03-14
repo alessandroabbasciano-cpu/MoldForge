@@ -55,19 +55,8 @@ a.binaries = [b for b in a.binaries if not b[0].startswith(exclude_prefixes)]
 pyz = PYZ(a.pure) # type: ignore
 
 # Splash Screen Configuration
-try:
-    final_splash_obj = Splash(
-        'splash.png',
-        binaries=a.binaries,
-        datas=a.datas,
-        text_pos=None,
-        text_size=12,
-        minify_script=True,
-        always_on_top=False,
-    )
-except Exception as e:
-    print(f"Splash screen error: {e}")
-    final_splash_obj = None
+# Disabled on Linux to prevent X11 BadDrawable/BadWindow crashes during Qt initialization
+final_splash_obj = None
 
 # Executable Generation
 if final_splash_obj:

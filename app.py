@@ -491,9 +491,16 @@ if __name__ == "__main__":
         app.setWindowIcon(QIcon(icon_path))
         
     w = MoldApp()
-    w.setWindowFlags(w.windowFlags() | Qt.WindowStaysOnTopHint)
-    w.showMaximized()
-    w.setWindowFlags(w.windowFlags() & ~Qt.WindowStaysOnTopHint)
-    w.showMaximized()
-    w.activateWindow()
+    # LINUX FIX: Avoid rapid window flag toggling which causes X11 BadWindow crashes
+    if sys.platform == 'linux':
+        w.showMaximized()
+        w.activateWindow()
+    else:
+        # Keep the focus hack for Windows/Mac
+        w.setWindowFlags(w.windowFlags() | Qt.WindowStaysOnTopHint)
+        w.showMaximized()
+        w.setWindowFlags(w.windowFlags() & ~Qt.WindowStaysOnTopHint)
+        w.showMaximized()
+        w.activateWindow()
+        
     sys.exit(app.exec())
