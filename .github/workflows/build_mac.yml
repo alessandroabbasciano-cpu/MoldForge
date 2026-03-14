@@ -19,7 +19,7 @@ jobs:
         rm -rf build/ dist/ venv/
         
         # Create virtual environment using Universal Python (x64 architecture)
-        arch -x86_64 /Library/Frameworks/Python.framework/Versions/3.10/bin/python3 -m venv venv
+        arch -x86_64 /Library/Frameworks/Python.framework/Versions/3.11/bin/python3 -m venv venv
         source venv/bin/activate
         
         # Install dependencies
