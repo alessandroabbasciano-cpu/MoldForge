@@ -8,24 +8,35 @@ import sys
 import os
 import locale
 import tempfile
+import subprocess
 
 # --- CRITICAL FIX FOR MATPLOTLIB DEADLOCK ON MACOS ---
 # 1. Force Matplotlib to use a writable temp directory for its cache
 os.environ["MPLCONFIGDIR"] = tempfile.gettempdir()
 
-# 2. Temporarily hide PyInstaller's injected library path.
-# This prevents the background 'fc-list' system process from inheriting 
-# the bundled CAD libraries, which causes a silent infinite deadlock.
-_dyld_backup = os.environ.pop('DYLD_LIBRARY_PATH', None)
+# 2. Prevent background system processes (like 'fc-list') from inheriting
+# PyInstaller's injected library paths, which causes silent infinite deadlocks.
+# We temporarily monkey-patch subprocess.Popen so ONLY child processes lose the 
+# DYLD_LIBRARY_PATH, allowing the main Python app to load C-extensions safely!
+_original_popen = subprocess.Popen
+
+class PatchedPopen(_original_popen):
+    def __init__(self, *args, **kwargs):
+        env = kwargs.get('env')
+        if env is None:
+            env = dict(os.environ)
+        env.pop('DYLD_LIBRARY_PATH', None)
+        kwargs['env'] = env
+        super().__init__(*args, **kwargs)
+
+subprocess.Popen = PatchedPopen
 
 try:
-    # Trigger the font cache build while the environment is clean
     import matplotlib
+    matplotlib.use('Agg') # Force non-interactive backend to avoid Qt conflicts
     import matplotlib.font_manager
 finally:
-    # Restore the library path immediately so VTK and OpenCASCADE don't break
-    if _dyld_backup is not None:
-        os.environ['DYLD_LIBRARY_PATH'] = _dyld_backup
+    subprocess.Popen = _original_popen # Restore normal behavior
 
 # --- PLATFORM SPECIFIC FIXES ---
 os.environ["LC_NUMERIC"] = "en_US.UTF-8"
