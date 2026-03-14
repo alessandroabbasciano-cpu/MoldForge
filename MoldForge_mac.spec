@@ -1,6 +1,5 @@
 import os
 import shutil
-import sys
 from PyInstaller.utils.hooks import collect_all
 
 datas = [
@@ -16,6 +15,7 @@ hidden_imports = [
     'ui_panels', 'ui_sync', 'viewer_3d'
 ]
 
+# Standard collection for CAD and 3D libraries
 for pkg in ['cadquery', 'casadi', 'OCP', 'pyvista', 'vtkmodules']:
     pkg_datas, pkg_binaries, pkg_hiddenimports = collect_all(pkg)
     datas += pkg_datas
@@ -37,6 +37,7 @@ a = Analysis( # type: ignore
 
 pyz = PYZ(a.pure) # type: ignore
 
+# Standard folder mode build (no macOS .app bundle)
 exe = EXE( # type: ignore
     pyz, 
     a.scripts, 
@@ -47,7 +48,8 @@ exe = EXE( # type: ignore
     bootloader_ignore_signals=False, 
     strip=False, 
     upx=True, 
-    console=True, # Visible console for Rosetta debugging
+    console=False, 
+    target_arch='x86_64', # <--- THIS STRIPS OUT THE APPLE SILICON CODE
     icon='icon.ico'
 )
 
@@ -62,15 +64,22 @@ coll = COLLECT( # type: ignore
     name='MoldForge_Bin'
 )
 
+# Post-build file structure management
 release_dir = os.path.abspath(os.path.join('dist', 'MOLDFORGE_RELEASE'))
 built_dir = os.path.abspath(os.path.join('dist', 'MoldForge_Bin'))
 
 if os.path.exists(release_dir):
     shutil.rmtree(release_dir)
+
 os.rename(built_dir, release_dir)
 
-for folder in ['shapes_library', 'wiki']:
+# Copy necessary external assets into the final release folder
+for folder in ['shapes_library', 'wiki_drafts']:
     source = os.path.abspath(folder)
     dest = os.path.join(release_dir, folder)
     if os.path.exists(source):
         shutil.copytree(source, dest)
+
+for file in ['icon.ico', 'icon.png']:
+    if os.path.exists(file):
+        shutil.copy(file, os.path.join(release_dir, file))

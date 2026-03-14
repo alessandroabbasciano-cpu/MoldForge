@@ -15,25 +15,23 @@ jobs:
 
     - name: Deep Clean and Setup Virtual Environment (x64)
       run: |
-        # Remove old build artifacts
+        # Remove old build artifacts and environments
         rm -rf build/ dist/ venv/
         
-        # Create virtual environment using the x86_64 slice of Universal Python
+        # Create virtual environment using Universal Python
         arch -x86_64 /Library/Frameworks/Python.framework/Versions/3.11/bin/python3 -m venv venv
         source venv/bin/activate
         
-        # Install dependencies natively in x86_64 mode
-        # 'arch' automatically forces pip to download Intel binaries, no extra flags needed
+        # Install dependencies
         arch -x86_64 python3 -m pip install --upgrade pip
         arch -x86_64 python3 -m pip install -r requirements.txt
         arch -x86_64 python3 -m pip install pyinstaller
         
-        # Pre-build Matplotlib font cache to prevent the app from freezing on first launch
+        # Pre-build Matplotlib font cache during the workflow to prevent launch freezes
         arch -x86_64 python3 -c "import matplotlib.font_manager"
         
-        # Build the application with strict x86_64 targeting. 
-        # This acts as a scalpel, physically removing Apple Silicon (arm64) code from FAT binaries.
-        arch -x86_64 python3 -m PyInstaller --noconfirm --target-architecture x86_64 MoldForge_mac.spec
+        # Build the application using the spec file (Architecture target is now INSIDE the spec file)
+        arch -x86_64 python3 -m PyInstaller --noconfirm MoldForge_mac.spec
 
     - name: Upload Artifact
       uses: actions/upload-artifact@v4
