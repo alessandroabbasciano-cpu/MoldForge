@@ -47,6 +47,7 @@ except Exception:
     pass
 
 if sys.platform == 'darwin':
+    os.environ["QT_MAC_WANTS_LAYER"] = "1"
     os.environ['QT_LOGGING_RULES'] = 'qt.gui.painting.warning=false;qt.qpa.fonts.warning=false'
     os.environ["EVENT_NOKQUEUE"] = "1" # Fix for certain VTK event loop issues on Mac
     os.environ["OBJC_DISABLE_INITIALIZE_FORK_SAFETY"] = "YES"
@@ -472,6 +473,9 @@ if __name__ == "__main__":
     
     if sys.platform == 'linux':
         w.showMaximized()
+        w.activateWindow()
+    elif sys.platform == 'darwin':
+        w.show()
         w.activateWindow()
     else:
         w.setWindowFlags(w.windowFlags() | Qt.WindowStaysOnTopHint)
