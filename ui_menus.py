@@ -75,7 +75,7 @@ def setup_menu(app):
     # Wiki
     action_wiki = help_menu.addAction("User Manual")
     action_wiki.setShortcut("F1")  
-    action_wiki.triggered.connect(lambda: webbrowser.open("https://github.com/alessandroabbasciano-cpu/MoldForge/blob/main/wiki_drafts/1-Introduction.md"))
+    action_wiki.triggered.connect(lambda: webbrowser.open("https://github.com/alessandroabbasciano-cpu/MoldForge/blob/main/wiki/1-Introduction.md"))
     
     help_menu.addSeparator()
     

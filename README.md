@@ -50,7 +50,7 @@ Due to the heavy C++ geometry engine under the hood (CadQuery / OpenCASCADE), st
 ## 📚 Official Documentation (The Mastery Path)
 
 Looking for a deep dive into every parameter, custom DXF import rules, or 3D printing tips?
-👉 **[Check out the Official MOLD F.O.R.G.E. Wiki](wiki_drafts/1-Introduction.md)**
+👉 **[Check out the Official MOLD F.O.R.G.E. Wiki](wiki/1-Introduction.md)**
 
 The Wiki is structured as a step-by-step course to take you from beginner to master mold maker:
 

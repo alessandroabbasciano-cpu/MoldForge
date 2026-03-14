@@ -1,4 +1,4 @@
-name: Build Linux (Standalone Scripts)
+name: Build Linux (Self-Hosted Arch)
 
 on:
   push:
@@ -8,26 +8,65 @@ on:
 
 jobs:
   build-linux:
-    runs-on: ubuntu-latest
+    # Using the correct local runner tag
+    runs-on: [self-hosted, arch-local]
+    
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
+    - name: Checkout Code
+      uses: actions/checkout@v4
 
-      - name: Create Linux Release Package
-        run: |
-          mkdir -p MOLDFORGE_LINUX
-          cp *.py MOLDFORGE_LINUX/
-          cp requirements.txt MOLDFORGE_LINUX/
-          cp icon.ico MOLDFORGE_LINUX/ || true
-          cp fb_presets.json MOLDFORGE_LINUX/ || true
-          cp -r shapes_library MOLDFORGE_LINUX/
-          cp linux_scripts/install.sh MOLDFORGE_LINUX/
-          cp linux_scripts/run.sh MOLDFORGE_LINUX/
-          chmod +x MOLDFORGE_LINUX/install.sh
-          chmod +x MOLDFORGE_LINUX/run.sh
+    - name: Build with PyInstaller on Local Machine
+      shell: bash
+      run: |
+        # 1. Create and activate isolated virtual environment
+        python3 -m venv venv
+        source venv/bin/activate
+        
+        # 2. Install exact dependencies
+        python3 -m pip install --upgrade pip
+        pip install cadquery PySide6==6.6.3 pyinstaller
+        pip install -r requirements.txt
+        
+        # 3. Compile using the clean Linux spec file
+        pyinstaller MoldForge_linux.spec
 
-      - name: Upload Linux Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: MoldForge-Linux
-          path: MOLDFORGE_LINUX/
+    - name: Pack into AppImage
+      shell: bash
+      run: |
+        # Create AppDir structure for AppImage
+        mkdir -p AppDir
+        cp -r dist/MOLDFORGE_RELEASE/* AppDir/
+        
+        # Create .desktop launcher
+        cat <<EOF > AppDir/MoldForge.desktop
+        [Desktop Entry]
+        Type=Application
+        Name=Mold Forge
+        Exec=MoldForge %F
+        Icon=icon
+        Categories=Engineering;3DGraphics;
+        EOF
+        
+        # Set icon (fallback to splash.png)
+        cp icon.png AppDir/icon.png 2>/dev/null || cp splash.png AppDir/icon.png 2>/dev/null || true
+        
+        # Entry point execution script
+        cat <<EOF > AppDir/AppRun
+        #!/bin/sh
+        HERE="\$(dirname "\$(readlink -f "\${0}")")"
+        exec "\${HERE}/MoldForge" "\$@"
+        EOF
+        chmod +x AppDir/AppRun
+
+        # Download official AppImageKit tool and pack
+        wget -q -O appimagetool "https://github.com/AppImage/AppImageKit/releases/download/13/appimagetool-x86_64.AppImage"
+        chmod +x appimagetool
+        ./appimagetool --appimage-extract-and-run AppDir MoldForge-Linux-x86_64.AppImage
+
+    - name: Upload Linux Artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: MoldForge-linux-local
+        path: |
+          dist/MOLDFORGE_RELEASE/
+          MoldForge-Linux-x86_64.AppImage

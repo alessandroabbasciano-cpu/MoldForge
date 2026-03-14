@@ -85,7 +85,7 @@ if os.path.exists(release_dir):
 
 os.rename(built_dir, release_dir)
 
-for folder in ['shapes_library', 'wiki_drafts']:
+for folder in ['shapes_library', 'wiki']:
     source = os.path.abspath(folder)
     dest = os.path.join(release_dir, folder)
     if os.path.exists(source) and not os.path.exists(dest):

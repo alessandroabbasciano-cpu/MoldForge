@@ -2,8 +2,8 @@
 import sys
 import os
 import shutil
-import re
 from PyInstaller.utils.hooks import collect_all
+from PyInstaller.building.splash import Splash
 
 block_cipher = None
 
@@ -44,43 +44,40 @@ a = Analysis( # type: ignore
     noarchive=False,
 )
 
-if sys.platform == 'linux':
-    exclude_prefixes = (
-        'libX11', 'libXext', 'libXdamage', 'libXfixes', 'libXrender',
-        'libGL', 'libEGL', 'libGLES', 'libstdc++', 'libgcc_s', 
-        'libdrm', 'libgbm', 'libglapi', 'libxshmfence'
-    )
-    a.binaries = [b for b in a.binaries if not b[0].startswith(exclude_prefixes)]
+# === LINUX SPECIFIC: Exclude system graphics libraries to prevent OpenGL crashes ===
+exclude_prefixes = (
+    'libX11', 'libXext', 'libXdamage', 'libXfixes', 'libXrender',
+    'libGL', 'libEGL', 'libGLES', 'libstdc++', 'libgcc_s', 
+    'libdrm', 'libgbm', 'libglapi', 'libxshmfence'
+)
+a.binaries = [b for b in a.binaries if not b[0].startswith(exclude_prefixes)]
 
 pyz = PYZ(a.pure) # type: ignore
 
-show_splash = False
-final_splash_obj = None
+# Splash Screen Configuration
+try:
+    final_splash_obj = Splash(
+        'splash.png',
+        binaries=a.binaries,
+        datas=a.datas,
+        text_pos=None,
+        text_size=12,
+        minify_script=True,
+        always_on_top=False,
+    )
+except Exception as e:
+    print(f"Splash screen error: {e}")
+    final_splash_obj = None
 
-if sys.platform != 'darwin':
-    try:
-        final_splash_obj = Splash( # type: ignore
-            'splash.png',
-            binaries=a.binaries,
-            datas=a.datas,
-            text_pos=None,
-            text_size=12,
-            minify_script=True,
-            always_on_top=False,
-        )
-        show_splash = True
-    except Exception as e:
-        print(f"Splash screen error: {e}")
-
-exe_name = 'MoldForgeApp' if sys.platform != 'win32' else 'MoldForge'
-
-if show_splash and final_splash_obj:
-    exe = EXE(pyz, a.scripts, final_splash_obj, [], exclude_binaries=True, name=exe_name, debug=False, bootloader_ignore_signals=False, strip=False, upx=True, console=False, icon='icon.ico') # type: ignore
+# Executable Generation
+if final_splash_obj:
+    exe = EXE(pyz, a.scripts, final_splash_obj, [], exclude_binaries=True, name='MoldForge', debug=False, bootloader_ignore_signals=False, strip=False, upx=True, console=False, icon='icon.png') # type: ignore
 else:
-    exe = EXE(pyz, a.scripts, [], exclude_binaries=True, name=exe_name, debug=False, bootloader_ignore_signals=False, strip=False, upx=True, console=False, icon='icon.ico') # type: ignore
+    exe = EXE(pyz, a.scripts, [], exclude_binaries=True, name='MoldForge', debug=False, bootloader_ignore_signals=False, strip=False, upx=True, console=False, icon='icon.png') # type: ignore
 
 coll = COLLECT(exe, a.binaries, a.zipfiles, a.datas, strip=False, upx=True, upx_exclude=[], name='MoldForge_Bin') # type: ignore
 
+# Cleanup and rename output directories
 release_dir = os.path.abspath(os.path.join('dist', 'MOLDFORGE_RELEASE'))
 built_dir = os.path.abspath(os.path.join('dist', 'MoldForge_Bin'))
 
@@ -89,18 +86,13 @@ if os.path.exists(release_dir):
 
 os.rename(built_dir, release_dir)
 
-if sys.platform != 'win32':
-    old_exe = os.path.join(release_dir, 'MoldForgeApp')
-    new_exe = os.path.join(release_dir, 'MoldForge')
-    if os.path.exists(old_exe):
-        os.rename(old_exe, new_exe)
-
-for folder in ['shapes_library', 'wiki_drafts']:
+# Copy extra folders not handled by PyInstaller
+for folder in ['shapes_library', 'wiki']:
     source = os.path.abspath(folder)
     dest = os.path.join(release_dir, folder)
     if os.path.exists(source):
         shutil.copytree(source, dest)
 
-for file in ['icon.ico', 'icon.png']:
+for file in ['icon.png', 'icon.ico']:
     if os.path.exists(file):
         shutil.copy(file, os.path.join(release_dir, file))

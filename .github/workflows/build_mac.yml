@@ -1,4 +1,4 @@
-name: Build Mac (Self-Hosted Intel/Rosetta)
+name: Build Mac (Self-Hosted Intel Clean)
 
 on:
   push:
@@ -13,29 +13,22 @@ jobs:
     - name: Checkout Code
       uses: actions/checkout@v4
 
-    - name: Setup Virtual Environment, Install and Build (x86_64)
+    - name: Deep Clean and Build
       run: |
-        # Create virtual environment using absolute path for Universal Python
-        # Ensure the version number matches your installation (e.g., 3.10 or 3.11)
-        arch -x86_64 /Library/Frameworks/Python.framework/Versions/3.11/bin/python3 -m venv venv
+        # Remove any previous build artifacts and environment
+        rm -rf build/ dist/ venv/
         
-        # Activate the environment
+        # Create a fresh x86_64 virtual environment
+        arch -x86_64 /Library/Frameworks/Python.framework/Versions/3.11/bin/python3 -m venv venv
         source venv/bin/activate
         
-        # Install dependencies using the correct architecture
+        # Fresh install of all dependencies
         arch -x86_64 python3 -m pip install --upgrade pip
         arch -x86_64 python3 -m pip install -r requirements.txt
         arch -x86_64 python3 -m pip install pyinstaller
         
-        # Build the application
+        # Build using the spec file
         arch -x86_64 python3 -m PyInstaller --noconfirm MoldForge_mac.spec
-    
-    - name: Ad-hoc Codesign for x86_64
-      run: |
-        # Sign the libraries and the final executable
-        find dist/MOLDFORGE_RELEASE -type f \( -name "*.dylib" -o -name "*.so" \) -exec codesign --force --sign - {} \;
-        
-        codesign --force --sign - dist/MOLDFORGE_RELEASE/MoldForge
 
     - name: Upload Artifact
       uses: actions/upload-artifact@v4

@@ -1,7 +1,6 @@
+# -*- mode: python ; coding: utf-8 -*-
 import os
-import sys
 import shutil
-import re
 from PyInstaller.utils.hooks import collect_all
 
 datas = [
@@ -17,6 +16,7 @@ hidden_imports = [
     'ui_panels', 'ui_sync', 'viewer_3d'
 ]
 
+# Use collect_all for complex CAD/3D libraries
 for pkg in ['cadquery', 'casadi', 'OCP', 'pyvista', 'vtkmodules']:
     pkg_datas, pkg_binaries, pkg_hiddenimports = collect_all(pkg)
     datas += pkg_datas
@@ -26,9 +26,9 @@ for pkg in ['cadquery', 'casadi', 'OCP', 'pyvista', 'vtkmodules']:
 a = Analysis( # type: ignore
     ['app.py'],
     pathex=[],
-    binaries=binaries,     
-    datas=datas,           
-    hiddenimports=hidden_imports, 
+    binaries=binaries,
+    datas=datas,
+    hiddenimports=hidden_imports,
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
@@ -36,55 +36,43 @@ a = Analysis( # type: ignore
     noarchive=False,
 )
 
-# --- MACOS VTK DUPLICATE PURGE ---
-# This block is crucial to prevent the Mac from freezing during 3D initialization
-if sys.platform == 'darwin':
-    filtered_binaries = []
-    for binary in a.binaries:
-        dest, src, typecode = binary
-        # Ignore VTK libraries without version numbers to prevent Objective-C class conflicts
-        if "libvtk" in dest and dest.endswith(".dylib") and not re.search(r'-\d+\.\d+', dest):
-            continue
-        filtered_binaries.append(binary)
-    a.binaries = filtered_binaries
-
 pyz = PYZ(a.pure) # type: ignore
 
 exe = EXE( # type: ignore
-    pyz, 
-    a.scripts, 
-    [], 
-    exclude_binaries=True, 
+    pyz,
+    a.scripts,
+    [],
+    exclude_binaries=True,
     name='MoldForge',
-    debug=False, 
-    bootloader_ignore_signals=False, 
-    strip=False, 
-    upx=True, 
-    console=True, # Keep the console open for debugging output
+    debug=False,
+    bootloader_ignore_signals=False,
+    strip=False,
+    upx=True,
+    console=True, # Essential for seeing errors during this phase
     icon='icon.ico'
 )
 
 coll = COLLECT( # type: ignore
-    exe, 
-    a.binaries, 
-    a.zipfiles, 
-    a.datas, 
-    strip=False, 
-    upx=True, 
-    upx_exclude=[], 
+    exe,
+    a.binaries,
+    a.zipfiles,
+    a.datas,
+    strip=False,
+    upx=True,
+    upx_exclude=[],
     name='MoldForge_Bin'
 )
 
+# Post-build management
 release_dir = os.path.abspath(os.path.join('dist', 'MOLDFORGE_RELEASE'))
 built_dir = os.path.abspath(os.path.join('dist', 'MoldForge_Bin'))
 
 if os.path.exists(release_dir):
     shutil.rmtree(release_dir)
-
 os.rename(built_dir, release_dir)
 
-# Copy extra required folders
-for folder in ['shapes_library', 'wiki_drafts']:
+# Copy asset folders
+for folder in ['shapes_library', 'wiki']:
     source = os.path.abspath(folder)
     dest = os.path.join(release_dir, folder)
     if os.path.exists(source):
