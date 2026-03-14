@@ -37,7 +37,7 @@ a = Analysis( # type: ignore
 
 pyz = PYZ(a.pure) # type: ignore
 
-# Standard folder mode build (no macOS .app bundle)
+# 1. Internal executable creation (console=False to unlock Mac graphics)
 exe = EXE( # type: ignore
     pyz, 
     a.scripts, 
@@ -48,10 +48,11 @@ exe = EXE( # type: ignore
     bootloader_ignore_signals=False, 
     strip=False, 
     upx=True, 
-    console=True, 
+    console=False, 
     icon='icon.ico'
 )
 
+# 2. Dependency collection
 coll = COLLECT( # type: ignore
     exe, 
     a.binaries, 
@@ -63,22 +64,37 @@ coll = COLLECT( # type: ignore
     name='MoldForge_Bin'
 )
 
-# Post-build file structure management
+# 3. Official Apple .app bundle creation (Graphics wrapper)
+app = BUNDLE( # type: ignore
+    coll,
+    name='MoldForge.app',
+    icon='icon.ico',
+    bundle_identifier='com.moldforge.app',
+    info_plist={
+        'NSPrincipalClass': 'NSApplication',
+        'NSHighResolutionCapable': 'True'
+    }
+)
+
+# --- 4. FINAL HYBRID FOLDER CONSTRUCTION ---
 release_dir = os.path.abspath(os.path.join('dist', 'MOLDFORGE_RELEASE'))
-built_dir = os.path.abspath(os.path.join('dist', 'MoldForge_Bin'))
 
 if os.path.exists(release_dir):
     shutil.rmtree(release_dir)
+os.makedirs(release_dir)
 
-os.rename(built_dir, release_dir)
+# Move the newly created App into the release folder
+app_path = os.path.abspath(os.path.join('dist', 'MoldForge.app'))
+shutil.move(app_path, os.path.join(release_dir, 'MoldForge.app'))
 
-# Copy necessary external assets into the final release folder
+# Copy user-facing folders alongside the App
 for folder in ['shapes_library', 'wiki']:
     source = os.path.abspath(folder)
     dest = os.path.join(release_dir, folder)
     if os.path.exists(source):
         shutil.copytree(source, dest)
 
-for file in ['icon.ico', 'icon.png', 'README_MAC.md']:
+# Copy text files and presets alongside the App
+for file in ['icon.ico', 'icon.png', 'README_MAC.md', 'fb_presets.json']:
     if os.path.exists(file):
         shutil.copy(file, os.path.join(release_dir, file))
