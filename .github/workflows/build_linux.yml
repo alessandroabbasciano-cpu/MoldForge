@@ -21,8 +21,7 @@ jobs:
     - name: Install System Dependencies for Build
       run: |
         apt-get update
-        # Install libraries required by OpenGL/VTK during compilation
-        apt-get install -y libgl1 libglib2.0-0 libxext6 libxrender1 libx11-6
+        apt-get install -y libgl1 libglib2.0-0 libxext6 libxrender1 libx11-6 libxcb-cursor0 libxcb-icccm4 libxcb-keysyms1 libxcb-image0
 
     - name: Install Python Dependencies
       run: |
