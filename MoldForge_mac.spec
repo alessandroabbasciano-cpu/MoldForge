@@ -1,6 +1,5 @@
 import os
 import shutil
-import sys
 from PyInstaller.utils.hooks import collect_all
 
 datas = [
@@ -38,7 +37,6 @@ a = Analysis( # type: ignore
 
 pyz = PYZ(a.pure) # type: ignore
 
-# Folder mode build (not an .app bundle)
 exe = EXE( # type: ignore
     pyz, 
     a.scripts, 
@@ -49,7 +47,7 @@ exe = EXE( # type: ignore
     bootloader_ignore_signals=False, 
     strip=False, 
     upx=True, 
-    console=True, 
+    console=False, # Must be False for a proper macOS App Bundle
     icon='icon.ico'
 )
 
@@ -64,17 +62,35 @@ coll = COLLECT( # type: ignore
     name='MoldForge_Bin'
 )
 
+# Essential: Package as a native macOS .app bundle to grant OpenGL/WindowServer permissions
+app = BUNDLE( # type: ignore
+    coll,
+    name='MoldForge.app',
+    icon='icon.ico',
+    bundle_identifier='com.moldforge.app',
+    info_plist={
+        'NSPrincipalClass': 'NSApplication',
+        'NSHighResolutionCapable': 'True',
+        'LSBackgroundOnly': 'False',
+        'NSRequiresAquaSystemAppearance': 'False'
+    },
+)
+
 # Post-build management
 release_dir = os.path.abspath(os.path.join('dist', 'MOLDFORGE_RELEASE'))
-built_dir = os.path.abspath(os.path.join('dist', 'MoldForge_Bin'))
 
 if os.path.exists(release_dir):
     shutil.rmtree(release_dir)
+    
+os.makedirs(release_dir)
 
-os.rename(built_dir, release_dir)
+# Move the .app bundle into the release folder
+built_app_dir = os.path.abspath(os.path.join('dist', 'MoldForge.app'))
+if os.path.exists(built_app_dir):
+    shutil.move(built_app_dir, os.path.join(release_dir, 'MoldForge.app'))
 
-# Copy necessary external assets directly into the release folder
-for folder in ['shapes_library', 'wiki_drafts']:
+# Copy necessary external assets SIDE-BY-SIDE with the .app bundle
+for folder in ['shapes_library', 'wiki']:
     source = os.path.abspath(folder)
     dest = os.path.join(release_dir, folder)
     if os.path.exists(source):

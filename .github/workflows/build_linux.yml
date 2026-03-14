@@ -34,7 +34,7 @@ jobs:
       run: |
         # Compile using the Linux spec file. 
         # The spec file is already configured to create dist/MOLDFORGE_RELEASE 
-        # and copy 'shapes_library' and 'wiki_drafts' into it perfectly.
+        # and copy 'shapes_library' and 'wiki' into it perfectly.
         pyinstaller MoldForge_linux.spec
 
     - name: Upload Linux Portable Folder
