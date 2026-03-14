@@ -1,4 +1,3 @@
-# -*- mode: python ; coding: utf-8 -*-
 import os
 import shutil
 from PyInstaller.utils.hooks import collect_all
@@ -16,7 +15,7 @@ hidden_imports = [
     'ui_panels', 'ui_sync', 'viewer_3d'
 ]
 
-# Use collect_all for complex CAD/3D libraries
+# Collect complex 3D libraries
 for pkg in ['cadquery', 'casadi', 'OCP', 'pyvista', 'vtkmodules']:
     pkg_datas, pkg_binaries, pkg_hiddenimports = collect_all(pkg)
     datas += pkg_datas
@@ -26,9 +25,9 @@ for pkg in ['cadquery', 'casadi', 'OCP', 'pyvista', 'vtkmodules']:
 a = Analysis( # type: ignore
     ['app.py'],
     pathex=[],
-    binaries=binaries,
-    datas=datas,
-    hiddenimports=hidden_imports,
+    binaries=binaries,     
+    datas=datas,           
+    hiddenimports=hidden_imports, 
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
@@ -39,40 +38,41 @@ a = Analysis( # type: ignore
 pyz = PYZ(a.pure) # type: ignore
 
 exe = EXE( # type: ignore
-    pyz,
-    a.scripts,
-    [],
-    exclude_binaries=True,
+    pyz, 
+    a.scripts, 
+    [], 
+    exclude_binaries=True, 
     name='MoldForge',
-    debug=False,
-    bootloader_ignore_signals=False,
-    strip=False,
-    upx=True,
-    console=True, # Essential for seeing errors during this phase
+    debug=False, 
+    bootloader_ignore_signals=False, 
+    strip=False, 
+    upx=True, 
+    console=True, 
     icon='icon.ico'
 )
 
 coll = COLLECT( # type: ignore
-    exe,
-    a.binaries,
-    a.zipfiles,
-    a.datas,
-    strip=False,
-    upx=True,
-    upx_exclude=[],
+    exe, 
+    a.binaries, 
+    a.zipfiles, 
+    a.datas, 
+    strip=False, 
+    upx=True, 
+    upx_exclude=[], 
     name='MoldForge_Bin'
 )
 
-# Post-build management
+# Post-build file management
 release_dir = os.path.abspath(os.path.join('dist', 'MOLDFORGE_RELEASE'))
 built_dir = os.path.abspath(os.path.join('dist', 'MoldForge_Bin'))
 
 if os.path.exists(release_dir):
     shutil.rmtree(release_dir)
+
 os.rename(built_dir, release_dir)
 
-# Copy asset folders
-for folder in ['shapes_library', 'wiki']:
+# Copy necessary assets
+for folder in ['shapes_library', 'wiki_drafts']:
     source = os.path.abspath(folder)
     dest = os.path.join(release_dir, folder)
     if os.path.exists(source):

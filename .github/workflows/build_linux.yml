@@ -8,12 +8,10 @@ on:
 
 jobs:
   build-linux:
-    # Use your local Arch machine for hardware power...
     runs-on: [self-hosted, arch-local]
     
-    # ...but run all steps inside an isolated Debian 11 container.
-    # Debian 11 has glibc 2.31, making the final AppImage compatible 
-    # with almost every Linux distribution from 2020 onwards.
+    # Run all steps inside an isolated Debian 11 container.
+    # Debian 11 provides glibc 2.31, ensuring massive cross-distro compatibility.
     container:
       image: python:3.10-bullseye
     

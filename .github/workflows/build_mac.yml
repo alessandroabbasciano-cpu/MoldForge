@@ -1,4 +1,4 @@
-name: Build Mac (Self-Hosted Intel Clean)
+name: Build Mac (Self-Hosted)
 
 on:
   push:
@@ -13,22 +13,24 @@ jobs:
     - name: Checkout Code
       uses: actions/checkout@v4
 
-    - name: Deep Clean and Build
+    - name: Setup Pristine Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.10"
+
+    - name: Install Dependencies
       run: |
-        # Remove any previous build artifacts and environment
-        rm -rf build/ dist/ venv/
-        
-        # Create a fresh x86_64 virtual environment
-        arch -x86_64 /Library/Frameworks/Python.framework/Versions/3.11/bin/python3 -m venv venv
-        source venv/bin/activate
-        
-        # Fresh install of all dependencies
-        arch -x86_64 python3 -m pip install --upgrade pip
-        arch -x86_64 python3 -m pip install -r requirements.txt
-        arch -x86_64 python3 -m pip install pyinstaller
-        
-        # Build using the spec file
-        arch -x86_64 python3 -m PyInstaller --noconfirm MoldForge_mac.spec
+        python -m pip install --upgrade pip
+        python -m pip install -r requirements.txt
+        python -m pip install pyinstaller
+
+    - name: Build Application
+      run: |
+        python -m PyInstaller --noconfirm MoldForge_mac.spec
+
+    - name: Minimal Ad-hoc Codesign
+      run: |
+        codesign --force --sign - dist/MOLDFORGE_RELEASE/MoldForge
 
     - name: Upload Artifact
       uses: actions/upload-artifact@v4
