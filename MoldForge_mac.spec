@@ -1,5 +1,6 @@
 import os
 import shutil
+import sys
 from PyInstaller.utils.hooks import collect_all
 
 datas = [
@@ -15,7 +16,7 @@ hidden_imports = [
     'ui_panels', 'ui_sync', 'viewer_3d'
 ]
 
-# Standard collection for CAD and 3D libraries without any custom filtering
+# Standard collection for CAD and 3D libraries without custom filtering
 for pkg in ['cadquery', 'casadi', 'OCP', 'pyvista', 'vtkmodules']:
     pkg_datas, pkg_binaries, pkg_hiddenimports = collect_all(pkg)
     datas += pkg_datas
@@ -37,6 +38,7 @@ a = Analysis( # type: ignore
 
 pyz = PYZ(a.pure) # type: ignore
 
+# Folder mode build (not an .app bundle)
 exe = EXE( # type: ignore
     pyz, 
     a.scripts, 
@@ -71,8 +73,8 @@ if os.path.exists(release_dir):
 
 os.rename(built_dir, release_dir)
 
-# Copy necessary assets
-for folder in ['shapes_library', 'wiki']:
+# Copy necessary external assets directly into the release folder
+for folder in ['shapes_library', 'wiki_drafts']:
     source = os.path.abspath(folder)
     dest = os.path.join(release_dir, folder)
     if os.path.exists(source):
