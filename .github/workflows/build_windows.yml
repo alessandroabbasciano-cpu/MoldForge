@@ -13,17 +13,19 @@ jobs:
     - name: Checkout Code
       uses: actions/checkout@v4
 
-    - name: Build on Windows
+    - name: Build with PyInstaller on Windows
       shell: cmd
       run: |
         py -3.10 -m venv venv
         venv\Scripts\python.exe -m pip install --upgrade pip
         venv\Scripts\pip.exe install cadquery PySide6==6.6.3 pyinstaller
         venv\Scripts\pip.exe install -r requirements.txt
-        venv\Scripts\pyinstaller.exe MoldForge.spec
+        
+        # FIXED: Call the correct Windows-specific spec file
+        venv\Scripts\pyinstaller.exe MoldForge_win.spec
 
-    - name: Upload Artifacts
+    - name: Upload Windows Portable Folder
       uses: actions/upload-artifact@v4
       with:
-        name: MoldForge-windows-local
+        name: MoldForge-Windows-Portable
         path: dist/MOLDFORGE_RELEASE/

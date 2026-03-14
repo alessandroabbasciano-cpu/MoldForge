@@ -48,7 +48,8 @@ try:
         always_on_top=False,
     )
 except Exception as e:
-    print(f"Errore Splash screen: {e}")
+    # Changed from Italian to English
+    print(f"Splash screen error: {e}")
     final_splash_obj = None
 
 exe = EXE( # type: ignore

@@ -1,5 +1,6 @@
 import os
 import shutil
+import sys
 from PyInstaller.utils.hooks import collect_all
 
 datas = [
@@ -15,7 +16,6 @@ hidden_imports = [
     'ui_panels', 'ui_sync', 'viewer_3d'
 ]
 
-# Standard collection for CAD and 3D libraries without custom filtering
 for pkg in ['cadquery', 'casadi', 'OCP', 'pyvista', 'vtkmodules']:
     pkg_datas, pkg_binaries, pkg_hiddenimports = collect_all(pkg)
     datas += pkg_datas
@@ -47,7 +47,7 @@ exe = EXE( # type: ignore
     bootloader_ignore_signals=False, 
     strip=False, 
     upx=True, 
-    console=False, # Must be False for a proper macOS App Bundle
+    console=True, # Visible console for Rosetta debugging
     icon='icon.ico'
 )
 
@@ -62,40 +62,15 @@ coll = COLLECT( # type: ignore
     name='MoldForge_Bin'
 )
 
-# Essential: Package as a native macOS .app bundle to grant OpenGL/WindowServer permissions
-app = BUNDLE( # type: ignore
-    coll,
-    name='MoldForge.app',
-    icon='icon.ico',
-    bundle_identifier='com.moldforge.app',
-    info_plist={
-        'NSPrincipalClass': 'NSApplication',
-        'NSHighResolutionCapable': 'True',
-        'LSBackgroundOnly': 'False',
-        'NSRequiresAquaSystemAppearance': 'False'
-    },
-)
-
-# Post-build management
 release_dir = os.path.abspath(os.path.join('dist', 'MOLDFORGE_RELEASE'))
+built_dir = os.path.abspath(os.path.join('dist', 'MoldForge_Bin'))
 
 if os.path.exists(release_dir):
     shutil.rmtree(release_dir)
-    
-os.makedirs(release_dir)
+os.rename(built_dir, release_dir)
 
-# Move the .app bundle into the release folder
-built_app_dir = os.path.abspath(os.path.join('dist', 'MoldForge.app'))
-if os.path.exists(built_app_dir):
-    shutil.move(built_app_dir, os.path.join(release_dir, 'MoldForge.app'))
-
-# Copy necessary external assets SIDE-BY-SIDE with the .app bundle
 for folder in ['shapes_library', 'wiki']:
     source = os.path.abspath(folder)
     dest = os.path.join(release_dir, folder)
     if os.path.exists(source):
         shutil.copytree(source, dest)
-
-for file in ['icon.ico', 'icon.png']:
-    if os.path.exists(file):
-        shutil.copy(file, os.path.join(release_dir, file))

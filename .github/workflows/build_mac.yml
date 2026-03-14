@@ -1,4 +1,4 @@
-name: Build Mac (Self-Hosted Hybrid App)
+name: Build Mac (Self-Hosted Pure Intel Mode)
 
 on:
   push:
@@ -13,25 +13,22 @@ jobs:
     - name: Checkout Code
       uses: actions/checkout@v4
 
-    - name: Deep Clean and Setup Virtual Environment (x64)
+    - name: Deep Clean and Setup Virtual Environment (Intel Only)
       run: |
         rm -rf build/ dist/ venv/
         
+        # Force the environment creation using the x86_64 slice of your Python
         arch -x86_64 /Library/Frameworks/Python.framework/Versions/3.11/bin/python3 -m venv venv
         source venv/bin/activate
         
+        # CRITICAL: Force pip to download ONLY Intel (x86_64) binaries
+        # This mimics exactly what the GitHub cloud runner does
         arch -x86_64 python3 -m pip install --upgrade pip
-        arch -x86_64 python3 -m pip install -r requirements.txt
+        arch -x86_64 python3 -m pip install --only-binary=:all: --platform macosx_10_9_x86_64 -r requirements.txt
         arch -x86_64 python3 -m pip install pyinstaller
         
+        # Build the application forcing x86_64 architecture
         arch -x86_64 python3 -m PyInstaller --noconfirm MoldForge_mac.spec
-
-    - name: Ad-hoc Codesign for the .app Bundle
-      run: |
-        # Ensure we are applying ad-hoc signatures to satisfy macOS Gatekeeper
-        find dist/MOLDFORGE_RELEASE/MoldForge.app -type f \( -name "*.dylib" -o -name "*.so" \) -exec codesign --force --sign - {} \;
-        codesign --force --sign - dist/MOLDFORGE_RELEASE/MoldForge.app/Contents/MacOS/MoldForge
-        codesign --force --sign - dist/MOLDFORGE_RELEASE/MoldForge.app
 
     - name: Upload Artifact
       uses: actions/upload-artifact@v4
