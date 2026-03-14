@@ -1,5 +1,7 @@
 import os
 import shutil
+import sys
+import re
 from PyInstaller.utils.hooks import collect_all
 
 datas = [
@@ -34,6 +36,18 @@ a = Analysis( # type: ignore
     excludes=[],
     noarchive=False,
 )
+
+# --- MACOS VTK DUPLICATE PURGE ---
+# REQUIRED: Prevents the infinite freeze on macOS GUI initialization
+if sys.platform == 'darwin':
+    filtered_binaries = []
+    for binary in a.binaries:
+        dest, src, typecode = binary
+        # Ignore unversioned VTK libraries to prevent Objective-C class conflicts
+        if "libvtk" in dest and dest.endswith(".dylib") and not re.search(r'-\d+\.\d+', dest):
+            continue
+        filtered_binaries.append(binary)
+    a.binaries = filtered_binaries
 
 pyz = PYZ(a.pure) # type: ignore
 
