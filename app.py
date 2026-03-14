@@ -7,7 +7,27 @@ and orchestrates communication between the UI components and the CadQuery 3D eng
 import sys
 import os
 import locale
+import tempfile
 
+# --- CRITICAL FIX FOR MATPLOTLIB DEADLOCK ON MACOS ---
+# 1. Force Matplotlib to use a writable temp directory for its cache
+os.environ["MPLCONFIGDIR"] = tempfile.gettempdir()
+
+# 2. Temporarily hide PyInstaller's injected library path.
+# This prevents the background 'fc-list' system process from inheriting 
+# the bundled CAD libraries, which causes a silent infinite deadlock.
+_dyld_backup = os.environ.pop('DYLD_LIBRARY_PATH', None)
+
+try:
+    # Trigger the font cache build while the environment is clean
+    import matplotlib
+    import matplotlib.font_manager
+finally:
+    # Restore the library path immediately so VTK and OpenCASCADE don't break
+    if _dyld_backup is not None:
+        os.environ['DYLD_LIBRARY_PATH'] = _dyld_backup
+
+# --- PLATFORM SPECIFIC FIXES ---
 os.environ["LC_NUMERIC"] = "en_US.UTF-8"
 os.environ["LANG"] = "en_US.UTF-8"
 try:
@@ -15,7 +35,6 @@ try:
 except Exception:
     pass
 
-# --- PLATFORM SPECIFIC FIXES ---
 if sys.platform == 'darwin':
     os.environ['QT_LOGGING_RULES'] = 'qt.gui.painting.warning=false;qt.qpa.fonts.warning=false'
     os.environ["EVENT_NOKQUEUE"] = "1" # Fix for certain VTK event loop issues on Mac
