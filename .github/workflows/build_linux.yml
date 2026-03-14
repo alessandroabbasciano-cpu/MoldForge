@@ -8,22 +8,30 @@ on:
 
 jobs:
   build-linux:
-    # Using the correct local runner tag
     runs-on: [self-hosted, arch-local]
     
     steps:
     - name: Checkout Code
       uses: actions/checkout@v4
 
+    - name: Set up isolated Python 3.10
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.10'
+        # This action automatically downloads Python 3.10 into a temporary cache 
+        # and adds it to the PATH only for the duration of this job.
+        # It leaves your Arch Linux host system completely untouched.
+
     - name: Build with PyInstaller on Local Machine
       shell: bash
       run: |
-        # 1. Create and activate isolated virtual environment
-        python3 -m venv venv
+        # 1. Create and activate virtual environment
+        # This will now safely use the portable Python 3.10 we just downloaded
+        python -m venv venv
         source venv/bin/activate
         
-        # 2. Install exact dependencies
-        python3 -m pip install --upgrade pip
+        # 2. Install dependencies
+        python -m pip install --upgrade pip
         pip install cadquery PySide6==6.6.3 pyinstaller
         pip install -r requirements.txt
         
