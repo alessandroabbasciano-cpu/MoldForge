@@ -11,37 +11,26 @@ jobs:
     runs-on: [self-hosted, mac-local]
     steps:
     - name: Checkout Code
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
 
     - name: Deep Clean and Setup Virtual Environment (ARM64 Native)
       run: |
-        # Remove old build artifacts and environments
         rm -rf build/ dist/ venv/
-        
-        # Use native Python (do not force x86_64)
         python3 -m venv venv
         source venv/bin/activate
-        
-        # Install dependencies
         python3 -m pip install --upgrade pip
         python3 -m pip install -r requirements.txt
         python3 -m pip install pyinstaller
-        
-        # Pre-build Matplotlib font cache
         python3 -c "import matplotlib.font_manager"
         
     - name: Build the application
       run: |
         source venv/bin/activate
         python3 -m PyInstaller --noconfirm MoldForge_mac.spec
-
-    - name: Create Clean ZIP for Mac
-      run: |
-        cd dist/MOLDFORGE_RELEASE
-        zip -ry ../../MoldForge-Mac-ARM64.zip .
         
     - name: Upload Artifact
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v5
       with:
         name: MoldForge-Mac-ARM64
-        path: MoldForge-Mac-ARM64.zip
+        path: dist/MOLDFORGE_RELEASE/
+        retention-days: 5

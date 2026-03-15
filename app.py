@@ -440,19 +440,17 @@ class MoldApp(QMainWindow):
             self.progress_bar.setValue(100)
             self.progress_bar.hide()
 
-# Execution Boilerplate
 if __name__ == "__main__":
-    # CRITICAL: Prevent infinite recursive process spawning
-    multiprocessing.freeze_support() 
+    import multiprocessing
+    multiprocessing.freeze_support()
     
     # CRITICAL MACOS FIX: Prevent VTK/Qt6 OpenGL deadlock on Apple Silicon
-    # We explicitly define the OpenGL 4.1 Core Profile required by Apple
     if sys.platform == 'darwin':
         from PySide6.QtGui import QSurfaceFormat
         
         fmt = QSurfaceFormat()
         fmt.setRenderableType(QSurfaceFormat.OpenGL)
-        fmt.setVersion(4, 1) # Apple's maximum supported OpenGL version
+        fmt.setVersion(4, 1)
         fmt.setProfile(QSurfaceFormat.CoreProfile)
         fmt.setSwapBehavior(QSurfaceFormat.DoubleBuffer)
         fmt.setRedBufferSize(8)
@@ -461,27 +459,18 @@ if __name__ == "__main__":
         fmt.setAlphaBufferSize(8)
         fmt.setDepthBufferSize(24)
         fmt.setStencilBufferSize(8)
-        
         QSurfaceFormat.setDefaultFormat(fmt)
-    
-    # Now it is safe to create the application
+        
+        os.environ["VTK_DISABLE_CHROMA_SUBSAMPLING"] = "1"
+        
     app = QApplication(sys.argv)
     app.setStyle("Fusion")
     
-    # LINUX FIX: Bind the application window to the OS taskbar/dock icon
-    app.setDesktopFileName("MoldForge")
-    
     if getattr(sys, 'frozen', False):
-        if sys.platform == 'darwin' and '.app' in sys.executable:
-            # When packaged as a .app bundle, sys.executable is Contents/MacOS/MoldForge
-            # Go up 4 levels to reach the folder containing MoldForge.app
+        if sys.platform == 'darwin':
             base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(sys.executable))))
         else:
-            # Fallback for standard executable files
             base_dir = os.path.dirname(sys.executable)
-            
-        # CRITICAL FIX: Change the Current Working Directory to the base_dir
-        # This ensures all relative paths (shapes_library, etc.) work perfectly side-by-side with the .app
         os.chdir(base_dir)
     else:
         base_dir = os.path.dirname(os.path.abspath(__file__))
@@ -504,6 +493,7 @@ if __name__ == "__main__":
         w.show()
         w.activateWindow()
     else:
+        from PySide6.QtCore import Qt
         w.setWindowFlags(w.windowFlags() | Qt.WindowStaysOnTopHint)
         w.showMaximized()
         w.setWindowFlags(w.windowFlags() & ~Qt.WindowStaysOnTopHint)
