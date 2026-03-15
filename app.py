@@ -446,14 +446,23 @@ if __name__ == "__main__":
     multiprocessing.freeze_support() 
     
     # CRITICAL MACOS FIX: Prevent VTK/Qt6 OpenGL deadlock on Apple Silicon
-    # We MUST set the default surface format before creating the QApplication
+    # We explicitly define the OpenGL 4.1 Core Profile required by Apple
     if sys.platform == 'darwin':
         from PySide6.QtGui import QSurfaceFormat
-        from vtkmodules.qt.QVTKRenderWindowInteractor import QVTKRenderWindowInteractor
         
-        # Tell Qt to use the exact OpenGL memory format that VTK requires
-        default_format = QVTKRenderWindowInteractor.getDefaultFormat()
-        QSurfaceFormat.setDefaultFormat(default_format)
+        fmt = QSurfaceFormat()
+        fmt.setRenderableType(QSurfaceFormat.OpenGL)
+        fmt.setVersion(4, 1) # Apple's maximum supported OpenGL version
+        fmt.setProfile(QSurfaceFormat.CoreProfile)
+        fmt.setSwapBehavior(QSurfaceFormat.DoubleBuffer)
+        fmt.setRedBufferSize(8)
+        fmt.setGreenBufferSize(8)
+        fmt.setBlueBufferSize(8)
+        fmt.setAlphaBufferSize(8)
+        fmt.setDepthBufferSize(24)
+        fmt.setStencilBufferSize(8)
+        
+        QSurfaceFormat.setDefaultFormat(fmt)
     
     # Now it is safe to create the application
     app = QApplication(sys.argv)
