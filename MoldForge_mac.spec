@@ -6,7 +6,10 @@ datas = [
     ('shapes_library', 'shapes_library'),
     ('fb_presets.json', '.'),
     ('icon.ico', '.'),
-    ('splash.png', '.')
+    ('icon.png', '.'),
+    ('splash.png', '.'),
+    ('README_MAC.md', '.'),
+    ('wiki', 'wiki')
 ]
 binaries = []
 hidden_imports = [
@@ -84,12 +87,12 @@ app_dest = os.path.join(release_dir, 'MoldForge.app')
 if os.path.exists(app_source):
     shutil.move(app_source, app_dest)
 
-for folder in ['wiki']:
+for folder in ['shapes_library', 'wiki']:
     source = os.path.abspath(folder)
     dest = os.path.join(release_dir, folder)
     if os.path.exists(source):
         shutil.copytree(source, dest)
         
-for file in ['icon.png', 'README_MAC.md']:
+for file in ['icon.ico', 'icon.png', 'README_MAC.md']:
     if os.path.exists(file):
         shutil.copy(file, os.path.join(release_dir, file))

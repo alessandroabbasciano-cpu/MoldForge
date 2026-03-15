@@ -13,15 +13,10 @@ import ui_panels
 import ui_menus
 
 # --- MACOS DEADLOCK FIX: DISABLE SYNCHRONOUS PAINT ---
-# Spindump shows the hang occurs inside CATransaction::commit() when called 
-# from QWidget::paintEvent via vtkCocoaRenderWindow::Render().
-# On macOS, we disable the synchronous paintEvent entirely to let VTK 
-# manage its own rendering cycle without interfering with the OS WindowServer.
 if sys.platform == 'darwin':
     def _mac_paint_patch(self, event):
         return
     QtInteractor.paintEvent = _mac_paint_patch
-# --------------------------------------------------
 
 def setup_ui(app):
     """

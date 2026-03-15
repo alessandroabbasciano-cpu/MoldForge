@@ -179,13 +179,17 @@ class MoldApp(QMainWindow):
         # Force the first explicit render
         QTimer.singleShot(200, self.start_preview)
         
-        # --- CLOSE NATIVE SPLASH SCREEN ---
-        try:
-            import pyi_splash  # type: ignore
-            if pyi_splash.is_alive():
-                pyi_splash.close()
-        except Exception as e:
-            pass 
+        # --- CLOSE NATIVE SPLASH SCREEN (Cross-platform safe) ---
+        # On macOS ARM64, the splash IPC often fails or is not initialized.
+        # We skip this entirely on Darwin to avoid KeyError: '_PYI_SPLASH_IPC'.
+        if sys.platform != 'darwin':
+            try:
+                import pyi_splash # type: ignore
+                if pyi_splash.is_alive():
+                    pyi_splash.close()
+            except (ImportError, KeyError):
+                # Silently fail if the module or IPC is not available
+                pass
 
     def setup_connections(self):
         self.combo_preset.currentTextChanged.connect(self.apply_main_preset)
