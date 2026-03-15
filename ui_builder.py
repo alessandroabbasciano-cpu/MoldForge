@@ -4,6 +4,7 @@ Responsible for scaffolding the main application window, initializing the 3D vie
 setting up the camera toolbar overlay, and assembling the various dock panels.
 """
 
+import sys
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QFrame, QGridLayout, QMainWindow
 from PySide6.QtCore import Qt
 from pyvistaqt import QtInteractor
@@ -11,23 +12,16 @@ from custom_widgets import CollapsibleDockTitleBar
 import ui_panels
 import ui_menus
 
-# --- MACOS DEADLOCK FIX (INFINITE RECURSION GUARD) ---
-# VTK on macOS triggers the system event loop during Render(). This causes
-# Qt to trigger another paintEvent, creating an infinite loop at 90 FPS.
-# This guard prevents paintEvent from calling itself recursively.
-_original_paintEvent = QtInteractor.paintEvent
-
-def _patched_paintEvent(self, ev):
-    if getattr(self, '_in_paint', False):
+# --- MACOS DEADLOCK FIX: DISABLE SYNCHRONOUS PAINT ---
+# Spindump shows the hang occurs inside CATransaction::commit() when called 
+# from QWidget::paintEvent via vtkCocoaRenderWindow::Render().
+# On macOS, we disable the synchronous paintEvent entirely to let VTK 
+# manage its own rendering cycle without interfering with the OS WindowServer.
+if sys.platform == 'darwin':
+    def _mac_paint_patch(self, event):
         return
-    self._in_paint = True
-    try:
-        _original_paintEvent(self, ev)
-    finally:
-        self._in_paint = False
-
-QtInteractor.paintEvent = _patched_paintEvent
-# ----------------------------------------------------
+    QtInteractor.paintEvent = _mac_paint_patch
+# --------------------------------------------------
 
 def setup_ui(app):
     """
