@@ -73,7 +73,10 @@ app = BUNDLE( # type: ignore
     bundle_identifier='com.moldforge.app',
     info_plist={
         'NSPrincipalClass': 'NSApplication',
-        'NSHighResolutionCapable': 'True'
+        'NSHighResolutionCapable': 'True',
+        'NSDesktopFolderUsageDescription': 'MoldForge requires access to your Desktop to load custom DXF shapes.',
+        'NSDocumentsFolderUsageDescription': 'MoldForge requires access to your Documents to load custom DXF shapes.',
+        'NSDownloadsFolderUsageDescription': 'MoldForge requires access to your Downloads to load custom DXF shapes.'
     }
 )
 

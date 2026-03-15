@@ -27,3 +27,27 @@ jobs:
       with:
         name: MoldForge-Windows-Portable
         path: dist/MOLDFORGE_RELEASE/
+
+    - name: Publish to GitHub Releases
+      uses: softprops/action-gh-release@v2
+      if: startsWith(github.ref, 'refs/tags/')
+      with:
+        files: dist/MoldForge-Windows.zip
+        draft: false
+        prerelease: false
+        generate_release_notes: false
+        body: |
+          🔥 **MOLD F.O.R.G.E. - Official V1.0.0 Release** 🔥
+
+          The first standalone, professional, and cross-platform release is finally here. 
+          Engineered for parametric fingerboard design, MoldForge combines the raw power of the OpenCASCADE CAD engine with a lightning-fast native GUI.
+
+          **What's inside V1.0.0:**
+          - 🍏 **Native macOS Support (Apple Silicon M1/M2/M3):** Optimized 3D engine, zero memory leaks, and buttery-smooth rendering with no WindowServer deadlocks.
+          - 🪟 **Native Windows Support:** Clean executable and rock-solid PySide6 interface.
+          - 🐧 **Native Linux Support:** Full compatibility with modern display servers.
+          - 🚀 **Ultra-Fast Generation:** High-res 3D models and molds generated in seconds with pinpoint millimeter tolerances.
+          
+          **Installation:**
+          Download the ZIP file for your OS below, extract the folder anywhere, and run the executable. No installation, no Python environments, no external dependencies required. 
+          **Oh, and read the damn README included in the ZIP before asking questions.**
