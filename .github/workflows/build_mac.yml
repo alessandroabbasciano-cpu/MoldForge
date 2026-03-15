@@ -38,7 +38,7 @@ jobs:
     - name: Create Clean ZIP for Mac
       run: |
         cd dist/MOLDFORGE_RELEASE
-        zip -r ../../MoldForge-Mac-ARM64.zip .
+        zip -ry ../../MoldForge-Mac-ARM64.zip .
         
     - name: Upload Artifact
       uses: actions/upload-artifact@v4
