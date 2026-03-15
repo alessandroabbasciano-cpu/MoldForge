@@ -442,9 +442,20 @@ class MoldApp(QMainWindow):
 
 # Execution Boilerplate
 if __name__ == "__main__":
-    # CRITICAL: Prevent infinite recursive process spawning on macOS/Windows compiled apps
+    # CRITICAL: Prevent infinite recursive process spawning
     multiprocessing.freeze_support() 
     
+    # CRITICAL MACOS FIX: Prevent VTK/Qt6 OpenGL deadlock on Apple Silicon
+    # We MUST set the default surface format before creating the QApplication
+    if sys.platform == 'darwin':
+        from PySide6.QtGui import QSurfaceFormat
+        from vtkmodules.qt.QVTKRenderWindowInteractor import QVTKRenderWindowInteractor
+        
+        # Tell Qt to use the exact OpenGL memory format that VTK requires
+        default_format = QVTKRenderWindowInteractor.getDefaultFormat()
+        QSurfaceFormat.setDefaultFormat(default_format)
+    
+    # Now it is safe to create the application
     app = QApplication(sys.argv)
     app.setStyle("Fusion")
     
