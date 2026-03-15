@@ -2,7 +2,7 @@
 
 Welcome to **Mold Forge**, the parametric CAD suite specifically designed for high-performance fingerboard engineering.
 
-This version is provided as a **Portable Folder** (x86_64 translated via Rosetta 2 on Apple Silicon). It requires no formal installation and can be run directly from any directory.
+This version is provided as a Portable App Bundle (Native ARM64 for Apple Silicon). It requires no formal installation and can be run directly from any directory.
 
 ---
 

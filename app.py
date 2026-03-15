@@ -9,6 +9,7 @@ import os
 import locale
 import tempfile
 import subprocess
+import multiprocessing
 
 # --- CRITICAL FIX FOR MATPLOTLIB DEADLOCK ON MACOS ---
 # 1. Force Matplotlib to use a writable temp directory for its cache
@@ -441,6 +442,9 @@ class MoldApp(QMainWindow):
 
 # Execution Boilerplate
 if __name__ == "__main__":
+    # CRITICAL: Prevent infinite recursive process spawning on macOS/Windows compiled apps
+    multiprocessing.freeze_support() 
+    
     app = QApplication(sys.argv)
     app.setStyle("Fusion")
     

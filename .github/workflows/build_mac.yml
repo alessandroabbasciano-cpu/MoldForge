@@ -18,7 +18,7 @@ jobs:
         # Remove old build artifacts and environments
         rm -rf build/ dist/ venv/
         
-        # Usa il Python nativo del tuo Mac (senza forzare x86_64)
+        # Use native Python (do not force x86_64)
         python3 -m venv venv
         source venv/bin/activate
         
@@ -33,7 +33,8 @@ jobs:
     - name: Build the application
       run: |
         source venv/bin/activate
-        python3 -m PyInstaller --noconfirm MoldForge_mac.spec
+        # Force ARM64 architecture to remove Intel bloatware from binaries
+        python3 -m PyInstaller --target-architecture arm64 --noconfirm MoldForge_mac.spec
 
     - name: Create Clean ZIP for Mac
       run: |
