@@ -33,8 +33,7 @@ jobs:
     - name: Build the application
       run: |
         source venv/bin/activate
-        # Force ARM64 architecture to remove Intel bloatware from binaries
-        python3 -m PyInstaller --target-architecture arm64 --noconfirm MoldForge_mac.spec
+        python3 -m PyInstaller --noconfirm MoldForge_mac.spec
 
     - name: Create Clean ZIP for Mac
       run: |

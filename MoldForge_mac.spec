@@ -33,6 +33,7 @@ a = Analysis( # type: ignore
     runtime_hooks=[],
     excludes=[],
     noarchive=False,
+    target_arch='arm64',
 )
 
 pyz = PYZ(a.pure) # type: ignore
