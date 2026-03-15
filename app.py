@@ -444,7 +444,7 @@ if __name__ == "__main__":
     import multiprocessing
     multiprocessing.freeze_support()
     
-    # CRITICAL MACOS FIX: Prevent VTK/Qt6 OpenGL deadlock on Apple Silicon
+    # CRITICAL MACOS FIX: Set proper OpenGL profile for Metal translation
     if sys.platform == 'darwin':
         import os
         from PySide6.QtGui import QSurfaceFormat
@@ -463,34 +463,13 @@ if __name__ == "__main__":
         QSurfaceFormat.setDefaultFormat(fmt)
         
         os.environ["VTK_DISABLE_CHROMA_SUBSAMPLING"] = "1"
-        
-        try:
-            from vtkmodules.qt.QVTKRenderWindowInteractor import QVTKRenderWindowInteractor
-            from PySide6.QtCore import QTimer
-            
-            def _patched_paintEvent(self, ev):
-                if not hasattr(self, '_mac_defer_timer'):
-                    self._mac_defer_timer = QTimer(self)
-                    self._mac_defer_timer.setSingleShot(True)
-                    def safe_render():
-                        if self.GetRenderWindow():
-                            self.GetRenderWindow().Render()
-                    self._mac_defer_timer.timeout.connect(safe_render)
-                
-                self._mac_defer_timer.start(0)
-                
-            QVTKRenderWindowInteractor.paintEvent = _patched_paintEvent
-        except ImportError:
-            pass
 
     app = QApplication(sys.argv)
     app.setStyle("Fusion")
     
+    # Path resolution for standalone folder executable (no longer inside .app)
     if getattr(sys, 'frozen', False):
-        if sys.platform == 'darwin':
-            base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(sys.executable))))
-        else:
-            base_dir = os.path.dirname(sys.executable)
+        base_dir = os.path.dirname(sys.executable)
         os.chdir(base_dir)
     else:
         base_dir = os.path.dirname(os.path.abspath(__file__))
