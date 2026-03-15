@@ -30,11 +30,18 @@ jobs:
         # Pre-build Matplotlib font cache
         python3 -c "import matplotlib.font_manager"
         
-        # Build the application
+    - name: Build the application
+      run: |
+        source venv/bin/activate
         python3 -m PyInstaller --noconfirm MoldForge_mac.spec
 
+    - name: Create Clean ZIP for Mac
+      run: |
+        cd dist/MOLDFORGE_RELEASE
+        zip -r ../../MoldForge-Mac-ARM64.zip .
+        
     - name: Upload Artifact
       uses: actions/upload-artifact@v4
       with:
         name: MoldForge-Mac-ARM64
-        path: dist/
+        path: MoldForge-Mac-ARM64.zip

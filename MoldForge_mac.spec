@@ -78,14 +78,18 @@ app = BUNDLE( # type: ignore
 
 # --- 4. FINAL HYBRID FOLDER CONSTRUCTION ---
 release_dir = os.path.abspath(os.path.join('dist', 'MOLDFORGE_RELEASE'))
-
+built_dir = os.path.abspath(os.path.join('dist', 'MoldForge_Bin'))
 if os.path.exists(release_dir):
     shutil.rmtree(release_dir)
 os.makedirs(release_dir)
 
-# Move the newly created App into the release folder
-app_path = os.path.abspath(os.path.join('dist', 'MoldForge.app'))
-shutil.move(app_path, os.path.join(release_dir, 'MoldForge.app'))
+app_source = os.path.abspath(os.path.join('dist', 'MoldForge.app'))
+app_dest = os.path.join(release_dir, 'MoldForge.app')
+if os.path.exists(app_source):
+    shutil.move(app_source, app_dest)
+
+if os.path.exists(built_dir):
+    shutil.rmtree(built_dir)
 
 # Copy user-facing folders alongside the App
 for folder in ['shapes_library', 'wiki']:

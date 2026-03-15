@@ -48,6 +48,8 @@ except Exception:
 
 if sys.platform == 'darwin':
     os.environ["QT_MAC_WANTS_LAYER"] = "1"
+    os.environ["VTK_RENDERER_BACKEND"] = "OpenGL2"
+    os.environ["OBJC_DISABLE_INITIALIZE_FORK_SAFETY"] = "YES"
     os.environ['QT_LOGGING_RULES'] = 'qt.gui.painting.warning=false;qt.qpa.fonts.warning=false'
     os.environ["EVENT_NOKQUEUE"] = "1" # Fix for certain VTK event loop issues on Mac
     os.environ["OBJC_DISABLE_INITIALIZE_FORK_SAFETY"] = "YES"
