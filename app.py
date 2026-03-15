@@ -446,6 +446,7 @@ if __name__ == "__main__":
     
     # CRITICAL MACOS FIX: Prevent VTK/Qt6 OpenGL deadlock on Apple Silicon
     if sys.platform == 'darwin':
+        import os
         from PySide6.QtGui import QSurfaceFormat
         
         fmt = QSurfaceFormat()
@@ -463,6 +464,25 @@ if __name__ == "__main__":
         
         os.environ["VTK_DISABLE_CHROMA_SUBSAMPLING"] = "1"
         
+        try:
+            from vtkmodules.qt.QVTKRenderWindowInteractor import QVTKRenderWindowInteractor
+            from PySide6.QtCore import QTimer
+            
+            def _patched_paintEvent(self, ev):
+                if not hasattr(self, '_mac_defer_timer'):
+                    self._mac_defer_timer = QTimer(self)
+                    self._mac_defer_timer.setSingleShot(True)
+                    def safe_render():
+                        if self.GetRenderWindow():
+                            self.GetRenderWindow().Render()
+                    self._mac_defer_timer.timeout.connect(safe_render)
+                
+                self._mac_defer_timer.start(0)
+                
+            QVTKRenderWindowInteractor.paintEvent = _patched_paintEvent
+        except ImportError:
+            pass
+
     app = QApplication(sys.argv)
     app.setStyle("Fusion")
     
@@ -480,8 +500,10 @@ if __name__ == "__main__":
     icon_ico = os.path.join(base_dir, 'icon.ico')
     
     if sys.platform == 'linux' and os.path.exists(icon_png):
+        from PySide6.QtGui import QIcon
         app.setWindowIcon(QIcon(icon_png))
     elif os.path.exists(icon_ico):
+        from PySide6.QtGui import QIcon
         app.setWindowIcon(QIcon(icon_ico))
         
     w = MoldApp()

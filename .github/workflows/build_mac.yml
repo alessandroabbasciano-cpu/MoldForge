@@ -27,10 +27,16 @@ jobs:
       run: |
         source venv/bin/activate
         python3 -m PyInstaller --noconfirm MoldForge_mac.spec
+
+    - name: Create Clean ZIP for Mac (Preserving Symlinks)
+      run: |
+        cd dist/MOLDFORGE_RELEASE
+        # Il flag 'y' è vitale per mantenere il peso a 250MB
+        zip -ry ../../MoldForge-Mac-ARM64.zip .
         
     - name: Upload Artifact
       uses: actions/upload-artifact@v5
       with:
-        name: MoldForge-Mac-ARM64
-        path: dist/MOLDFORGE_RELEASE/
+        name: MoldForge-Mac-Bundle
+        path: MoldForge-Mac-ARM64.zip
         retention-days: 5
