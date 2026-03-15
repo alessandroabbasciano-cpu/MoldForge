@@ -15,7 +15,6 @@ hidden_imports = [
     'ui_panels', 'ui_sync', 'viewer_3d'
 ]
 
-# Standard collection for CAD and 3D libraries
 for pkg in ['cadquery', 'casadi', 'OCP', 'pyvista', 'vtkmodules']:
     pkg_datas, pkg_binaries, pkg_hiddenimports = collect_all(pkg)
     datas += pkg_datas
@@ -38,7 +37,6 @@ a = Analysis( # type: ignore
 
 pyz = PYZ(a.pure) # type: ignore
 
-# 1. Internal executable creation (console=True bypasses WindowServer strict rules)
 exe = EXE( # type: ignore
     pyz,
     a.scripts,
@@ -49,12 +47,7 @@ exe = EXE( # type: ignore
     bootloader_ignore_signals=False,
     strip=False,
     upx=True,
-    console=True, 
-    disable_windowed_traceback=False,
-    argv_emulation=False,
-    target_arch='arm64',
-    codesign_identity=None,
-    entitlements_file=None,
+    console=False, 
     icon='icon.ico'
 )
 
@@ -69,22 +62,20 @@ coll = COLLECT( # type: ignore
     name='MoldForge_Bin'
 )
 
-# --- CREATION OF CLEAN RELEASE FOLDER ---
 release_dir = os.path.abspath(os.path.join('dist', 'MOLDFORGE_RELEASE'))
+built_dir = os.path.abspath(os.path.join('dist', 'MoldForge_Bin'))
+
 if os.path.exists(release_dir):
     shutil.rmtree(release_dir)
-os.makedirs(release_dir)
 
-built_dir = os.path.abspath(os.path.join('dist', 'MoldForge_Bin'))
-shutil.move(built_dir, os.path.join(release_dir, 'MoldForge_Bin'))
+os.rename(built_dir, release_dir)
 
-# Copy user-facing folders and files alongside the App
-for folder in ['shapes_library', 'wiki']:
+for folder in ['wiki']:
     source = os.path.abspath(folder)
     dest = os.path.join(release_dir, folder)
     if os.path.exists(source):
         shutil.copytree(source, dest)
-
-for file in ['icon.ico', 'icon.png', 'README_MAC.md', 'fb_presets.json']:
+        
+for file in ['icon.png', 'README_MAC.md']:
     if os.path.exists(file):
         shutil.copy(file, os.path.join(release_dir, file))

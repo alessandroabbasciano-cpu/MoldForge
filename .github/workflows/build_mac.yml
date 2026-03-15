@@ -1,4 +1,4 @@
-name: Build Mac (Self-Hosted ARM64 Folder Mode)
+name: Build Mac (Self-Hosted ARM64)
 
 on:
   push:
@@ -28,15 +28,14 @@ jobs:
         source venv/bin/activate
         python3 -m PyInstaller --noconfirm MoldForge_mac.spec
 
-    - name: Create Clean ZIP for Mac (Preserving Symlinks)
+    - name: Create Clean ZIP
       run: |
         cd dist/MOLDFORGE_RELEASE
-        # Zip ignorante che tiene i symlink (-ry)
         zip -ry ../../MoldForge-Mac-ARM64.zip .
         
     - name: Upload Artifact
       uses: actions/upload-artifact@v5
       with:
-        name: MoldForge-Mac-Bundle
+        name: MoldForge-Mac-ARM64
         path: MoldForge-Mac-ARM64.zip
         retention-days: 5
