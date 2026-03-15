@@ -62,13 +62,27 @@ coll = COLLECT( # type: ignore
     name='MoldForge_Bin'
 )
 
-release_dir = os.path.abspath(os.path.join('dist', 'MOLDFORGE_RELEASE'))
-built_dir = os.path.abspath(os.path.join('dist', 'MoldForge_Bin'))
+# OFFICIAL MACOS APP BUNDLE
+app = BUNDLE( # type: ignore
+    coll,
+    name='MoldForge.app',
+    icon='icon.ico',
+    bundle_identifier='com.moldforge.app',
+    info_plist={
+        'NSPrincipalClass': 'NSApplication',
+        'NSHighResolutionCapable': 'True'
+    }
+)
 
+release_dir = os.path.abspath(os.path.join('dist', 'MOLDFORGE_RELEASE'))
 if os.path.exists(release_dir):
     shutil.rmtree(release_dir)
+os.makedirs(release_dir)
 
-os.rename(built_dir, release_dir)
+app_source = os.path.abspath(os.path.join('dist', 'MoldForge.app'))
+app_dest = os.path.join(release_dir, 'MoldForge.app')
+if os.path.exists(app_source):
+    shutil.move(app_source, app_dest)
 
 for folder in ['wiki']:
     source = os.path.abspath(folder)

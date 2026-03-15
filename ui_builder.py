@@ -11,6 +11,24 @@ from custom_widgets import CollapsibleDockTitleBar
 import ui_panels
 import ui_menus
 
+# --- MACOS DEADLOCK FIX (INFINITE RECURSION GUARD) ---
+# VTK on macOS triggers the system event loop during Render(). This causes
+# Qt to trigger another paintEvent, creating an infinite loop at 90 FPS.
+# This guard prevents paintEvent from calling itself recursively.
+_original_paintEvent = QtInteractor.paintEvent
+
+def _patched_paintEvent(self, ev):
+    if getattr(self, '_in_paint', False):
+        return
+    self._in_paint = True
+    try:
+        _original_paintEvent(self, ev)
+    finally:
+        self._in_paint = False
+
+QtInteractor.paintEvent = _patched_paintEvent
+# ----------------------------------------------------
+
 def setup_ui(app):
     """
     Constructs the primary user interface layout.
