@@ -14,8 +14,7 @@ datas = [
     ('icon.ico', '.'),
     ('icon.png', '.'),
     ('splash.png', '.'),
-    ('README_LINUX.md', '.'),
-    ('wiki', 'wiki')
+    ('README_LINUX.md', '.')
 ]
 binaries = []
 hidden_imports = [
@@ -79,7 +78,7 @@ if os.path.exists(release_dir):
 os.rename(built_dir, release_dir)
 
 # Copy extra folders not handled by PyInstaller
-for folder in ['shapes_library', 'wiki']:
+for folder in ['shapes_library']:
     source = os.path.abspath(folder)
     dest = os.path.join(release_dir, folder)
     if os.path.exists(source):

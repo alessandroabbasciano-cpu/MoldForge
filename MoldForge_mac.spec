@@ -8,8 +8,7 @@ datas = [
     ('icon.ico', '.'),
     ('icon.png', '.'),
     ('splash.png', '.'),
-    ('README_MAC.md', '.'),
-    ('wiki', 'wiki')
+    ('README_MAC.md', '.')
 ]
 binaries = []
 hidden_imports = [
@@ -90,7 +89,7 @@ app_dest = os.path.join(release_dir, 'MoldForge.app')
 if os.path.exists(app_source):
     shutil.move(app_source, app_dest)
 
-for folder in ['shapes_library', 'wiki']:
+for folder in ['shapes_library']:
     source = os.path.abspath(folder)
     dest = os.path.join(release_dir, folder)
     if os.path.exists(source):

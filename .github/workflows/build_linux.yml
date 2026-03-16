@@ -24,7 +24,7 @@ jobs:
     - name: Install System Dependencies for Build
       run: |
         apt-get update
-        apt-get install -y libgl1 libglib2.0-0 libxext6 libxrender1 libx11-6 libxcb-cursor0 libxcb-icccm4 libxcb-keysyms1 libxcb-image0
+        apt-get install -y libgl1 libglib2.0-0 libxext6 libxrender1 libx11-6 libxcb-cursor0 libxcb-icccm4 libxcb-keysyms1 libxcb-image0 zip
 
     - name: Install Python Dependencies
       run: |
@@ -40,14 +40,18 @@ jobs:
       uses: actions/upload-artifact@v5
       with:
         name: MoldForge-Linux-Portable
-        # Upload the entire folder so users have direct access to shapes_library
         path: dist/MOLDFORGE_RELEASE/
+
+    - name: Create Clean ZIP
+      run: |
+        cd dist/MOLDFORGE_RELEASE
+        zip -ry ../MoldForge-Linux.zip .
 
     - name: Publish to GitHub Releases
       uses: softprops/action-gh-release@v2
       if: startsWith(github.ref, 'refs/tags/')
       with:
-        files: MoldForge-Linux.zip
+        files: dist/MoldForge-Linux.zip
         draft: false
         prerelease: false
         generate_release_notes: false
