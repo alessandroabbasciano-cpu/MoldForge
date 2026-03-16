@@ -1,93 +1,90 @@
-# MOLD F.O.R.G.E. 🛹
+# 🛹 **MOLD F.O.R.G.E.**
 
 **F**ORGE **O**utputs **R**ealistic **G**narly **E**quipment.
 
-![Version](https://img.shields.io/badge/version-V1_Standalone-2ecc71.svg)
+![Version](https://img.shields.io/badge/version-V1.0.0_Standalone-2ecc71.svg)
+![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-blue.svg)
 ![License](https://img.shields.io/badge/license-LGPLv2.1-blue.svg)
-![Python](https://img.shields.io/badge/python-3.10%2B-blue.svg)
 
-**MOLD F.O.R.G.E.** is an advanced, standalone parametric CAD suite engineered exclusively for the fingerboard industry. Design custom decks with mathematical precision, tweak transitions in real-time, and export production-ready, press-safe molds directly to your 3D printer.
+**MOLD F.O.R.G.E.** is a professional, standalone parametric CAD suite engineered exclusively for the fingerboard industry.
+
+Moving beyond basic scripts and legacy CAD dependencies, Version 1.0.0 marks the completion of *Project Exodus*. MOLD F.O.R.G.E. is now a 100% native, multi-threaded desktop application powered by **CadQuery (OpenCASCADE)**, **PyVista (VTK)**, and **PySide6**.
+
+Design custom decks with mathematical precision, tweak transitions in real-time without UI freezes, and export production-ready, press-safe molds directly to your 3D printer.
+
+![MOLD FORGE 3D](wiki/assets/ui_overview.png)
 
 ---
 
 ## 🔥 Core Features
 
-- **Dynamic Asymmetry:** Independent nose/tail shaping via interactive 2D Bezier curves.
-- **Custom DXF Support:** Drop your custom `.dxf` outlines into the `shapes_library/` folder and the software will dynamically adapt the 3D mesh.
-- **Press-Ready Molds:** Automated clearances, precise mold gaps, base fillets, alignment pins, and vertical interlocking sidelocks.
-- **Real-Time Sync:** Live 2D/3D visualization with geometric collision prevention.
-- **Automated Production:** A dedicated Batch Export system that generates the Male Mold, Female Mold, and Shaper Template in a single sequence.
-- **Pro Geometry:** Parametric wheel flares, tub concaves, and D.H.O. (Deck's Helper Opposite) routing templates.
+- **⚡ Standalone & Multi-Threaded:** No Python environments or Conda setups required. The heavy CAD geometry engine runs asynchronously in the background, keeping the UI perfectly fluid.
+- **📐 Dynamic Asymmetry:** Break free from standard shapes. Sculpt independent nose and tail angles via the interactive 2D Bezier editor.
+- **📁 Auto-Scanning DXF Library:** Drop your custom `.dxf` vector outlines (Fishtails, Cruisers, etc.) into the `shapes_library/` folder. The software automatically detects them and dynamically adapts the 3D mesh.
+- **🏭 Press-Ready Manufacturing:** Built to withstand the bench vise. The engine calculates precise mold gaps, base structural fillets, hardware alignment pins, and vertical interlocking SideLocks.
+- **🔄 Real-Time Sync:** Live 2D/3D visualization with built-in geometric collision prevention.
+- **⚙️ Automated Production:** A dedicated Batch Export system generates the Male Mold, Female Mold, and 2D Shaper Template in a single, perfectly aligned sequence.
 
 ---
 
-## 🛠️ Installation & Setup
+## 🚀 Quick Start (Portable Editions)
 
-MOLD F.O.R.G.E. provides two ways to run the software, depending on your needs:
+MOLD F.O.R.G.E. requires **ZERO installation**. It does not alter your system files or registry.
 
-### 🟢 Method A: Standalone App (For Users & Makers)
+1. Go to the [Releases](../../releases) page and download the `.zip` file for your Operating System (Windows, macOS ARM64, or Linux).
+2. Extract the folder to a user-accessible location (e.g., your Desktop or Documents).
+3. Run the `MoldForge` executable.
 
-*No programming knowledge or Python installation required.*
-
-1. Go to the **Releases** page of this repository.
-2. Download the latest `.zip` file for your Operating System (Windows / Linux).
-3. Extract the folder, double-click `MoldForge.exe` (or the Linux binary), and start designing.
-*(Mac Users: Please read the specific workaround in the Release notes to bypass Apple's Gatekeeper).*
-
-### 🔴 Method B: Source Code (For Developers)
-
-Due to the heavy C++ geometry engine under the hood (CadQuery / OpenCASCADE), standard `pip` installations might fail. Use `miniconda` for a clean, isolated environment:
-
-1. Clone the repository: `git clone https://.../YourUsername/MoldForge.git`
-2. Create environment: `conda create -n moldforge python=3.10`
-3. Activate: `conda activate moldforge`
-4. Install CadQuery: `conda install -c cadquery -c conda-forge cadquery`
-5. Install dependencies: `pip install -r requirements.txt`
-6. Run: `python app.py`
+> **🍎 macOS Users:** Due to strict Gatekeeper security on unsigned open-source software, you must run a quick terminal command (`xattr -cr`) to un-quarantine the app on first launch. Please refer to the `README_MAC.md` inside the release bundle for the 10-second fix.
 
 ---
 
-## 📚 Official Documentation (The Mastery Path)
+## 📚 Documentation & Wiki
 
-Looking for a deep dive into every parameter, custom DXF import rules, or 3D printing tips?
-👉 **[Check out the Official MOLD F.O.R.G.E. Wiki](wiki/1-Introduction.md)**
+Want to master the parametric engine? Read our comprehensive [Official Wiki](link-to-your-wiki) (also included as offline `.md` files in the release bundle):
 
-The Wiki is structured as a step-by-step course to take you from beginner to master mold maker:
-
-1. **User Interface & Workflow:** Master the 3D viewport and shortcuts.
-2. **The Parametric Engine:** A breakdown of every slider and toggle.
-3. **Custom Shapes (DXF Guide):** How to import your own vector designs.
-4. **3D Printing & Manufacturing:** Print settings, materials, and pressing techniques.
-5. **Glossary of Terms:** Skateboard and CAD terminology explained.
-
-### Adding Custom Deck Shapes (Quick Guide)
-
-To use your own deck outlines instead of the parametric Bezier generator:
-
-1. Draw the **entire, closed** outline of your deck in a vector software (like Inkscape or Illustrator), aligned to the Y-axis. *(Do not draw only half!)*
-2. Export it as a clean `.dxf` file (use splines/polylines, avoid complex blocks).
-3. Place the file inside the `shapes_library/` directory.
-4. Relaunch the app. Your shape will automatically appear in the **Shape Style** dropdown menu.
+1. **[User Interface & Workflow](wiki/2-User-Interface-&-Workflow-Guide.md)**
+2. **[The Parametric Engine](wiki/3-The-Parametric-Engine.md)**
+3. **[Custom Shapes (DXF Integration)](wiki/4-Custom-Shapes-DXF.md)**
+4. **[3D Printing & Manufacturing Guide](wiki/5-3D-Printing-Manufacturing.md)**
+5. **[Glossary of Terms](wiki/6-Glossary.md)**
 
 ---
 
 ## ⚠️ Troubleshooting
 
-- **The 3D viewer is black or crashes on startup:** This is usually caused by outdated graphics drivers or unsupported OpenGL features (like MSAA or SSAO). Ensure your GPU drivers are up to date. The software includes a fallback mechanism, but specific integrated GPUs may still struggle with VTK rendering.
-- **Conda fails to find CadQuery:** Ensure you have the `conda-forge` channel prioritized. You can force it by running: `conda config --add channels conda-forge`.
+- **The 3D viewer is black or crashes on startup:** This is usually caused by outdated graphics drivers or unsupported OpenGL features on older machines. Ensure your GPU drivers are up to date, as the PyVista (VTK) rendering engine requires hardware acceleration.
+- **False Positive Antivirus Warning (Windows):** Because this is a newly compiled open-source executable, Windows SmartScreen or some Antivirus software might flag it as "unrecognized". Simply click "More Info" -> "Run anyway", or whitelist the folder.
+
+---
+
+## 👨‍💻 For Developers (Building from Source)
+
+If you wish to modify the source code or build the executable yourself:
+
+1. Clone the repository.
+2. Install the requirements (we highly recommend using `conda-forge` to easily resolve CadQuery and VTK dependencies).
+3. Run `python app.py` to start the software in development mode.
+4. Use the provided `.spec` files with PyInstaller to compile the standalone builds.
 
 ---
 
 ## 🤝 Contributing
 
-Contributions, issues, and feature requests are welcome!  
-If you are a developer or a fingerboard maker with ideas for new parametric features, feel free to fork the repository and submit a Pull Request.
+Contributions, issues, and feature requests are incredibly welcome!  
+If you are a developer, a 3D printing enthusiast, or a fingerboard maker with ideas for new parametric features, feel free to fork the repository and submit a Pull Request.
 
 ---
 
 ## 📄 License
 
-- **Source Code:** [LGPLv2.1](https://www.gnu.org/licenses/old-licenses/lgpl-2.1.en.html) - Free to use, modify, and distribute.
-- **3D Output / Designs:** CC BY-NC-SA 4.0 - Designs generated using the default presets are for personal/non-commercial use unless otherwise stated.
+- **Source Code Engine:** [LGPLv2.1](https://www.gnu.org/licenses/old-licenses/lgpl-2.1.en.html) - Free to study, modify, and distribute.
+- **3D Output / Designs:** CC BY-NC-SA 4.0 - Molds and decks generated using the default factory presets are for personal/non-commercial use.
 
-*Developed with passion for the fingerboard community.*
+## ☕ Support the Project
+
+MOLD F.O.R.G.E. is developed out of pure passion for the fingerboard community and is 100% free and open-source. However, maintaining a native, multi-platform CAD suite requires significant personal investment... I even unwillingly funded a certain trillion-dollar fruit company...
+
+If this tool streamlines your manufacturing process, saves your brand time and money, or simply helps you press the perfect deck, consider [buying me a beer](https://www.paypal.me/AlessandroAbbasciano).
+
+Your tips directly help cover these mandatory hardware costs, keep the project alive, and fuel future updates. Every little bit is hugely appreciated! 🛹🛠️

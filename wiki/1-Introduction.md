@@ -1,4 +1,4 @@
-# 1. Welcome to MOLD F.O.R.G.E.
+# 1. Welcome to *MOLD F.O.R.G.E.*
 
 **MOLD F.O.R.G.E.** (Mold FORGE Outputs Realistic Gnarly Equipment) is a professional, standalone parametric CAD suite engineered specifically for high-fidelity fingerboard design and mold generation.
 
@@ -14,7 +14,7 @@ Moving beyond static 3D models and legacy CAD dependencies, this engine gives yo
 * **🔄 Real-Time Synchronization:** Experience live 2D/3D visualization with built-in geometric collision prevention. Adjust a slider and watch the asynchronous progress bar calculate your new geometry seamlessly.
 * **⚙️ Automated Production:** Generate everything you need with a single click. The dedicated Batch Export system simultaneously outputs the Male Mold, Female Mold, and 2D Shaper Template.
 
-![MOLD FORGE UI Overview](assets/ui_overview.jpg)
+![MOLD FORGE Features](assets/Parameters.gif)
 
 ## 📖 How to Use This Wiki
 

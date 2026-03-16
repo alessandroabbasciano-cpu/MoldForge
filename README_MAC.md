@@ -1,50 +1,51 @@
 # 🛹 MOLD F.O.R.G.E. - macOS Portable Edition
 
-Welcome to **Mold Forge**, the parametric CAD suite specifically designed for high-performance fingerboard engineering.
+Welcome to **MOLD F.O.R.G.E.**, the standalone parametric CAD suite engineered exclusively for high-performance fingerboard manufacturing.
 
-This version is provided as a Portable App Bundle (Native ARM64 for Apple Silicon). It requires no formal installation and can be run directly from any directory.
+This native macOS release marks the completion of *Project Exodus*. It is provided as a **Portable App Bundle (Native ARM64 for Apple Silicon)**. It requires absolutely zero installation, no Python environments, and can be run directly from any folder.
 
 ---
 
-## 🚀 Quick Start (How to Run)
+## 🚀 Quick Start & Gatekeeper Bypass
 
-Because Mold Forge is a free, open-source tool and not signed with an expensive Apple Developer certificate, macOS's **Gatekeeper** security will block it by default. Here is how to bypass it safely:
+Because MOLD F.O.R.G.E. is a free, open-source indie tool and is not signed with an expensive corporate Apple Developer certificate, macOS's **Gatekeeper** security will block it by default, often falsely claiming the app is "damaged."
 
-### Method 1: The Terminal Fix (Highly Recommended)
+**Do not panic. This is standard Apple behavior for unsigned open-source software.** Here is the 10-second permanent fix:
 
-macOS tags downloaded files with a "quarantine" flag. This can sometimes cause macOS to falsely claim the app is "damaged". To remove this restriction instantly:
+### Method 1: The Terminal Fix (Highly Recommended & Fastest)
+
+macOS tags downloaded files from the internet with a strict "quarantine" flag. We just need to remove it.
 
 1. Extract the downloaded `.zip` folder.
 2. Open the built-in **Terminal** app on your Mac (Search for it in Spotlight).
-3. Type `xattr -cr` *(make sure to leave a space after the 'r'!).*
+3. Type `xattr -cr ` *(make sure to leave a single space after the 'r'!)*
 4. Drag and drop the extracted Mold Forge folder directly into the Terminal window and press **Enter**.
-5. You can now open the folder and simply **double-click** the `MoldForge` executable!
+5. You can now open the folder and simply **double-click** the `MoldForge` executable to start designing!
 
-### Method 2: The Right-Click Method
+### Method 2: The Right-Click Method (Alternative)
 
-If you don't want to use the terminal, you can try bypassing Gatekeeper manually:
+If you prefer not to use the terminal:
 
 1. Extract the folder to your Desktop or Documents.
 2. Open the folder, **Right-click** (or hold `Control` and click) on the `MoldForge` executable file.
 3. Select **Open** from the context menu.
-4. A warning will appear saying the developer cannot be verified. Click the **Open** button anyway.
-*(Note: If you just double-click it normally the first time, it won't give you the option to open it. You MUST right-click).*
+4. A warning will appear. Click the **Open** button anyway.
+*(Note: If you just double-click it normally the first time, macOS won't give you the option to open it. You MUST right-click).*
 
 ---
 
 ## 📂 Customization & Assets
 
-Because this is a portable folder, you have direct access to the program's vital assets. Do not delete these folders!
+Because this is a portable application, you have direct access to the program's vital assets. **Do not delete these folders!**
 
-* **`shapes_library/`**: Drop your personal `.dxf` vector files here, and Mold Forge will load them automatically.
-* **`wiki/`**: Contains the full documentation and user guides.
-* **`fb_presets.json`**: This file stores your saved printing parameters and mold design presets.
+* **`shapes_library/`**: Drop your personal `.dxf` vector files here, and the engine will detect and load them automatically.
+* **`wiki/`**: Contains the full documentation, UI guides, and parametric engineering manuals.
+* **`fb_presets.json`**: This JSON file securely stores all your saved 3D printing parameters and mold design presets.
 
 ---
 
 ## 💡 Troubleshooting
 
-* **"MoldForge is damaged and can't be opened. You should move it to the Trash."**
-  Don't panic! It is not a virus and it is not actually damaged. This is Apple's default error for quarantined open-source software. Follow **Method 1** above to run the `xattr -cr` command on the folder.
 * **A Terminal window stays open in the background?**
-  Because this is a portable UNIX executable, macOS might open a blank Terminal window behind the app. You can safely ignore it, but **do not close it** until you are done designing, or it will close Mold Forge too.
+  Because this is a native UNIX executable, macOS might open a blank Terminal window behind the main application. You can safely ignore it, but **do not close it**, or it will instantly terminate the MOLD F.O.R.G.E. 3D engine as well. Just let it run in the background.
+  
