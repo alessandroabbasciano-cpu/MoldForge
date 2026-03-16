@@ -471,9 +471,12 @@ if __name__ == "__main__":
     app = QApplication(sys.argv)
     app.setStyle("Fusion")
     
-    # Path resolution for standalone folder executable (no longer inside .app)
     if getattr(sys, 'frozen', False):
         base_dir = os.path.dirname(sys.executable)
+        
+        if sys.platform == 'darwin' and '.app/Contents/MacOS' in base_dir:
+            base_dir = os.path.abspath(os.path.join(base_dir, '../../..'))
+            
         os.chdir(base_dir)
     else:
         base_dir = os.path.dirname(os.path.abspath(__file__))

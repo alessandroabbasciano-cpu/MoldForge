@@ -160,13 +160,16 @@ def setup_docks(app):
     layout_shape_style = QFormLayout(group_shape_style)
     app.combo_shape_style = QComboBox()
     
-    # DYNAMIC DXF SCANNING: Loads .dxf files from the shapes_library folder
+# DYNAMIC DXF SCANNING: Loads .dxf files from the shapes_library folder
     import sys
     if getattr(sys, 'frozen', False):
         base_dir = os.path.dirname(sys.executable)
+        if sys.platform == 'darwin' and '.app/Contents/MacOS' in base_dir:
+            base_dir = os.path.abspath(os.path.join(base_dir, '../../..'))
     else:
         base_dir = os.path.dirname(os.path.abspath(__file__))
-    shapes_dir = os.path.join(base_dir, "shapes_library")
+        
+    shapes_dir = os.path.join(base_dir, "shapes_library")   
     available_shapes = ["Custom"]
     
     if os.path.exists(shapes_dir):
