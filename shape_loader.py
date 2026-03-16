@@ -25,6 +25,8 @@ def load_and_scale_dxf(shape_name, target_width, target_length, offset_y=0.0):
     """
     if getattr(sys, 'frozen', False):
         base_dir = os.path.dirname(sys.executable)
+        if sys.platform == 'darwin' and '.app/Contents/MacOS' in base_dir:
+            base_dir = os.path.abspath(os.path.join(base_dir, '../../..'))
     else:
         base_dir = os.path.dirname(os.path.abspath(__file__))
     dxf_path = os.path.join(base_dir, "shapes_library", f"{shape_name}.dxf")

@@ -126,7 +126,7 @@ class MoldApp(QMainWindow):
 
         # Global Application Stylesheet (Dark Industrial Theme)
         self.setStyleSheet("""
-            * { font-family: 'Consolas', 'Menlo', monospace; }
+            * { font-family: 'Segoe UI', 'Consolas', 'Menlo', monospace; }
             QMainWindow, QWidget { background-color: #2b2b2b; color: #e0e0e0; }
             QGroupBox { font-weight: bold; border: 1px solid #4a6984; border-radius: 6px; margin-top: 15px; padding-top: 15px; }
             QGroupBox::title { subcontrol-origin: margin; subcontrol-position: top left; padding: 0 5px; color: #66b2ff; }

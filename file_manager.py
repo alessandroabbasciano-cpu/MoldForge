@@ -18,9 +18,15 @@ def load_databases(app):
     Loads the local JSON database containing deck and mold presets.
     Populates the 'presets_data' dictionary in the main application.
     """
-    if getattr(sys, 'frozen', False): base_dir = os.path.dirname(sys.executable)
-    else: base_dir = os.path.dirname(os.path.abspath(__file__))
+    if getattr(sys, 'frozen', False): 
+        base_dir = os.path.dirname(sys.executable)
+        if sys.platform == 'darwin' and '.app/Contents/MacOS' in base_dir:
+            base_dir = os.path.abspath(os.path.join(base_dir, '../../..'))
+    else: 
+        base_dir = os.path.dirname(os.path.abspath(__file__))
+
     path_presets = os.path.join(base_dir, "fb_presets.json")
+    
     if os.path.exists(path_presets):
         try:
             with open(path_presets, 'r') as f:
@@ -103,8 +109,11 @@ def save_preset(app):
     if ok and preset_name:
         if getattr(sys, 'frozen', False): 
             base_dir = os.path.dirname(sys.executable)
+            if sys.platform == 'darwin' and '.app/Contents/MacOS' in base_dir:
+                base_dir = os.path.abspath(os.path.join(base_dir, '../../..'))
         else: 
             base_dir = os.path.dirname(__file__)
+
         preset_file = os.path.join(base_dir, "fb_presets.json")
         data = {}
         if os.path.exists(preset_file):
@@ -249,8 +258,11 @@ def delete_preset(app):
     if reply == QMessageBox.Yes:
         if getattr(sys, 'frozen', False): 
             base_dir = os.path.dirname(sys.executable)
+            if sys.platform == 'darwin' and '.app/Contents/MacOS' in base_dir:
+                base_dir = os.path.abspath(os.path.join(base_dir, '../../..'))
         else: 
             base_dir = os.path.dirname(__file__)
+
         preset_file = os.path.join(base_dir, "fb_presets.json")
         if os.path.exists(preset_file):
             with open(preset_file, "r") as f:
