@@ -55,7 +55,8 @@ jobs:
           - 🪟 **Native Windows Support:** Clean executable and rock-solid PySide6 interface.
           - 🐧 **Native Linux Support:** Full compatibility with modern display servers.
           - 🚀 **Ultra-Fast Generation:** High-res 3D models and molds generated in seconds with pinpoint millimeter tolerances.
+          - ⚡ **Live Preview Control:** Brand new UI toggle to pause automatic rendering during heavy parameter tuning, ensuring a 100% lag-free workflow.
           
           **Installation:**
           Download the ZIP file for your OS below, extract the folder anywhere, and run the executable. No installation, no Python environments, no external dependencies required. 
-          **Oh, and read the damn README included in the ZIP before asking questions.**
+          **Oh, and read the Wiki before asking how to use it!**

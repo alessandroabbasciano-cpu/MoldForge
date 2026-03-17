@@ -36,11 +36,10 @@ If you prefer not to use the terminal:
 
 ## 📂 Customization & Assets
 
-Because this is a portable application, you have direct access to the program's vital assets. **Do not delete these folders!**
+Because this is a portable application, you have direct access to the program's vital assets. **Do not delete these!:**
 
-* **`shapes_library/`**: Drop your personal `.dxf` vector files here, and the engine will detect and load them automatically.
-* **`wiki/`**: Contains the full documentation, UI guides, and parametric engineering manuals.
-* **`fb_presets.json`**: This JSON file securely stores all your saved 3D printing parameters and mold design presets.
+* **`shapes_library/`**: Drop your personal `.dxf` vector files here, and the engine will detect and load them automatically into the application's shape selection menu.
+* **`fb_presets.json`**: This JSON file securely stores all your saved 3D printing parameters and mold design presets. *(Note: The app starts clean. This file will not be present initially; it is automatically generated the very first time you save a preset in the UI).* Back this file up if you ever move to a new PC!
 
 ---
 

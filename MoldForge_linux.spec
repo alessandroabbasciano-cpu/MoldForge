@@ -10,7 +10,6 @@ block_cipher = None
 # Prepare lists to collect all assets
 datas = [
     ('shapes_library', 'shapes_library'),
-    ('fb_presets.json', '.'),
     ('icon.ico', '.'),
     ('icon.png', '.'),
     ('splash.png', '.'),

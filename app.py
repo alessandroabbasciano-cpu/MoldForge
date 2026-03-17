@@ -144,7 +144,7 @@ class MoldApp(QMainWindow):
         # --- UPDATE SCHEDULER ---
         self.update_timer = QTimer(self)
         self.update_timer.setSingleShot(True)
-        self.update_timer.setInterval(1000)
+        self.update_timer.setInterval(2000)
         self.update_timer.timeout.connect(self.start_preview)
 
         self.is_updating_preset = True
@@ -196,6 +196,7 @@ class MoldApp(QMainWindow):
         self.combo_shape_style.currentTextChanged.connect(self.on_shape_style_changed)
         self.btn_save_preset.clicked.connect(self.save_preset)
         self.btn_delete_preset.clicked.connect(self.delete_preset)
+        self.btn_generate.clicked.connect(self.start_preview)
 
         for spin in [self.spin_nose_ang, self.spin_nose_len, self.spin_n_trans, self.spin_n_gap, 
                      self.spin_n_c1x, self.spin_n_c1y, self.spin_n_c2x, self.spin_n_s_y]:
@@ -308,6 +309,9 @@ class MoldApp(QMainWindow):
                 self.combo_preset.blockSignals(True)
                 self.combo_preset.setItemText(idx, f"[M] {text}")
                 self.combo_preset.blockSignals(False)
+
+        if hasattr(self, 'chk_live_update') and not self.chk_live_update.isChecked():
+            return
 
         if hasattr(self, 'update_timer'):
             self.update_timer.start()

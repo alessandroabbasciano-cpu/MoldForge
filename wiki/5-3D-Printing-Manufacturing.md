@@ -46,7 +46,7 @@ For professional results, a bench vise is required.
 
 ### 🛹 Assembly Tips
 
-* **Veneer Alignment:** If `AddMoldTruckPins` is enabled, use the embossed pins to "lock" the veneer stack in place. This ensures your truck holes remain centered even if the wood shifts slightly during the press.
+* **Veneer Alignment:** If **Truck Pins (Molds)** is enabled, use the embossed pins to "lock" the veneer stack in place. This ensures your truck holes remain centered even if the wood shifts slightly during the press.
 * **Release Agent:** Apply a thin layer of wax or a specific release agent to the mold surface. This prevents escaped wood glue from permanently bonding your new deck to the 3D-printed plastic.
 * **Curing Time:** Keep the deck under pressure for at least **24 hours** to allow the glue to set fully and minimize "springback" (the wood losing its curve).
 

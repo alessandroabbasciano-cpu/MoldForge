@@ -13,24 +13,23 @@ MOLD F.O.R.G.E. bridges the gap between traditional skateboard manufacturing, pr
 * **Transition:** The smooth, radial curved area where the flat wheelbase mathematically blends into the angled kick.
 * **Popsicle:** The industry-standard, fully symmetrical (or nearly symmetrical) skateboard shape with rounded, matching tips.
 * **Directional Shape:** A custom board design where the Nose and Tail are distinctly different in shape, angle, or length (e.g., Old School, Cruiser, or Fishtail designs).
-* **Wheel Flares:** 3D bumps or raised topographical areas over the wheels that provide extra clearance to prevent "wheelbite" and act as physical lock-ins for the rider's fingers.
+* **Wheel Flares:** 3D bumps or raised sections on the deck near the wheels. Designed to prevent "wheelbite" (the wheels rubbing against the deck) and to lock the rider's fingers into position.
 
 ---
 
-## 🛠️ Mold & Manufacturing
+## 🏭 Manufacturing Terms
 
-* **Male Mold:** The bottom half of the pressing mold assembly. It features a convex (bulging) shape that forms the inside curve of the deck.
-* **Female Mold:** The top half of the pressing mold assembly. It features a concave (hollow) shape that presses down onto the male mold.
-* **Shaper Template:** A 2D-outline perimeter guide used to trace or route the final shape of the deck after the rectangular wood block has been successfully pressed and cured.
-* **Clearance / Mold Gap:** The strictly engineered mathematical distance between the Male and Female molds. It must precisely match the total thickness of your wood veneers plus a microscopic allowance for glue expansion.
-* **Springback:** The natural physical tendency of pressed wood to slightly lose its molded curve and flatten out after being removed from the extreme pressure of the press.
-* **SideLocks:** Interlocking structural tabs dynamically generated on the sides of the molds. They prevent the blocks from slipping laterally or misaligning under the extreme pressure of a bench vise.
+* **Male Mold (Positive):** The bottom half of the mold press. It has a convex (bulging) shape that defines the bottom curve of the deck.
+* **Female Mold (Negative):** The top half of the mold press. It has a concave (hollow) shape that presses down onto the wood.
+* **Mold Gap:** The precisely calculated physical distance between the closed Male and Female molds. It must equal the total thickness of your wood veneers plus a microscopic allowance for wood glue.
+* **Veneer:** A single, extremely thin sheet of wood. Fingerboards are typically made by stacking and gluing 5 to 7 layers of maple veneer.
+* **SideLocks:** Interlocking geometric tabs on the sides of the mold halves. They prevent the blocks from sliding around under the extreme pressure of a bench vise.
 
 ---
 
 ## 🖥️ CAD & Software Terms
 
-* **Parametric:** A design methodology where geometry is driven by mathematical rules and variables (parameters) rather than manual, destructive sculpting. If you change a slider, the entire 3D model automatically recalculates and rebuilds itself.
+* **Parametric:** A design methodology where geometry is driven by mathematical rules and variables (parameters) rather than manual, destructive sculpting. In MOLD F.O.R.G.E., changing a slider can automatically rebuild the entire 3D model (Live Preview), or you can pause it for manual, lag-free editing.
 * **DXF (Drawing Exchange Format):** A universal 2D vector file format. MOLD F.O.R.G.E. uses this to import custom board outlines from vector graphic software like Inkscape, AutoCAD, or Illustrator.
 * **Bezier Curve:** A mathematically defined, perfectly smooth curve controlled by weighted "handles" (control nodes). Used in the 2D Interactive Designer to sculpt custom Nose and Tail shapes.
 * **Fillet:** In CAD engineering, a fillet is the rounding of an interior or exterior corner. In this suite, it refers to either rounding the deck's physical tips or adding a structural reinforcement curve to the base of the mold blocks.

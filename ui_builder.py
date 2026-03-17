@@ -5,7 +5,7 @@ setting up the camera toolbar overlay, and assembling the various dock panels.
 """
 
 import sys
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QFrame, QGridLayout, QMainWindow
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QFrame, QGridLayout, QMainWindow, QCheckBox, QSizePolicy
 from PySide6.QtCore import Qt
 from pyvistaqt import QtInteractor
 from custom_widgets import CollapsibleDockTitleBar
@@ -48,8 +48,9 @@ def setup_ui(app):
     app.plotter.camera_position = 'iso'
     viewer_grid.addWidget(app.plotter, 0, 0)
     
-    # --- CAMERA TOOLBAR (OVERLAY) ---
-    # These buttons float over the top-left corner of the 3D viewport
+    # ==========================================
+    # --- CAMERA TOOLBAR (LEFT OVERLAY) ---
+    # ==========================================
     cam_toolbar = QHBoxLayout()
     cam_toolbar.setContentsMargins(15, 15, 15, 15) 
     button_style = """
@@ -58,7 +59,6 @@ def setup_ui(app):
         QPushButton:pressed { background-color: #1a1a1a; }
     """
     
-    # Map labels to their respective PyVista camera functions
     camera_views = [
         ("ISO", app.plotter.view_isometric), 
         ("TOP", app.plotter.view_xy), 
@@ -69,21 +69,56 @@ def setup_ui(app):
     for label, func in camera_views:
         btn = QPushButton(label)
         btn.setFixedSize(50, 30)
-        # NoFocus prevents the buttons from stealing keyboard inputs intended for the 3D viewer
         btn.setFocusPolicy(Qt.NoFocus)
         btn.setStyleSheet(button_style)
         btn.clicked.connect(func)
         cam_toolbar.addWidget(btn)
         
-    cam_toolbar.addStretch() # Pushes buttons to the left alignment
     viewer_grid.addLayout(cam_toolbar, 0, 0, Qt.AlignTop | Qt.AlignLeft)
+
+    # ==========================================
+    # --- LIVE PREVIEW & GENERATE (RIGHT OVERLAY) ---
+    # ==========================================
+    action_toolbar = QVBoxLayout()
+    action_toolbar.setContentsMargins(15, 15, 15, 15)
+    action_toolbar.setSpacing(10) # Space between checkbox and button
+
+    app.chk_live_update = QCheckBox("Live Preview")
+    app.chk_live_update.setChecked(True)
+    app.chk_live_update.setStyleSheet("color: #66b2ff; font-weight: bold;")
+    app.chk_live_update.setFocusPolicy(Qt.NoFocus)
+
+    app.btn_generate = QPushButton("GENERATE 3D")
+    app.btn_generate.setFixedSize(120, 30)
+    app.btn_generate.setFocusPolicy(Qt.NoFocus)
+    app.btn_generate.setStyleSheet("""
+        QPushButton { background-color: #e67e22; color: #ffffff; border: 1px solid #d35400; border-radius: 4px; font-weight: bold; }
+        QPushButton:hover { background-color: #d35400; }
+        QPushButton:pressed { background-color: #a04000; }
+    """)
+    
+    # The magic trick: retain space when the button is hidden so the UI doesn't jump
+    size_policy = app.btn_generate.sizePolicy()
+    size_policy.setRetainSizeWhenHidden(True)
+    app.btn_generate.setSizePolicy(size_policy)
+    
+    app.btn_generate.hide() 
+    
+    app.chk_live_update.stateChanged.connect(lambda state: app.btn_generate.setVisible(not state))
+    
+    # Add widgets to the vertical layout, aligned to the right
+    action_toolbar.addWidget(app.chk_live_update, alignment=Qt.AlignRight)
+    action_toolbar.addWidget(app.btn_generate, alignment=Qt.AlignRight)
+    
+    # Place the layout in the top-right corner of the viewport
+    viewer_grid.addLayout(action_toolbar, 0, 0, Qt.AlignTop | Qt.AlignRight)
+    # ==========================================
+
     main_layout.addWidget(viewer_container)
 
     # --- DOCK PANELS INITIALIZATION ---
-    # Delegate the creation of sliders, toggles, and UI logic to the ui_panels module
     ui_panels.setup_docks(app)
 
-    # Apply the custom collapsible title bar to all generated docks
     docks_to_upgrade = [
         app.dock_left, 
         app.dock_right, 
@@ -96,7 +131,6 @@ def setup_ui(app):
         custom_bar = CollapsibleDockTitleBar(dock, original_title)
         dock.setTitleBarWidget(custom_bar)
 
-    # Stack the 2D Bezier Designer and the Log Console vertically at the bottom of the screen
     app.splitDockWidget(app.dock_designer, app.dock_bottom, Qt.Vertical)
     app.resizeDocks([app.dock_designer, app.dock_bottom], [400, 60], Qt.Vertical)
 

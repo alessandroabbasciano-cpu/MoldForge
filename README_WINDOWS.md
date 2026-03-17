@@ -31,11 +31,10 @@ MOLD F.O.R.G.E. is designed to be completely "plug and play".
 
 ## 📂 Customization & Assets
 
-Because this is a portable folder, you have direct access to the program's vital assets. **Do not delete these folders!**
+Because this is a portable application, you have direct access to the program's vital assets. **Do not delete these!:**
 
 * **`shapes_library/`**: Drop your personal `.dxf` vector files here, and the engine will detect and load them automatically into the application's shape selection menu.
-* **`wiki/`**: Contains the full documentation, UI guides, and parametric engineering manuals. You can read these offline to master the CAD engine.
-* **`fb_presets.json`**: This JSON file securely stores all your saved 3D printing parameters and mold design presets. Back this file up if you ever move to a new PC!
+* **`fb_presets.json`**: This JSON file securely stores all your saved 3D printing parameters and mold design presets. *(Note: The app starts clean. This file will not be present initially; it is automatically generated the very first time you save a preset in the UI).* Back this file up if you ever move to a new PC!
 
 ---
 
