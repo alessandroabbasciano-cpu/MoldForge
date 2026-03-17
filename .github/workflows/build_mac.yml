@@ -48,7 +48,7 @@ jobs:
       if: startsWith(github.ref, 'refs/tags/')
       with:
         files: MoldForge-Mac-ARM64.zip
-        draft: false
+        draft: true
         prerelease: false
         generate_release_notes: false
         body: |
