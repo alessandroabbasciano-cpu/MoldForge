@@ -2,9 +2,9 @@ name: Track GitHub Traffic
 
 on:
   schedule:
-    # Si attiva ogni domenica alle 23:59
+    # Runs every Sunday at 23:59 UTC
     - cron: '59 23 * * 0'
-  workflow_dispatch: # Ci permette di avviarlo manualmente con un pulsante
+  workflow_dispatch: # Allows manual trigger
 
 jobs:
   update-csv:
@@ -21,7 +21,7 @@ jobs:
       - name: Install dependencies
         run: pip install requests
 
-      - name: Run tracking script
+      - name: Run traffic tracking script
         env:
           TRAFFIC_TOKEN: ${{ secrets.TRAFFIC_TOKEN }}
         run: python update_stats.py
@@ -30,7 +30,7 @@ jobs:
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action Bot"
-          git add stats.csv
-          # Evita che l'action fallisca se non ci sono nuovi dati da salvare
-          git commit -m "chore: aggiornato log del traffico [skip ci]" || echo "Nessuna modifica al file"
+          git add traffic_stats.csv
+          # Prevent failure if no changes are detected
+          git commit -m "chore: log weekly traffic stats [skip ci]" || echo "No changes to commit"
           git push
