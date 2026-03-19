@@ -17,7 +17,7 @@ jobs:
 
     - name: Install Official Universal Python 3.10
       run: |
-        curl -O https://www.python.org/ftp/python/3.10.14/python-3.10.14-macos11.pkg
+        curl -L -O https://www.python.org/ftp/python/3.10.14/python-3.10.14-macos11.pkg
         sudo installer -pkg python-3.10.14-macos11.pkg -target /
 
     - name: Install Dependencies (Forced Intel)
