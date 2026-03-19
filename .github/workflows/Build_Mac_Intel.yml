@@ -15,10 +15,10 @@ jobs:
     - name: Install Rosetta 2 (CRITICAL FIX)
       run: softwareupdate --install-rosetta --agree-to-license
 
-    - name: Install Official Universal Python 3.10
+    - name: Install Official Universal Python 3.10.11
       run: |
-        curl -L -O https://www.python.org/ftp/python/3.10.14/python-3.10.14-macos11.pkg
-        sudo installer -pkg python-3.10.14-macos11.pkg -target /
+        curl -L -o python-installer.pkg https://www.python.org/ftp/python/3.10.11/python-3.10.11-macos11.pkg
+        sudo installer -pkg python-installer.pkg -target /
 
     - name: Install Dependencies (Forced Intel)
       shell: bash
