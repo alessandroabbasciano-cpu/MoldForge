@@ -2,7 +2,9 @@
 
 Welcome to **MOLD F.O.R.G.E.**, the standalone parametric CAD suite engineered exclusively for high-performance fingerboard manufacturing.
 
-This native macOS release marks the completion of *Project Exodus*. It is provided as a **Portable App Bundle (Native ARM64 for Apple Silicon)**. It requires absolutely zero installation, no Python environments, and can be run directly from any folder.
+This native macOS release marks the completion of *Project Exodus*. It is provided as a **Portable App Bundle (Available for both Apple Silicon M-Series and older Intel Macs)**. It requires absolutely zero installation, no Python environments, and can be run directly from any folder.
+
+*(Make sure you downloaded the correct `.zip` file for your specific Mac processor!)*
 
 ---
 
@@ -47,4 +49,3 @@ Because this is a portable application, you have direct access to the program's 
 
 * **A Terminal window stays open in the background?**
   Because this is a native UNIX executable, macOS might open a blank Terminal window behind the main application. You can safely ignore it, but **do not close it**, or it will instantly terminate the MOLD F.O.R.G.E. 3D engine as well. Just let it run in the background.
-  

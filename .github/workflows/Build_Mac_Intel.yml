@@ -5,33 +5,36 @@ on:
 
 jobs:
   build_intel:
-    name: Build on macOS Intel (via Rosetta)
+    name: Build on macOS Intel (via Rosetta and Universal Python)
     runs-on: macos-14
 
     steps:
     - name: Checkout Code
       uses: actions/checkout@v5
 
-    - name: Setup Python (Forced to Intel)
-      uses: actions/setup-python@v5
-      with:
-        python-version: "3.10"
-        architecture: "x64"
-
-    - name: Install Dependencies
-      shell: bash
+    - name: Install Official Python 3.10 (Universal2)
+      # Bypasses the broken GitHub setup-python action
       run: |
-        pip install cadquery
-        pip install -r requirements.txt
-        pip install PySide6==6.6.3 pyinstaller
+        curl -O https://www.python.org/ftp/python/3.10.14/python-3.10.14-macos11.pkg
+        sudo installer -pkg python-3.10.14-macos11.pkg -target /
 
-    - name: Build with PyInstaller
+    - name: Install Dependencies (Forced to x86_64)
       shell: bash
+      # 'arch -x86_64' forces the universal python to run as Intel, downloading Intel wheels
       run: |
-        pyinstaller MoldForge_m86.spec
+        arch -x86_64 /usr/local/bin/python3 -m pip install --upgrade pip
+        arch -x86_64 /usr/local/bin/python3 -m pip install cadquery
+        arch -x86_64 /usr/local/bin/python3 -m pip install -r requirements.txt
+        arch -x86_64 /usr/local/bin/python3 -m pip install PySide6==6.6.3 pyinstaller
+
+    - name: Build with PyInstaller (Forced to x86_64)
+      shell: bash
+      # Compiles the x86_64 executable
+      run: |
+        arch -x86_64 /usr/local/bin/python3 -m PyInstaller MoldForge_m86.spec
 
     - name: Codesign ad-hoc
-      run: codesign --force --deep --sign - dist/MoldForge.app
+      run: codesign --force --deep --sign - dist/MOLDFORGE_RELEASE/MoldForge.app
 
     - name: Package for Intel Release
       run: |
@@ -42,4 +45,4 @@ jobs:
       uses: actions/upload-artifact@v5
       with:
         name: MoldForge-Mac-Intel
-        path: dist/MoldForge-macOS-Intel_x64.zip
+        path: MoldForge-macOS-Intel_x64.zip
