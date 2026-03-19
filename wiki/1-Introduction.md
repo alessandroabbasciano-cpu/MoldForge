@@ -28,7 +28,7 @@ This Wiki is your official manual. We strongly recommend reading these pages in 
 
 Developed with passion and engineering rigor for the fingerboard community.
 
-* **Code Engine License:** [LGPLv2.1](https://www.gnu.org/licenses/old-licenses/lgpl-2.1.en.html) - Free to study, modify, and distribute.
+* **Code Engine License:** [AGPLv3](https://www.gnu.org/licenses/agpl-3.0.en.html) - Free to study, modify, and distribute. Network usage requires source disclosure.
 * **3D Output & Designs:** CC BY-NC-SA 4.0 - Molds and decks generated using the default base parameters are for personal/non-commercial use.
 
 Curious about what powers the engine? Check out the **About MOLD F.O.R.G.E.** window in the Help menu for a breakdown of the open-source technologies used.

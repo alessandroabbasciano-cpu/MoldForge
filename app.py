@@ -401,7 +401,7 @@ class MoldApp(QMainWindow):
             "<p style='color: #e67e22; font-weight: bold; margin-top: 15px;'>"
             "Developed with passion for the fingerboard community.</p>"
             "<p style='font-size: 14px; color: #888; margin-top: 15px;'>"
-            "<b>License:</b> Code LGPLv2.1 / Design CC BY-NC-SA 4.0</p>"
+            "<b>License:</b> Code AGPLv3 / Design CC BY-NC-SA 4.0</p>"
             "</div>" 
         )
         QMessageBox.about(self, "About MOLD F.O.R.G.E.", about_html)

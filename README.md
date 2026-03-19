@@ -4,7 +4,7 @@
 
 ![Version](https://img.shields.io/badge/version-V1.0.0_Standalone-2ecc71.svg)
 ![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-blue.svg)
-![License](https://img.shields.io/badge/license-LGPLv2.1-blue.svg)
+![License](https://img.shields.io/badge/license-AGPLv3-red.svg)
 
 **MOLD F.O.R.G.E.** is a professional, standalone parametric CAD suite engineered exclusively for the fingerboard industry.
 
@@ -78,7 +78,7 @@ If you are a developer, a 3D printing enthusiast, or a fingerboard maker with id
 
 ## 📄 License
 
-- **Source Code Engine:** [LGPLv2.1](https://www.gnu.org/licenses/old-licenses/lgpl-2.1.en.html) - Free to study, modify, and distribute.
+- **Source Code Engine:** [AGPLv3](https://www.gnu.org/licenses/agpl-3.0.en.html) - Free to study, modify, and distribute. Network usage requires source disclosure.
 - **3D Output / Designs:** CC BY-NC-SA 4.0 - Molds and decks generated using the default factory presets are for personal/non-commercial use.
 
 ## ☕ Support the Project
