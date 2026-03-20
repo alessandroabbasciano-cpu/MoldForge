@@ -1,0 +1,76 @@
+name: Assemble Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag_name:
+        description: 'Release Tag'
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  assemble-release:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v5
+
+    - name: Download Windows Artifact
+      uses: dawidd6/action-download-artifact@v3
+      with:
+        workflow: build_windows.yml
+        name: MoldForge-Windows-ZIP
+        path: release_assets/
+
+    - name: Download Linux Artifact
+      uses: dawidd6/action-download-artifact@v3
+      with:
+        workflow: build_linux.yml
+        name: MoldForge-Linux-ZIP
+        path: release_assets/
+
+    - name: Download Mac ARM64 Artifact
+      uses: dawidd6/action-download-artifact@v3
+      with:
+        workflow: build_mac.yml
+        name: MoldForge-Mac-ARM64-ZIP
+        path: release_assets/
+
+    - name: Download Mac Intel Artifact
+      uses: dawidd6/action-download-artifact@v3
+      with:
+        workflow: Build_Mac_Intel.yml
+        name: MoldForge-Mac-Intel-ZIP
+        path: release_assets/
+
+    - name: Publish Draft Release
+      uses: softprops/action-gh-release@v2
+      with:
+        tag_name: ${{ github.event.inputs.tag_name }}
+        name: MOLD F.O.R.G.E. - ${{ github.event.inputs.tag_name }}
+        draft: true
+        prerelease: false
+        generate_release_notes: false
+        files: release_assets/*
+        body: |
+          🔥 **MOLD F.O.R.G.E. - V1.0.1 Stable** 🔥
+
+          The standalone, professional, and cross-platform parametric CAD suite engineered for the fingerboard industry. 
+          This update solidifies the core engine and introduces dedicated support for older Intel-based Macs.
+
+          **What's inside V1.0.1:**
+          - 🍏 **Native macOS Support (Apple Silicon):** Optimized 3D engine, zero memory leaks, and buttery-smooth rendering.
+          - 🍎 **Native macOS Support (Intel):** A dedicated, natively compiled build for older Intel Macs (no Rosetta required!).
+          - 🪟 **Native Windows Support:** Clean executable and rock-solid PySide6 interface.
+          - 🐧 **Native Linux Support:** Full compatibility with modern display servers.
+          - 🚀 **Ultra-Fast Generation:** High-res 3D models and molds generated in seconds with pinpoint millimeter tolerances.
+          - ⚡ **Live Preview Control:** UI toggle to pause automatic rendering during heavy parameter tuning, ensuring a lag-free workflow.
+
+          **Installation:**
+          Download the `.zip` file for your OS below, extract the folder anywhere, and run the executable. No installation, no Python environments, no external dependencies required. 
+          *(Mac Users: make sure to read the included `README_MAC.md` to bypass the initial Gatekeeper block).*
+
+          **Oh, and read the Wiki before asking how to use it!** 🛹
