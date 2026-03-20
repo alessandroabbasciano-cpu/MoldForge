@@ -22,28 +22,28 @@ jobs:
       uses: dawidd6/action-download-artifact@v3
       with:
         workflow: build_windows.yml
-        name: MoldForge-Windows-ZIP
+        name: MoldForge-Windows
         path: release_assets/
 
     - name: Download Linux Artifact
       uses: dawidd6/action-download-artifact@v3
       with:
         workflow: build_linux.yml
-        name: MoldForge-Linux-ZIP
+        name: MoldForge-Linux
         path: release_assets/
 
     - name: Download Mac ARM64 Artifact
       uses: dawidd6/action-download-artifact@v3
       with:
         workflow: build_mac.yml
-        name: MoldForge-Mac-ARM64-ZIP
+        name: MoldForge-Mac-ARM64
         path: release_assets/
 
     - name: Download Mac Intel Artifact
       uses: dawidd6/action-download-artifact@v3
       with:
         workflow: Build_Mac_Intel.yml
-        name: MoldForge-Mac-Intel-ZIP
+        name: MoldForge-Mac-Intel
         path: release_assets/
 
     - name: Publish Draft Release
