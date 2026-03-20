@@ -27,15 +27,31 @@ Design custom decks with mathematical precision, tweak transitions in real-time 
 
 ---
 
+### 🖥️ System Requirements / Requisiti di Sistema
+
+To ensure a smooth 3D rendering and parametric generation experience, please check if your hardware meets these criteria:
+
+| Feature | Minimum Specification | Recommended Specification |
+| :--- | :--- | :--- |
+| **OS (Windows)** | Windows 10 / 11 (64-bit) | Windows 11 (64-bit) |
+| **OS (macOS)** | macOS 11.0 Big Sur (Intel or Apple Silicon) | macOS 13.0+ (M1/M2/M3 chips) |
+| **OS (Linux)** | Ubuntu 22.04+ / Modern Distros (X11/XWayland) | Latest Stable Distro |
+| **Processor** | Dual-core 64-bit CPU | Quad-core CPU (High single-thread speed) |
+| **Memory (RAM)** | 4 GB | **8 GB or more** |
+| **Graphics** | OpenGL 2.1 compatible GPU | Dedicated GPU or Apple M-series |
+| **Storage** | 500 MB of free space | SSD (for faster asset loading) |
+
+---
+
 ## 🚀 Quick Start (Portable Editions)
 
 MOLD F.O.R.G.E. requires **ZERO installation**. It does not alter your system files or registry.
 
-1. Go to the [Releases](../../releases) page and download the `.zip` file for your Operating System (Windows, macOS ARM64, or Linux).
+1. Go to the [Releases](../../releases) page and download the `.zip` file for your Operating System (Windows, macOS, or Linux).
 2. Extract the folder to a user-accessible location (e.g., your Desktop or Documents).
 3. Run the `MoldForge` executable.
 
-> **🍎 macOS Users:** Due to strict Gatekeeper security on unsigned open-source software, you must run a quick terminal command (`xattr -cr`) to un-quarantine the app on first launch. Please refer to the `README_MAC.md` inside the release bundle for the 10-second fix.
+> **🍎 macOS Users:** Due to strict Gatekeeper security on unsigned open-source software, you must run a quick terminal command (`xattr -cr`) to un-quarantine the app on first launch. Please refer to the `README_MAC.md` inside the release bundle for the 10-second fix. **Make sure to download the correct `.zip` file (Intel or Apple Silicon) for your specific Mac processor!**
 
 ---
 

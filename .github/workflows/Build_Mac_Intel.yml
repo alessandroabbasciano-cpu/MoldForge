@@ -1,6 +1,9 @@
 name: Build Mold Forge Mac Intel
 
 on:
+  push:
+    tags:
+      - 'v*'
   workflow_dispatch:
 
 jobs:
@@ -24,7 +27,6 @@ jobs:
       shell: bash
       run: |
         PYTHON_BIN="/Library/Frameworks/Python.framework/Versions/3.10/bin/python3"
-        # Il comando arch -x86_64 forza il processo in modalità Intel
         arch -x86_64 $PYTHON_BIN -m pip install --upgrade pip
         arch -x86_64 $PYTHON_BIN -m pip install cadquery
         arch -x86_64 $PYTHON_BIN -m pip install -r requirements.txt

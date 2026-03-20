@@ -6,9 +6,6 @@ on:
       - 'v*'
   workflow_dispatch:
 
-permissions:
-  contents: write
-
 jobs:
   build-mac:
     runs-on: [self-hosted, mac-local]
@@ -36,34 +33,8 @@ jobs:
         cd dist/MOLDFORGE_RELEASE
         zip -ry ../../MoldForge-Mac-ARM64.zip .
         
-    - name: Upload Artifact
+    - name: Upload Mac ARM64 Artifact
       uses: actions/upload-artifact@v5
       with:
         name: MoldForge-Mac-ARM64
         path: MoldForge-Mac-ARM64.zip
-        retention-days: 5
-
-    - name: Publish to GitHub Releases
-      uses: softprops/action-gh-release@v2
-      if: startsWith(github.ref, 'refs/tags/')
-      with:
-        files: MoldForge-Mac-ARM64.zip
-        draft: true
-        prerelease: false
-        generate_release_notes: false
-        body: |
-          🔥 **MOLD F.O.R.G.E. - Official V1.0.0 Release** 🔥
-
-          The first standalone, professional, and cross-platform release is finally here. 
-          Engineered for parametric fingerboard design, MoldForge combines the raw power of the OpenCASCADE CAD engine with a lightning-fast native GUI.
-
-          **What's inside V1.0.0:**
-          - 🍏 **Native macOS Support (Apple Silicon M1/M2/M3):** Optimized 3D engine, zero memory leaks, and buttery-smooth rendering with no WindowServer deadlocks.
-          - 🪟 **Native Windows Support:** Clean executable and rock-solid PySide6 interface.
-          - 🐧 **Native Linux Support:** Full compatibility with modern display servers.
-          - 🚀 **Ultra-Fast Generation:** High-res 3D models and molds generated in seconds with pinpoint millimeter tolerances.
-          - ⚡ **Live Preview Control:** Brand new UI toggle to pause automatic rendering during heavy parameter tuning, ensuring a 100% lag-free workflow.
-          
-          **Installation:**
-          Download the ZIP file for your OS below, extract the folder anywhere, and run the executable. No installation, no Python environments, no external dependencies required. 
-          **Oh, and read the Wiki before asking how to use it!**
