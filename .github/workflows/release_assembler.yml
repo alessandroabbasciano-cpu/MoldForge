@@ -70,7 +70,7 @@ jobs:
           - ⚡ **Live Preview Control:** UI toggle to pause automatic rendering during heavy parameter tuning, ensuring a lag-free workflow.
           **What's new in this Hotfix:**
           - 🐛 **CRITICAL BUG FIX:** Fixed a math logic error in the parametric engine that caused the truck holes to be exactly twice as wide as they should have been. Huge shoutout to @KAME3D for catching this instantly!
-          - 🐛 **BUG FIX:** Fixed female mold corners
+          - 🐛 **BUG FIX:** Fixed female mold base corners
 
           **Installation:**
           Download the `.zip` file for your OS below, extract the folder anywhere, and run the executable. No installation, no Python environments, no external dependencies required. 
