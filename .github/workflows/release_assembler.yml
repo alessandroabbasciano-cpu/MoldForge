@@ -56,12 +56,12 @@ jobs:
         generate_release_notes: false
         files: release_assets/*
         body: |
-          🔥 **MOLD F.O.R.G.E. - V1.0.0 Stable - Hot fix** 🔥
+          🔥 **MOLD F.O.R.G.E. - V1.0.1 Stable - Hot fix** 🔥
 
           The first standalone, professional, and cross-platform release is finally here. 
           Engineered for parametric fingerboard design, MoldForge combines the raw power of the OpenCASCADE CAD engine with a lightning-fast native GUI.
 
-          **What's inside V1.0.0:**
+          **What's inside V1.0.1:**
           - 🍏 **Native macOS Support (Apple Silicon):** Optimized 3D engine, zero memory leaks, and buttery-smooth rendering.
           - 🍎 **Native macOS Support (Intel):** A dedicated, natively compiled build for older Intel Macs (no Rosetta required!).
           - 🪟 **Native Windows Support:** Clean executable and rock-solid PySide6 interface.
@@ -70,7 +70,7 @@ jobs:
           - ⚡ **Live Preview Control:** UI toggle to pause automatic rendering during heavy parameter tuning, ensuring a lag-free workflow.
           **What's new in this Hotfix:**
           - 🐛 **CRITICAL BUG FIX:** Fixed a math logic error in the parametric engine that caused the truck holes to be exactly twice as wide as they should have been. Huge shoutout to @KAME3D for catching this instantly!
-
+          - 🐛 **BUG FIX:** Fixed female mold corners
 
           **Installation:**
           Download the `.zip` file for your OS below, extract the folder anywhere, and run the executable. No installation, no Python environments, no external dependencies required. 
