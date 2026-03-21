@@ -487,7 +487,7 @@ def build_mold(params: MoldParams):
         return final
 
     elif params.MoldType == "Female_Mold":
-        final = cq.Workplane("XY").box(base_width, mold_len, total_height).translate((0, 0, total_height / 2.0))
+        final = make_rounded_box(base_width, mold_len, total_height, params.MoldCornerRadius)
         final = apply_cuts(final, cutters_down)
         
         shoulder_tool = (
