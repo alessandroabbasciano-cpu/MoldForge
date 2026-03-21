@@ -95,7 +95,7 @@ def build_mold(params: MoldParams):
     guides_loc = [(gx, 0), (gx, gy), (gx, -gy), (-gx, 0), (-gx, gy), (-gx, -gy)]
     
     # Layout for Truck Mounting Holes
-    tx, y_fi, y_ri = params.TruckHoleDistW, params.Wheelbase / 2.0, -params.Wheelbase / 2.0
+    tx, y_fi, y_ri = params.TruckHoleDistW / 2.0, params.Wheelbase / 2.0, -params.Wheelbase / 2.0
     y_fo, y_ro = y_fi + params.TruckHoleDistL, y_ri - params.TruckHoleDistL
     trucks_loc = [(tx, y_fi), (-tx, y_fi), (tx, y_fo), (-tx, y_fo), (tx, y_ri), (-tx, y_ri), (tx, y_ro), (-tx, y_ro)]
 
