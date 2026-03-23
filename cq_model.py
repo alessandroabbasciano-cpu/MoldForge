@@ -487,16 +487,10 @@ def build_mold(params: MoldParams):
         return final
 
     elif params.MoldType == "Female_Mold":
-        final = make_rounded_box(base_width, mold_len, total_height, params.MoldCornerRadius)
+        fem_core = cq.Workplane("XY").box(core_width, mold_len, total_height).translate((0, 0, total_height / 2.0))
+        fem_base = make_rounded_box(base_width, mold_len, base_height, params.MoldCornerRadius).translate((0, 0, top_z))
+        final = fem_core.union(fem_base)
         final = apply_cuts(final, cutters_down)
-        
-        shoulder_tool = (
-            cq.Workplane("XY")
-            .rect(base_width + 10.0, mold_len + 10.0) 
-            .rect(core_width, mold_len)           
-            .extrude(top_z)
-        )
-        final = final.cut(shoulder_tool)
         
         if params.AddFillet and params.FilletRadius > 0.0:
             try:
