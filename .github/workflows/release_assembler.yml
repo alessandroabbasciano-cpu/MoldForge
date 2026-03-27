@@ -19,28 +19,28 @@ jobs:
       uses: actions/checkout@v5
 
     - name: Download Windows Artifact
-      uses: dawidd6/action-download-artifact@v3
+      uses: dawidd6/action-download-artifact@v6
       with:
         workflow: build_windows.yml
         name: MoldForge-Windows
         path: release_assets/
 
     - name: Download Linux Artifact
-      uses: dawidd6/action-download-artifact@v3
+      uses: dawidd6/action-download-artifact@v6
       with:
         workflow: build_linux.yml
         name: MoldForge-Linux
         path: release_assets/
 
     - name: Download Mac ARM64 Artifact
-      uses: dawidd6/action-download-artifact@v3
+      uses: dawidd6/action-download-artifact@v6
       with:
         workflow: build_mac.yml
         name: MoldForge-Mac-ARM64
         path: release_assets/
 
     - name: Download Mac Intel Artifact
-      uses: dawidd6/action-download-artifact@v3
+      uses: dawidd6/action-download-artifact@v6
       with:
         workflow: Build_Mac_Intel.yml
         name: MoldForge-Mac-Intel
