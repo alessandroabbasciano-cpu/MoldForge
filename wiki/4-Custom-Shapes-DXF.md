@@ -24,7 +24,8 @@ To ensure the geometry engine can loft a solid 3D mesh from your 2D drawing, str
 1. **Full Profile:** Draw the **entire** closed outline of the deck. Do not draw only one half; the mathematical engine expects a complete, continuous loop.
 2. **Y-Axis Orientation:** The length of the board *must* run along the **Y-axis** (Vertical). The width must run along the **X-axis** (Horizontal).
 3. **Perfectly Closed Loops:** Ensure the vector path is completely closed. Even a microscopic gap between two nodes will cause the 3D generation to fail and throw an error in the console.
-4. **Clean Vectors:** Avoid overlapping lines, self-intersecting curves, or stray points. Use the absolute minimum number of nodes necessary to define your curve for the smoothest CNC-ready finish.
+4. **Clean Vectors & Zero Noise:** Avoid overlapping lines, self-intersecting curves, or stray points. Use the absolute minimum number of nodes necessary to define your curve for the smoothest CNC-ready finish.
+5. **No Ghost Layers (CRITICAL):** OpenCASCADE is a strict mathematical kernel, not a forgiving visual editor. It calculates the Bounding Box of the *entire* DXF file. If your vector software exports hidden default layers (like `Layer 0`), template bounds, or invisible absolute origin anchors, the bounding box calculation will explode and the 3D boolean operation will throw an **"Out of bounds"** error. Delete ALL empty/hidden layers before exporting.
 
 ---
 
@@ -56,10 +57,11 @@ When you load a custom DXF, the engine attempts two distinct mathematical method
 
 ## 🛠️ Export Settings Checklist
 
-When exporting your final file from your vector software, verify these exact settings:
+When exporting your final file from your vector software (Inkscape, Illustrator, Fusion360), strictly follow this protocol to prevent 3D engine crashes:
 
-* **Format:** AutoCAD DXF R14 (or newer).
-* **Units:** Millimeters (mm).
+* **Global Units:** Must be strictly set to **Millimeters (mm)** in your Document Properties. If your background document is set to Inches but you export in mm, the scale multiplier will corrupt the bounding box tolerance.
+* **Export Selection Only:** DO NOT "Save As" the whole document. Select ONLY your single, closed path. Choose "Export..." and ensure a checkbox like "Export Selected Only" is active. This strips out all ghost layers and background noise.
+* **Format:** AutoCAD DXF R14 (or newer). R14 is heavily recommended as it automatically flattens complex splines into safe, continuous polylines.
 * **Location:** Save directly into the `/shapes_library/` folder.
 
 ---

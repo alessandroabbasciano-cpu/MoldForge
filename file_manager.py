@@ -87,16 +87,21 @@ def apply_main_preset(app, preset_name):
                 checkbox.setChecked(is_checked)
 
         # --- FIX: AUTOMATIC SYMMETRY DETECTION ---
-        # Automatically uncheck the 'Symmetrical' toggle if Nose and Tail parameters differ
         is_sym = True
         if "NoseAngle" in data and "TailAngle" in data:
             if float(data["NoseAngle"]) != float(data["TailAngle"]): is_sym = False
+        if "NoseLength" in data and "TailLength" in data:
             if float(data["NoseLength"]) != float(data["TailLength"]): is_sym = False
+        if "NoseCtrl1X" in data and "TailCtrl1X" in data:
+            if float(data["NoseCtrl1X"]) != float(data["TailCtrl1X"]): is_sym = False
+
+        app.chk_sym.blockSignals(True)
         app.chk_sym.setChecked(is_sym)
+        app.chk_sym.blockSignals(False)
 
     finally:
         app.is_updating_preset = False
-    
+       
     # Trigger a single master render after all parameters are loaded
     app.start_preview()
 
@@ -229,6 +234,26 @@ def apply_parsed_data_to_ui(app, data):
                      "AddWheelFlares": app.chk_flares }
         for key, checkbox in check_map.items():
             if key in data: checkbox.setChecked(data[key] == "True")
+        
+        if "MoldType" in data:
+            idx = app.combo_type.findText(data["MoldType"])
+            if idx >= 0: app.combo_type.setCurrentIndex(idx)
+
+        # --- FIX: AUTOMATIC SYMMETRY DETECTION FOR .TXT FILES ---
+        is_sym = True
+        try:
+            if "NoseAngle" in data and "TailAngle" in data:
+                if float(data["NoseAngle"]) != float(data["TailAngle"]): is_sym = False
+            if "NoseLength" in data and "TailLength" in data:
+                if float(data["NoseLength"]) != float(data["TailLength"]): is_sym = False
+            if "NoseCtrl1X" in data and "TailCtrl1X" in data:
+                if float(data["NoseCtrl1X"]) != float(data["TailCtrl1X"]): is_sym = False
+        except ValueError:
+            pass
+            
+        app.chk_sym.blockSignals(True)
+        app.chk_sym.setChecked(is_sym)
+        app.chk_sym.blockSignals(False)
         
         if "MoldType" in data:
             idx = app.combo_type.findText(data["MoldType"])

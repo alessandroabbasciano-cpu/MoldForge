@@ -390,31 +390,32 @@ def build_mold(params: MoldParams):
     if params.GuideDiameter > 0.1:
         guide_holes_cutter = cq.Workplane("XY").pushPoints(guides_loc).circle(params.GuideDiameter / 2.0).extrude(500).translate((0, 0, -100))
     
-    # --- TRUCK PINS (MARKERS) ---
-    pin_radius_base = (params.TruckHoleDiam / 2.0) + 0.2
-    pin_height = (params.VeneerThickness / 2.0) - 0.1
-    tip_radius = 0.25
-    
-    # Calculate taper angle for a 0.5mm tip
-    taper_angle = math.degrees(math.atan((pin_radius_base - tip_radius) / pin_height))
-    
-    # Sink extension to prevent zero-thickness geometry on curved boolean operations
-    sink = 1.5
-    true_base_radius = pin_radius_base + (sink * math.tan(math.radians(taper_angle)))
-    total_height = pin_height + sink
+    female_pins = None
+    male_pin_holes = None
+    shaper_pins_up = None
+    shaper_pins_down = None
 
-    # Female Mold Pin (Positive, pointing down)
-    female_pins = cq.Workplane("XY").pushPoints(trucks_loc).circle(true_base_radius).extrude(total_height, taper=taper_angle).mirror("XY").translate((0, 0, z_fem_target + sink))
+    if getattr(params, 'AddMoldTruckPins', False) or getattr(params, 'AddShaperTruckPins', False):
+        pin_radius_base = (params.TruckHoleDiam / 2.0) + 0.2
+        pin_height = (params.VeneerThickness / 2.0) - 0.1
+        tip_radius = 0.25
+        
+        taper_angle = math.degrees(math.atan((pin_radius_base - tip_radius) / pin_height))
+        sink = 1.5
+        true_base_radius = pin_radius_base + (sink * math.tan(math.radians(taper_angle)))
+        total_height = pin_height + sink
 
-    # Male Mold Hole (Negative, pointing down to carve the core surface)
-    male_pin_holes = cq.Workplane("XY").pushPoints(trucks_loc).circle(true_base_radius + 0.4).extrude(total_height + 0.5, taper=taper_angle).mirror("XY").translate((0, 0, z_mount_target + sink))
+        master_female = cq.Workplane("XY").circle(true_base_radius).extrude(total_height, taper=taper_angle).mirror("XY")
+        master_male = cq.Workplane("XY").circle(true_base_radius + 0.4).extrude(total_height + 0.5, taper=taper_angle).mirror("XY")
+        master_shaper_up = cq.Workplane("XY").circle(true_base_radius).extrude(total_height, taper=taper_angle)
+        master_shaper_down = cq.Workplane("XY").circle(true_base_radius).extrude(total_height, taper=taper_angle).mirror("XY")
 
-    # Bottom Shaper Pin (Positive, pointing up)
-    shaper_pins_up = cq.Workplane("XY").pushPoints(trucks_loc).circle(true_base_radius).extrude(total_height, taper=taper_angle).translate((0, 0, z_mount_target - sink))
-    
-    # Top Shaper Pin (Positive, pointing down)
-    z_shaper_bottom = z_mount_target - params.VeneerThickness
-    shaper_pins_down = cq.Workplane("XY").pushPoints(trucks_loc).circle(true_base_radius).extrude(total_height, taper=taper_angle).mirror("XY").translate((0, 0, z_shaper_bottom + sink))    
+        female_pins = cq.Workplane("XY").pushPoints(trucks_loc).eachpoint(lambda loc: master_female.val().located(loc)).translate((0, 0, z_fem_target + sink))
+        male_pin_holes = cq.Workplane("XY").pushPoints(trucks_loc).eachpoint(lambda loc: master_male.val().located(loc)).translate((0, 0, z_mount_target + sink))
+        shaper_pins_up = cq.Workplane("XY").pushPoints(trucks_loc).eachpoint(lambda loc: master_shaper_up.val().located(loc)).translate((0, 0, z_mount_target - sink))
+        
+        z_shaper_bottom = z_mount_target - params.VeneerThickness
+        shaper_pins_down = cq.Workplane("XY").pushPoints(trucks_loc).eachpoint(lambda loc: master_shaper_down.val().located(loc)).translate((0, 0, z_shaper_bottom + sink))
     
     # Calculate total stack height
     rise_nose = params.NoseLength * math.sin(math.radians(params.NoseAngle))

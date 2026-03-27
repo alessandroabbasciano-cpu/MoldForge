@@ -30,7 +30,7 @@ def sync_symmetry(app, source):
     Mirrors the parameters between Nose and Tail if the 'Symmetrical' checkbox is active.
     Uses an internal '_syncing' flag to prevent infinite recursive loops when spinboxes trigger each other.
     """
-    if getattr(app, '_syncing', False) or not app.chk_sym.isChecked(): 
+    if getattr(app, '_syncing', False) or getattr(app, 'is_updating_preset', False) or not app.chk_sym.isChecked(): 
         sync_editor_from_spinboxes(app)
         return
     
