@@ -15,6 +15,8 @@ Design custom decks with mathematical precision, tweak transitions in real-time 
 ![MOLD FORGE 3D](wiki/assets/ui_overview.png)
 
 ---
+💬 **Using MOLD F.O.R.G.E. or just passing by?** [Drop a sign in the Guestbook!](https://github.com/alessandroabbasciano-cpu/MoldForge/discussions)
+---
 
 ## 🔥 Core Features
 
