@@ -374,7 +374,7 @@ class MoldApp(QMainWindow):
         if self.current_result: self.start_preview()
 
     def open_donation_link(self):
-        QDesktopServices.openUrl(QUrl("https://www.paypal.me/AlessandroAbbasciano"))
+        QDesktopServices.openUrl(QUrl("https://ko-fi.com/moldforge"))
 
     def show_about_dialog(self):
         about_html = (
