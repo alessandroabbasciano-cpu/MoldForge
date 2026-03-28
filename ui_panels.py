@@ -236,7 +236,7 @@ def setup_docks(app):
     app.spin_length = add_param(app, layout_dim, "Mold Length (mm)", 90, 160, app.params.MoldLength, "Total physical length of the mold block.")
     app.spin_width = add_param(app, layout_dim, "Core Width (mm)", 30, 70, app.params.MoldCoreWidth, "Width of the central pressing core.")
     app.spin_base_h = add_param(app, layout_dim, "Base Height (mm)", 2, 40, app.params.MoldBaseHeight, "Thickness of the solid structural base of the mold.")
-    app.spin_base_w = add_param(app, layout_dim, "Base Width (mm)", 30, 70, app.params.MoldBaseWidth, "Total width of the mold block, including side shoulders.")
+    app.spin_base_w = add_param(app, layout_dim, "Base Width (mm)", 30, 90, app.params.MoldBaseWidth, "Total width of the mold block, including side shoulders.")
     app.spin_core_h = add_param(app, layout_dim, "Min. Core Thickness (mm)", 2, 30, app.params.MoldCoreHeight, "Thickness of the core at its lowest/thinnest point.")
     app.spin_mold_gap = add_param(app, layout_dim, "Mold Gap (mm)", 0.5, 5, app.params.MoldGap, "Distance between the male and female molds (usually equals Veneer Thickness).")
     left_controls_layout.addWidget(group_dim)
