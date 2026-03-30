@@ -39,7 +39,7 @@ def make_shaper_outline(params):
     w_half, half_tip_w = params.BoardWidth / 2.0, 0.1
     
     # Setup Nose Bezier Vectors
-    n_straight_y = params.NoseStraightP / 100.0
+    n_straight_y = max(0.01,params.NoseStraightP / 100.0)
     n_c1x, n_c1y = params.NoseCtrl1X / 100.0, params.NoseCtrl1Y / 100.0
     n_c2x = params.NoseCtrl2X / 100.0
     
@@ -49,7 +49,7 @@ def make_shaper_outline(params):
     P_tip_n = cq.Vector(half_tip_w, y_tip_nose, 0)
     
     # Setup Tail Bezier Vectors
-    t_straight_y = params.TailStraightP / 100.0
+    t_straight_y = max(0.01,params.TailStraightP / 100.0)
     t_c1x, t_c1y = params.TailCtrl1X / 100.0, params.TailCtrl1Y / 100.0
     t_c2x = params.TailCtrl2X / 100.0
     

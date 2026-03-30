@@ -107,7 +107,10 @@ If you are a developer, a 3D printing enthusiast, or a fingerboard maker with id
 MOLD F.O.R.G.E. is developed out of pure passion for the fingerboard community and is 100% free and open-source. However, maintaining a native, multi-platform CAD suite requires significant personal investment... I even unwillingly funded a certain trillion-dollar fruit company...
 
 If this tool streamlines your manufacturing process, saves your brand time and money, or simply helps you press the perfect deck, consider:
-
-[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/U7U51WT1Z8)
-
+<div align="center">
+  <a href="https://ko-fi.com/U7U51WT1Z8" target="_blank">
+    <img src="https://ko-fi.com/img/githubbutton_sm.svg" alt="ko-fi">
+  </a>
+  <br><br>
+</div>
 Your tips directly help cover these mandatory hardware costs, keep the project alive, and fuel future updates. Every little bit is hugely appreciated! 🛹🛠️
