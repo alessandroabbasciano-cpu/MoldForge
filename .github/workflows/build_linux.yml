@@ -28,6 +28,10 @@ jobs:
         pip install cadquery PySide6==6.6.3 pyinstaller
         pip install -r requirements.txt
 
+    - name: Generate version file from Git Tag
+      shell: bash
+      run: echo "__version__ = '${{ github.ref_name }}'" > version.py
+
     - name: Build with PyInstaller (OneDir Mode)
       run: |
         pyinstaller MoldForge_linux.spec

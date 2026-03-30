@@ -11,6 +11,12 @@ import tempfile
 import subprocess
 import multiprocessing
 
+try:
+    from version import __version__ # type: ignore # 
+    APP_VERSION = __version__
+except ImportError:
+    APP_VERSION = "Dev-Build"
+
 # --- CRITICAL FIX FOR MATPLOTLIB DEADLOCK ON MACOS ---
 # 1. Force Matplotlib to use a writable temp directory for its cache
 os.environ["MPLCONFIGDIR"] = tempfile.gettempdir()
@@ -121,7 +127,7 @@ class MoldApp(QMainWindow):
     def __init__(self):
         super().__init__()
         self._is_loading = True
-        self.setWindowTitle("MOLD F.O.R.G.E. - Fingerboard Design Suite")
+        self.setWindowTitle(f"MOLD F.O.R.G.E. - Fingerboard Design Suite ({APP_VERSION})")
         self.resize(1450, 950)
 
         # Global Application Stylesheet (Dark Industrial Theme)
@@ -169,9 +175,9 @@ class MoldApp(QMainWindow):
         sys.stderr = self.stderr_stream
 
         # --- INITIALIZATION LOG ---
-        self.log("======================================================", "INFO")
-        self.log("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;M O L D&nbsp;&nbsp;F . O . R . G . E .", "INFO")
-        self.log("Mold FORGE Outputs Realistic Gnarly Equipment.", "INFO")
+        self.log("============================", "INFO")
+        self.log(f"MOLD F.O.R.G.E. - {APP_VERSION}", "INFO")
+        self.log("============================", "INFO")
         self.log("System initialized. Ready to shred.", "INFO")
 
         self._is_loading = False
@@ -373,7 +379,7 @@ class MoldApp(QMainWindow):
             self.log("Max Dimensions in the Log will now be displayed in Inches (in). All input parameters remain in mm.", "INFO")
         if self.current_result: self.start_preview()
 
-    def open_donation_link(self):
+    def open_support_link(self):
         QDesktopServices.openUrl(QUrl("https://ko-fi.com/moldforge"))
 
     def show_about_dialog(self):
@@ -384,7 +390,7 @@ class MoldApp(QMainWindow):
             "<i><b>F</b>ORGE <b>O</b>utputs <b>R</b>ealistic <b>G</b>narly <b>E</b>quipment.</i></p>"
             "<hr style='background-color: #4a6984; height: 1px; border: none; margin-top: 10px; margin-bottom: 10px;'>"
             "<table align='left' style='font-size: 13px;'>"
-            "<tr><td align='right' style='padding-right: 15px;'><b>Version:</b></td><td align='left' style='color: #2ecc71;'><b>1.0 Standalone</b></td></tr>"
+            f"<tr><td align='right' style='padding-right: 15px;'><b>Version:</b></td><td align='left' style='color: #2ecc71;'><b>{APP_VERSION}</b></td></tr>"
             "<tr><td align='right' style='padding-right: 15px;'><b>Geometry Engine:</b></td><td align='left' style='color: #e0e0e0;'>CadQuery / OpenCASCADE</td></tr>"
             "<tr><td align='right' style='padding-right: 15px;'><b>Render Engine:</b></td><td align='left' style='color: #e0e0e0;'>PyVista / VTK</td></tr>"
             "<tr><td align='right' style='padding-right: 15px;'><b>GUI Framework:</b></td><td align='left' style='color: #e0e0e0;'>PySide6 (Qt Core)</td></tr>"

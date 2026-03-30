@@ -32,6 +32,10 @@ jobs:
         arch -x86_64 $PYTHON_BIN -m pip install -r requirements.txt
         arch -x86_64 $PYTHON_BIN -m pip install PySide6==6.6.3 pyinstaller
 
+    - name: Generate version file from Git Tag
+      shell: bash
+      run: echo "__version__ = '${{ github.ref_name }}'" > version.py
+
     - name: Build with PyInstaller (Forced Intel)
       shell: bash
       run: |

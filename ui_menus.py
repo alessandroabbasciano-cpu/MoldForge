@@ -80,8 +80,8 @@ def setup_menu(app):
     help_menu.addSeparator()
     
     # Opens external browser to PayPal
-    action_donate = help_menu.addAction("Support the Project (Donate)")
-    action_donate.triggered.connect(app.open_donation_link)
+    action_support = help_menu.addAction("Support the Project")
+    action_support.triggered.connect(app.open_support_link)
     
     # Displays the styled HTML 'About' dialog
     action_about = help_menu.addAction("About & License")

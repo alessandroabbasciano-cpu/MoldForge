@@ -22,6 +22,10 @@ jobs:
         python3 -m pip install -r requirements.txt
         python3 -m pip install pyinstaller
         python3 -c "import matplotlib.font_manager"
+
+    - name: Generate version file from Git Tag
+      shell: bash
+      run: echo "__version__ = '${{ github.ref_name }}'" > version.py
         
     - name: Build the application
       run: |

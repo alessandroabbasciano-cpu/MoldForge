@@ -13,6 +13,10 @@ jobs:
     - name: Checkout Code
       uses: actions/checkout@v5
 
+    - name: Generate version file from Git Tag
+      shell: bash
+      run: echo "__version__ = '${{ github.ref_name }}'" > version.py
+
     - name: Build with PyInstaller on Windows
       shell: cmd
       run: |
