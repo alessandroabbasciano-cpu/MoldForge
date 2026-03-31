@@ -272,7 +272,7 @@ def setup_docks(app):
     group_deck = QGroupBox("DECK GEOMETRY")
     layout_deck = QFormLayout(group_deck)
     app.spin_wb = add_param(app, layout_deck, "Wheelbase (mm)", 30, 60, app.params.Wheelbase, "Distance between the inner truck holes.")
-    app.spin_board_w = add_param(app, layout_deck, "Board Width (mm)", 28, 40, app.params.BoardWidth, "Maximum target width of the fingerboard deck.")
+    app.spin_board_w = add_param(app, layout_deck, "Board Width (mm)", 26, 40, app.params.BoardWidth, "Maximum target width of the fingerboard deck.")
     app.spin_concave = add_param(app, layout_deck, "Concave Drop (mm)", 0, 3.5, app.params.ConcaveDrop, "Depth of the concave curve in the center of the board.")
     app.spin_concave_len = add_param(app, layout_deck, "Concave Length (mm)", 10, 60, app.params.ConcaveLength, "Length of the central concave section before kicks begin.")
     app.spin_tub = add_param(app, layout_deck, "Tub Width - Flat (mm)", 0, 20, app.params.TubWidth, "Width of the totally flat central section (Tub concave).")

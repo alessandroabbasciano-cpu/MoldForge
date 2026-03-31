@@ -86,7 +86,7 @@ def build_mold(params: MoldParams):
 
     base_width = params.MoldBaseWidth
     base_height = params.MoldBaseHeight
-    core_width = clamp(params.MoldCoreWidth, 29.0, 70.0)
+    core_width = params.MoldCoreWidth
     mold_len = params.MoldLength
     
     # Layout for Guide Holes (Alignment pins)
