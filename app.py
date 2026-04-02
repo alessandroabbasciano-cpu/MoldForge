@@ -278,8 +278,8 @@ class MoldApp(QMainWindow):
     def load_config_file(self):
         file_manager.load_config_file(self)
 
-    def save_stl(self):
-        file_manager.save_stl(self)
+    def export_step(self):
+        file_manager.export_step(self)
 
     def batch_export(self):
         file_manager.batch_export(self)

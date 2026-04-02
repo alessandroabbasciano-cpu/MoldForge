@@ -316,31 +316,28 @@ def delete_preset(app):
         app.combo_preset.setCurrentIndex(0)
         apply_main_preset(app, "Default / Reset")
 
-def save_stl(app):
+def export_step(app):
     """
-    Exports the current 3D model. Allows choosing between STL (for 3D printing) 
-    and STEP (for CAD software / pure mathematical curves).
+    Exports the current 3D model exclusively as a STEP file 
+    for pure mathematically perfect curves.
     """
     if not app.current_result: return
     
     default_name = f"{app.params.MoldType}"
     
-    path, selected_filter = QFileDialog.getSaveFileName(
+    path, _ = QFileDialog.getSaveFileName(
         app, 
         "Save 3D Model", 
         default_name, 
-        "STL File (*.stl);;STEP File (*.step)"
+        "STEP File (*.step)"
     )
     
     if path:
         try:
-            if "STEP" in selected_filter or path.lower().endswith('.step'):
-                if not path.lower().endswith('.step'): path += ".step"
-                cq.exporters.export(app.current_result, path)
-                
-            else:
-                if not path.lower().endswith('.stl'): path += ".stl"
-                cq.exporters.export(app.current_result, path, tolerance=0.01, angularTolerance=0.1)
+            if not path.lower().endswith('.step'): 
+                path += ".step"
+            
+            cq.exporters.export(app.current_result, path)
             
             base_path = os.path.splitext(path)[0]
             config_path = base_path + "_config.txt"
@@ -350,7 +347,7 @@ def save_stl(app):
                     f.write(f"{k}: {v}\n")
             
             app.log(f"Export successful: {os.path.basename(path)} and config file.")
-            QMessageBox.information(app, "Success", "3D Model and Configuration saved!")
+            QMessageBox.information(app, "Success", "3D Model (STEP) and Configuration saved!")
         except Exception as e:
             app.on_error(str(e))
 
@@ -373,11 +370,6 @@ def batch_export(app):
     )
     if not ok_name or not project_name.strip(): return
     project_name = project_name.strip()
-    
-    # Prompt the user for the preferred batch export format
-    formats = ["STL (3D Printing)", "STEP (Pure CAD)", "Both (STL + STEP)"]
-    choice, ok = QInputDialog.getItem(app, "Batch Export Format", "Select Export Format:", formats, 0, False)
-    if not ok: return
     
     # Create the dedicated subfolder
     project_dir = os.path.join(save_dir, project_name)
@@ -402,15 +394,9 @@ def batch_export(app):
             
             result = cq_model.build_mold(app.params)
             
-            # Export as STL if selected
-            if "STL" in choice or "Both" in choice:
-                filepath_stl = os.path.join(project_dir, f"{project_name}_{m_type}.stl")
-                cq.exporters.export(result, filepath_stl, tolerance=0.01, angularTolerance=0.1)
-                
-            # Export as STEP if selected
-            if "STEP" in choice or "Both" in choice:
-                filepath_step = os.path.join(project_dir, f"{project_name}_{m_type}.step")
-                cq.exporters.export(result, filepath_step)
+            # Export strictly as mathematically perfect STEP
+            filepath_step = os.path.join(project_dir, f"{project_name}_{m_type}.step")
+            cq.exporters.export(result, filepath_step)
             
         # Create the master batch report inside the new folder
         config_path = os.path.join(project_dir, f"{project_name}_Config.txt")

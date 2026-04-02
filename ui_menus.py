@@ -25,10 +25,10 @@ def setup_menu(app):
     action_load_config.triggered.connect(app.load_config_file)
     file_menu.addSeparator()
     
-    # Export the currently viewed 3D object as an STL or STEP file
-    app.action_export = file_menu.addAction("Export Current Object...")
+    # Export the currently viewed 3D object strictly as a STEP file
+    app.action_export = file_menu.addAction("Export Current Object (STEP)...")
     app.action_export.setEnabled(False) # Disabled until a successful render completes
-    app.action_export.triggered.connect(app.save_stl)
+    app.action_export.triggered.connect(app.export_step)
     
     # Automatically generate and export all mold parts and the shaper template
     action_batch = file_menu.addAction("Batch Export (Molds + Shaper)...")
