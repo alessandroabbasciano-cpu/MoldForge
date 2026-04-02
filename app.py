@@ -4,18 +4,20 @@ Initializes the PySide6 UI, manages the multi-threaded rendering pipeline,
 and orchestrates communication between the UI components and the CadQuery 3D engine.
 """
 
-import sys
 import os
+import sys
+import json
 import locale
 import tempfile
 import subprocess
+import urllib.request
 import multiprocessing
 
 try:
     from version import __version__ # type: ignore # 
     APP_VERSION = __version__
 except ImportError:
-    APP_VERSION = "Dev-Build"
+    APP_VERSION = "0Dev-Build"
 
 # --- CRITICAL FIX FOR MATPLOTLIB DEADLOCK ON MACOS ---
 # 1. Force Matplotlib to use a writable temp directory for its cache
@@ -119,6 +121,32 @@ class GeneratorWorker(QThread):
             import traceback
             self.error.emit(str(e) + "\n" + traceback.format_exc())
 
+class UpdateCheckerWorker(QThread):
+    """
+    Background thread that silently queries the public GitHub API.
+    If it fails (e.g., no internet connection), it dies silently without UI errors.
+    """
+    update_found = Signal(str)
+
+    def run(self):
+        try:
+            url = "https://api.github.com/repos/alessandroabbasciano-cpu/MoldForge/releases/latest"
+            
+            # Custom header to prevent GitHub API rate limits/blocks
+            req = urllib.request.Request(url, headers={'User-Agent': 'MoldForge-App'})
+            
+            with urllib.request.urlopen(req, timeout=5) as response:
+                data = json.loads(response.read().decode())
+                latest_version = data.get("tag_name", "").replace("v", "")
+                
+                # Compare fetched version with the existing global APP_VERSION
+                # Skip the check if running a Dev-Build
+                if APP_VERSION != "Dev-Build" and latest_version and latest_version > APP_VERSION:
+                    self.update_found.emit(latest_version)
+                    
+        except Exception:
+            # Zero-trust approach: fail silently on any network or parsing error
+            pass
 class MoldApp(QMainWindow):
     """
     The Main Window class. Holds the UI state, centralizes event routing,
@@ -181,6 +209,11 @@ class MoldApp(QMainWindow):
         self.log("System initialized. Ready to shred.", "INFO")
 
         self._is_loading = False
+
+        # --- UPDATE CHECKER ---
+        self.update_worker = UpdateCheckerWorker()
+        self.update_worker.update_found.connect(self.on_update_found)
+        self.update_worker.start()
         
         # Force the first explicit render
         QTimer.singleShot(200, self.start_preview)
@@ -196,6 +229,10 @@ class MoldApp(QMainWindow):
             except (ImportError, KeyError):
                 # Silently fail if the module or IPC is not available
                 pass
+    
+    def on_update_found(self, latest_version):
+        self.log(f">>> NEW VERSION AVAILABLE: v{latest_version} <<<", "WARN")
+        self.log("Go to the top menu: 'Help' -> 'Download Updates...' to get it.", "WARN")
 
     def setup_connections(self):
         self.combo_preset.currentTextChanged.connect(self.apply_main_preset)

@@ -79,6 +79,10 @@ def setup_menu(app):
     
     help_menu.addSeparator()
     
+    # Opens external browser to GitHub Releases
+    action_updates = help_menu.addAction("Download Updates...")
+    action_updates.triggered.connect(lambda: webbrowser.open("https://github.com/alessandroabbasciano-cpu/MoldForge/releases/latest"))
+    
     # Opens external browser to PayPal
     action_support = help_menu.addAction("Support the Project")
     action_support.triggered.connect(app.open_support_link)
