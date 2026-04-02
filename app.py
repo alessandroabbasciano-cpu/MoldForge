@@ -74,7 +74,7 @@ if getattr(sys, 'frozen', False) and sys.platform == 'win32':
             os.add_dll_directory(dll_path)
 
 import datetime
-from PySide6.QtWidgets import QApplication, QMainWindow, QMessageBox
+from PySide6.QtWidgets import QApplication, QMainWindow, QMessageBox, QWidget
 from PySide6.QtCore import Qt, QThread, Signal, QTimer, QUrl, QObject
 from PySide6.QtGui import QTextCursor, QDesktopServices, QIcon
 
@@ -167,6 +167,42 @@ class MoldApp(QMainWindow):
             QComboBox, QDoubleSpinBox, QSpinBox, QLineEdit { background-color: #3b3b3b; border: 1px solid #555; padding: 4px; border-radius: 3px; }
             QSplitter::handle { background-color: #1a1a1a; width: 4px; }
             QSplitter::handle:hover { background-color: #66b2ff; }
+            /* --- TOP MENU BAR --- */
+            QMenuBar { background-color: #1a1a1a; color: #e0e0e0; border-bottom: 1px solid #4a6984; }
+            QMenuBar::item { background-color: transparent; padding: 6px 12px; }
+            QMenuBar::item:selected { background-color: #3b3b3b; color: #66b2ff; border-radius: 3px; }
+            /* --- DROPDOWN MENUS --- */
+            QMenu { 
+                background-color: #252525; 
+                border: 2px solid #4a6984; /* Bordo azzurro netto per staccare dal fondo */
+                border-radius: 4px; 
+                padding: 5px 0px; 
+            }
+            QMenu::item { 
+                padding: 6px 30px 6px 35px; /* Spazio a sinistra per la spunta */
+                color: #e0e0e0; 
+            }
+            QMenu::item:selected { 
+                background-color: #4a6984; /* Evidenziazione azzurra al passaggio del mouse */
+                color: #ffffff; 
+            }
+            QMenu::separator { 
+                height: 1px; 
+                background-color: #444; 
+                margin: 4px 10px; 
+            }
+            /* --- CHECKBOX INDICATORS NEI MENU --- */
+            QMenu::indicator { 
+                width: 14px; 
+                height: 14px; 
+                left: 10px; /* Posizione a sinistra */
+                border: 1px solid #888; 
+                border-radius: 3px; 
+            }
+            QMenu::indicator:checked { 
+                background-color: #e67e22; /* Quadrato arancione ben visibile quando spuntato */
+                border: 1px solid #e67e22; 
+            }
         """)        
         # Core State Variables
         self.params = cq_model.MoldParams()
@@ -358,6 +394,53 @@ class MoldApp(QMainWindow):
 
         if hasattr(self, 'update_timer'):
             self.update_timer.start()
+
+    def toggle_extreme_mode(self, enabled):
+        """
+        Toggles dimensional safety limits on all UI spinboxes and geometry generation.
+        Forces Live Update off to prevent calculation loops.
+        """
+        self.params.ExtremeMode = enabled
+        
+        if enabled:
+            reply = QMessageBox.warning(
+                self, 
+                "Unleash The Beast",
+                "WARNING: Extreme Mode removes all safety limits.\n"
+                "You can now input physically impossible dimensions.\n\n"
+                "To prevent fatal calculation loops, LIVE PREVIEW is now disabled.\n"
+                "Adjust your parameters calmly, then press 'GENERATE MOLD'.\n\n"
+                "Proceed at your own risk?", 
+                QMessageBox.Yes | QMessageBox.No
+            )
+            
+            if reply == QMessageBox.No:
+                self.action_extreme.setChecked(False)
+                self.params.ExtremeMode = False
+                return
+
+            self.log(">>> BEAST MODE UNLEASHED: Safety clamps disabled! <<<", "WARN")
+            
+            # Force Live Update OFF and disable the checkbox to prevent accidents
+            self.chk_live_update.setChecked(False)
+            self.chk_live_update.setEnabled(False)
+            
+            # Unlock all spinboxes to massive values
+            for widget in self.findChildren(QWidget):
+                if hasattr(widget, 'orig_min') and hasattr(widget, 'orig_max'):
+                    widget.setMinimum(-9999.0)
+                    widget.setMaximum(9999.0)
+        else:
+            self.log("Safety limits and Live Update access restored.", "INFO")
+            
+            # Unlock the Live Update checkbox so the user can use it again
+            self.chk_live_update.setEnabled(True)
+            
+            # Restore original safe limits
+            for widget in self.findChildren(QWidget):
+                if hasattr(widget, 'orig_min') and hasattr(widget, 'orig_max'):
+                    widget.setMinimum(widget.orig_min)
+                    widget.setMaximum(widget.orig_max)
             
     def normal_output_written(self, text):
         t = text.strip()

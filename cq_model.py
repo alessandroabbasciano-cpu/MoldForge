@@ -105,7 +105,7 @@ def build_mold(params: MoldParams):
 
     # --- CONCAVE GEOMETRY CALCULATION ---
     board_width = params.BoardWidth
-    tub_width = clamp(params.TubWidth, 0.0, board_width - 18.0)
+    tub_width = params.TubWidth
     eff_width_half = (board_width - tub_width) / 2.0
     concave_depth = params.ConcaveDrop
     

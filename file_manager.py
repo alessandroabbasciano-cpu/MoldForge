@@ -131,6 +131,8 @@ def save_preset(app):
         current_params = app.params.__dict__.copy()
         # Remove 'MoldType' from preset so it doesn't force a specific piece when loaded
         current_params.pop("MoldType", None)
+        # CRITICAL: Prevent ExtremeMode from sneaking into saved presets
+        current_params.pop("ExtremeMode", None)
         
         data[preset_name] = current_params
         
@@ -344,7 +346,8 @@ def export_step(app):
             with open(config_path, "w") as f:
                 f.write(f"MOLD F.O.R.G.E. - Export Report\nDate: {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n" + "-" * 40 + "\n")
                 for k, v in app.params.__dict__.items(): 
-                    f.write(f"{k}: {v}\n")
+                    if k != "ExtremeMode":
+                        f.write(f"{k}: {v}\n")
             
             app.log(f"Export successful: {os.path.basename(path)} and config file.")
             QMessageBox.information(app, "Success", "3D Model (STEP) and Configuration saved!")
@@ -403,7 +406,7 @@ def batch_export(app):
         with open(config_path, "w") as f:
             f.write(f"MOLD F.O.R.G.E. - Batch Export Report\nProject: {project_name}\nDate: {datetime.datetime.now().strftime('%y-%m-%d %H:%M')}\n" + "-" * 40 + "\n")
             for k, v in app.params.__dict__.items():
-                if k != "MoldType": 
+                if k not in ["MoldType", "ExtremeMode"]: 
                     f.write(f"{k}: {v}\n")
                     
         QMessageBox.information(app, "Export Completed", f"Project successfully exported into:\n{project_dir}")

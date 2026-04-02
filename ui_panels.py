@@ -15,10 +15,12 @@ def add_param(app, target_layout, label_text, min_val, max_val, default, tooltip
     """
     Helper function to create a labeled NoScrollSpinBox, add it to a FormLayout,
     and wire its valueChanged signal to the app's update scheduler.
-    Optionally applies a tooltip to both the label and the spinbox.
     """
     spin = NoScrollSpinBox()
     spin.setRange(min_val, max_val)
+    # Store original safe limits for Extreme Mode toggling
+    spin.orig_min = min_val  
+    spin.orig_max = max_val  
     spin.setValue(default)
     spin.setSingleStep(0.1)
     

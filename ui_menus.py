@@ -66,6 +66,14 @@ def setup_menu(app):
     action_toggle_controls.setShortcut("F11")
     action_toggle_controls.triggered.connect(app.toggle_controls)
 
+    view_menu.addSeparator()
+
+    # Unleash The Beast: Removes all dimensional safety limits
+    app.action_extreme = view_menu.addAction("Unleash the Beast (Extreme Mode)")
+    app.action_extreme.setCheckable(True)
+    app.action_extreme.setChecked(False)
+    app.action_extreme.triggered.connect(app.toggle_extreme_mode)
+
     # ==========================================
     # HELP MENU
     # About dialog and community support links.
@@ -82,7 +90,7 @@ def setup_menu(app):
     # Opens external browser to GitHub Releases
     action_updates = help_menu.addAction("Download Updates...")
     action_updates.triggered.connect(lambda: webbrowser.open("https://github.com/alessandroabbasciano-cpu/MoldForge/releases/latest"))
-    
+
     # Opens external browser to PayPal
     action_support = help_menu.addAction("Support the Project")
     action_support.triggered.connect(app.open_support_link)
