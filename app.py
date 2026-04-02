@@ -17,7 +17,7 @@ try:
     from version import __version__ # type: ignore # 
     APP_VERSION = __version__
 except ImportError:
-    APP_VERSION = "0Dev-Build"
+    APP_VERSION = "Dev-Build"
 
 # --- CRITICAL FIX FOR MATPLOTLIB DEADLOCK ON MACOS ---
 # 1. Force Matplotlib to use a writable temp directory for its cache
