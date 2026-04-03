@@ -74,6 +74,11 @@ def setup_menu(app):
     app.action_extreme.setChecked(False)
     app.action_extreme.triggered.connect(app.toggle_extreme_mode)
 
+    view_menu.addSeparator()
+
+    action_community = view_menu.addAction("Community Shapes Store...")
+    action_community.triggered.connect(app.open_community_browser)
+
     # ==========================================
     # HELP MENU
     # About dialog and community support links.

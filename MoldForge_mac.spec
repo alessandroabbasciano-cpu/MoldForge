@@ -31,7 +31,21 @@ a = Analysis( # type: ignore
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
-    excludes=[],
+        excludes=[
+        'django',
+        'flask',
+        'werkzeug',
+        'tornado',
+        'boto',
+        'boto3',
+        'botocore',
+        'pynamodb',
+        'urllib3',
+        'IPython',
+        'jedi',
+        'parso',
+        'prompt_toolkit',
+    ],
     noarchive=False,
     target_arch='arm64',
 )
@@ -51,6 +65,16 @@ exe = EXE( # type: ignore
     console=False, 
     icon='icon.ico'
 )
+
+def filter_datas(d_list):
+    filtered = []
+    for d in d_list:
+        if 'sample_data' in d[0]:
+            continue
+        filtered.append(d)
+    return filtered
+
+a.datas = filter_datas(a.datas)
 
 coll = COLLECT( # type: ignore
     exe, 

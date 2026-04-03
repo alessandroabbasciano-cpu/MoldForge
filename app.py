@@ -77,6 +77,8 @@ import datetime
 from PySide6.QtWidgets import QApplication, QMainWindow, QMessageBox, QWidget
 from PySide6.QtCore import Qt, QThread, Signal, QTimer, QUrl, QObject
 from PySide6.QtGui import QTextCursor, QDesktopServices, QIcon
+from community_browser import CommunityBrowserDialog
+import shape_loader
 
 # Application Modules
 import cq_model
@@ -573,6 +575,38 @@ class MoldApp(QMainWindow):
                 self.fake_timer.stop()
             self.progress_bar.setValue(100)
             self.progress_bar.hide()
+    
+    def open_community_browser(self):
+        """Opens the community store and updates UI if a download occurred."""
+        shapes_dir = os.path.join(self.base_dir, "shapes_library") if hasattr(self, 'base_dir') else "shapes_library"
+        
+        dialog = CommunityBrowserDialog(self, local_shapes_dir=shapes_dir)
+        dialog.exec()
+        
+        if dialog.downloaded_something:
+            self.refresh_shapes_combobox()
+
+    def refresh_shapes_combobox(self):
+        """Reloads the shapes_library and updates the combobox dynamically."""
+        current_selection = self.combo_shape_style.currentText()
+        
+        shapes_dir = os.path.join(self.base_dir, "shapes_library") if hasattr(self, 'base_dir') else "shapes_library"
+        dxf_files = [f for f in os.listdir(shapes_dir) if f.lower().endswith('.dxf')]
+        
+        self.combo_shape_style.blockSignals(True)
+        self.combo_shape_style.clear()
+        self.combo_shape_style.addItem("Custom")
+        
+        for dxf in sorted(dxf_files):
+            shape_name = os.path.splitext(dxf)[0]
+            self.combo_shape_style.addItem(shape_name)
+            
+        index = self.combo_shape_style.findText(current_selection)
+        if index >= 0:
+            self.combo_shape_style.setCurrentIndex(index)
+            
+        self.combo_shape_style.blockSignals(False)
+        self.log("Community Shapes list updated successfully.", "INFO")
 
 if __name__ == "__main__":
     import multiprocessing
