@@ -1,9 +1,10 @@
 ---
 name: Bug Report / Crash
 about: Report a crash or mathematical error in the 3D engine or UI
-title: '[BUG] '
-labels: 'bug, triage'
-assignees: 'alessandroabbasciano-cpu'
+title: "[BUG] "
+labels: bug
+assignees: alessandroabbasciano-cpu
+
 ---
 
 **Bug Description**
