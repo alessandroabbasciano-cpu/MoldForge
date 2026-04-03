@@ -7,12 +7,11 @@ assignees: alessandroabbasciano-cpu
 
 ---
 
-Shape Name:
-[Write the shape name here]
+**Shape Name:**
 
-Designer:
-[Write your name here]
+**Designer:**
 
-Drag and drop your .DXF file below:
+**Upload your .ZIP file (containing the .DXF) below:**
+*(GitHub only accepts .zip for CAD files)*
 
-Drag and drop a photo or screenshot below:
+**Upload a preview image below:**
