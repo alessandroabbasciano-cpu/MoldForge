@@ -1,17 +1,16 @@
 ---
 name: Submit a Community Shape
 about: Share your custom DXF shape
-title: ''
+title: New Community Shape
 labels: pending-validation
 assignees: alessandroabbasciano-cpu
 
 ---
 
-**Shape Name:**
+###Shape Name:###
 
-**Designer:**
+###Designer:###
 
-**Upload your .ZIP file (containing the .DXF) below:**
-*(GitHub only accepts .zip for CAD files)*
+##Upload your .ZIP file (containing the .DXF) below:##
 
-**Upload a preview image below:**
+##Upload a preview image below:##
