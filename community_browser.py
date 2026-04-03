@@ -10,13 +10,14 @@ class CommunityBrowserDialog(QDialog):
     def __init__(self, parent=None, local_shapes_dir="shapes_library"):
         super().__init__(parent)
         self.setWindowTitle("Community Shapes Store")
-        self.resize(450, 350)
+        self.resize(550, 400) # Made slightly wider to fit descriptions
         self.local_shapes_dir = local_shapes_dir
         
-        # GitHub API URL
+        # GitHub API URL (Keep ?ref=edge for now while testing)
         self.api_url = "https://api.github.com/repos/alessandroabbasciano-cpu/MoldForge/contents/community_shapes?ref=edge"
         
         self.shapes_data = []
+        self.catalog_data = {} # Will hold the descriptions
         self.downloaded_something = False
         
         self.init_ui()
@@ -30,6 +31,8 @@ class CommunityBrowserDialog(QDialog):
         
         self.list_widget = QListWidget()
         self.list_widget.itemSelectionChanged.connect(self.on_selection_changed)
+        # Alternate row colors for better readability
+        self.list_widget.setAlternatingRowColors(True) 
         layout.addWidget(self.list_widget)
         
         btn_layout = QHBoxLayout()
@@ -45,7 +48,6 @@ class CommunityBrowserDialog(QDialog):
         layout.addLayout(btn_layout)
 
     def fetch_shapes_list(self):
-        # Keep UI responsive during fetch
         QApplication.processEvents()
         
         req = urllib.request.Request(self.api_url)
@@ -55,8 +57,14 @@ class CommunityBrowserDialog(QDialog):
             with urllib.request.urlopen(req, timeout=5) as response:
                 data = json.loads(response.read().decode())
                 
-                # Filter for .dxf files only
+                # 1. Isolate DXF files
                 self.shapes_data = [item for item in data if item['name'].lower().endswith('.dxf')]
+                
+                # 2. Look for the catalog.json file to fetch metadata
+                catalog_item = next((item for item in data if item['name'].lower() == 'catalog.json'), None)
+                if catalog_item:
+                    self.fetch_catalog_metadata(catalog_item['download_url'])
+                
                 self.populate_list()
                 
         except urllib.error.HTTPError as e:
@@ -65,6 +73,16 @@ class CommunityBrowserDialog(QDialog):
             self.lbl_status.setText("Network error. Check your internet connection.")
         except Exception as e:
             self.lbl_status.setText(f"Unknown error: {str(e)}")
+
+    def fetch_catalog_metadata(self, url):
+        """Silently attempts to download and parse the catalog.json"""
+        try:
+            req = urllib.request.Request(url)
+            req.add_header('User-Agent', 'MoldForge-App')
+            with urllib.request.urlopen(req, timeout=3) as response:
+                self.catalog_data = json.loads(response.read().decode('utf-8'))
+        except Exception:
+            pass # Fail silently, catalog is optional
 
     def populate_list(self):
         self.list_widget.clear()
@@ -75,24 +93,36 @@ class CommunityBrowserDialog(QDialog):
             
         self.lbl_status.setText(f"Found {len(self.shapes_data)} official community shapes!")
         
-        # Ensure local directory exists
         os.makedirs(self.local_shapes_dir, exist_ok=True)
         local_files = os.listdir(self.local_shapes_dir)
         
         for shape in self.shapes_data:
-            file_name = shape['name']
-            item = QListWidgetItem(file_name)
+            raw_file_name = shape['name']
             
-            # Check if file is already installed
-            if file_name in local_files:
-                item.setText(f"{file_name} (Already Installed)")
+            # Build the display string (e.g., "technicians.dxf - Simmetrico il freestyler")
+            display_text = raw_file_name
+            if raw_file_name in self.catalog_data:
+                desc = self.catalog_data[raw_file_name].get("description", "")
+                author = self.catalog_data[raw_file_name].get("author", "")
+                
+                if desc and author:
+                    display_text = f"{raw_file_name}  —  {desc} (by {author})"
+                elif desc:
+                    display_text = f"{raw_file_name}  —  {desc}"
+            
+            item = QListWidgetItem(display_text)
+            
+            if raw_file_name in local_files:
+                item.setText(f"{display_text}  [Installed]")
                 item.setForeground(Qt.gray)
                 item.setData(Qt.UserRole, "installed")
             else:
                 item.setData(Qt.UserRole, "available")
                 
-            # Store the download URL
             item.setData(Qt.UserRole + 1, shape['download_url'])
+            # Store the raw filename so we save it correctly without the description
+            item.setData(Qt.UserRole + 2, raw_file_name) 
+            
             self.list_widget.addItem(item)
 
     def on_selection_changed(self):
@@ -114,20 +144,23 @@ class CommunityBrowserDialog(QDialog):
         if not items: return
         item = items[0]
         
-        file_name = item.text()
+        # Retrieve the raw file name (e.g. "technicians.dxf") for saving
+        raw_file_name = item.data(Qt.UserRole + 2)
         download_url = item.data(Qt.UserRole + 1)
-        save_path = os.path.join(self.local_shapes_dir, file_name)
+        save_path = os.path.join(self.local_shapes_dir, raw_file_name)
         
         self.btn_download.setEnabled(False)
-        self.lbl_status.setText(f"Downloading {file_name}...")
+        self.lbl_status.setText(f"Downloading {raw_file_name}...")
         QApplication.processEvents()
         
         try:
             urllib.request.urlretrieve(download_url, save_path)
-            self.lbl_status.setText(f"{file_name} installed successfully!")
+            self.lbl_status.setText(f"{raw_file_name} installed successfully!")
             self.downloaded_something = True
             
-            item.setText(f"{file_name} (Already Installed)")
+            # Update item text to show it's installed
+            original_text = item.text()
+            item.setText(f"{original_text}  [Installed]")
             item.setForeground(Qt.gray)
             item.setData(Qt.UserRole, "installed")
             

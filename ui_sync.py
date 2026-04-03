@@ -216,6 +216,14 @@ def update_params_object(app):
     p.FilletRadius = app.spin_fillet_rad.value()
     p.AddGuideHoles = app.chk_guide_d.isChecked()
     p.GuideDiameter = app.spin_guide_d.value()
+    
+    if hasattr(app, 'combo_guide_count'):
+        p.GuideHoleCount = int(app.combo_guide_count.currentText())
+    if hasattr(app, 'spin_guide_ox'):
+        p.GuideOffsetX = app.spin_guide_ox.value()
+    if hasattr(app, 'spin_guide_oy'):
+        p.GuideOffsetY = app.spin_guide_oy.value()
+        
     p.AddIndicators = app.chk_indicators.isChecked()
     
     p.MoldLength = app.spin_length.value()
@@ -249,6 +257,9 @@ def update_params_object(app):
     if hasattr(app, 'chk_sidelocks'): p.SideLocks = app.chk_sidelocks.isChecked()
     if hasattr(app, 'chk_fillet'): p.AddFillet = app.chk_fillet.isChecked()
     if hasattr(app, 'chk_guide_d'): p.AddGuideHoles = app.chk_guide_d.isChecked()
+    if hasattr(app, 'combo_guide_count'): p.GuideHoleCount = int(app.combo_guide_count.currentText())
+    if hasattr(app, 'spin_guide_ox'): p.GuideOffsetX = app.spin_guide_ox.value()
+    if hasattr(app, 'spin_guide_oy'): p.GuideOffsetY = app.spin_guide_oy.value()
     if hasattr(app, 'chk_indicators'): p.AddIndicators = app.chk_indicators.isChecked()
     if hasattr(app, 'chk_top_shaper'): p.AddTopShaper = app.chk_top_shaper.isChecked()
     if hasattr(app, 'spin_shaper_h'): p.ShaperHeight = app.spin_shaper_h.value()
@@ -310,7 +321,14 @@ def reset_to_defaults(app):
 
         if hasattr(app, 'chk_sidelocks'): app.chk_sidelocks.setChecked(default.SideLocks)
         if hasattr(app, 'chk_fillet'): app.chk_fillet.setChecked(default.AddFillet)
-        if hasattr(app, 'chk_guide_d'): app.chk_guide_d.setChecked(default.AddGuideHoles)
+        if hasattr(app, 'chk_guide_d'): 
+            app.chk_guide_d.setChecked(default.AddGuideHoles)
+            if hasattr(app, 'combo_guide_count'):
+                app.combo_guide_count.setCurrentText(str(default.GuideHoleCount))
+            if hasattr(app, 'spin_guide_ox'):
+                app.spin_guide_ox.setValue(default.GuideOffsetX)
+            if hasattr(app, 'spin_guide_oy'):
+                app.spin_guide_oy.setValue(default.GuideOffsetY)
         if hasattr(app, 'chk_indicators'): app.chk_indicators.setChecked(default.AddIndicators)
         if hasattr(app, 'chk_top_shaper'): app.chk_top_shaper.setChecked(default.AddTopShaper)
         if hasattr(app, 'spin_shaper_h'): app.spin_shaper_h.setValue(default.ShaperHeight)

@@ -86,7 +86,19 @@ def setup_docks(app):
     app.chk_top_shaper.setChecked(False)
     app.chk_top_shaper.stateChanged.connect(lambda: app.schedule_update())
     layout_out.addRow(app.chk_top_shaper)
+
+    app.chk_mold_pins = QCheckBox("Truck Pins (Molds)")
+    app.chk_mold_pins.setToolTip("Replaces through-holes with marking pins on the molds (Male/Female).")
+    app.chk_mold_pins.setChecked(False)
+    app.chk_mold_pins.stateChanged.connect(lambda: app.schedule_update())
+    layout_out.addRow(app.chk_mold_pins)
     
+    app.chk_shaper_pins = QCheckBox("Truck Pins (Shaper)")
+    app.chk_shaper_pins.setToolTip("Replaces through-holes with marking pins on the shapers (Shaper Template).")
+    app.chk_shaper_pins.setChecked(False)
+    app.chk_shaper_pins.stateChanged.connect(lambda: app.schedule_update())
+    layout_out.addRow(app.chk_shaper_pins)
+        
     app.chk_fillet = QCheckBox("Base Reinforcement (AddFillet)")
     app.chk_fillet.setToolTip("Add a curved fillet at the base of the mold core to prevent stress fractures.")
     app.chk_fillet.setChecked(True)
@@ -117,12 +129,49 @@ def setup_docks(app):
     
     app.spin_guide_d = add_param(app, layout_out, "Guide Diameter (mm)", 0.0, 10.0, app.params.GuideDiameter, "Diameter of the alignment pin holes.")
     
+    # New: Guide Hole Count ComboBox
+    app.combo_guide_count = QComboBox()
+    # Populate with even numbers from 4 up to 20
+    app.combo_guide_count.addItems([str(i) for i in range(4, 22, 2)])
+    # Set the default value from params (as a string)
+    default_count_str = str(app.params.GuideHoleCount)
+    if default_count_str in [app.combo_guide_count.itemText(i) for i in range(app.combo_guide_count.count())]:
+        app.combo_guide_count.setCurrentText(default_count_str)
+    else:
+        app.combo_guide_count.setCurrentText("6")
+        
+    lbl_count = QLabel("Hole Count:")
+    lbl_count.setToolTip("Number of alignment holes (must be an even number).")
+    layout_out.addRow(lbl_count, app.combo_guide_count)
+    app.combo_guide_count.currentTextChanged.connect(app.schedule_update)
+
+    # New: Offset Spinboxes
+    app.spin_guide_ox = add_param(app, layout_out, "Offset X (mm)", -20.0, 50.0, app.params.GuideOffsetX, "Distance of holes from the pressing core edge.")
+    app.spin_guide_oy = add_param(app, layout_out, "Offset Y (mm)", 0.0, 100.0, app.params.GuideOffsetY, "Distance of holes from the mold's top/bottom ends.")
+
     def update_guide_vis():
-        """Dynamically hides the Guide Diameter spinner if Add Guide Holes is unchecked."""
+        """Dynamically hides all guide-related parameters if Add Guide Holes is unchecked."""
         chk = app.chk_guide_d.isChecked()
+        
+        # Diameter
         app.spin_guide_d.setVisible(chk)
-        lbl = layout_out.labelForField(app.spin_guide_d)
-        if lbl: lbl.setVisible(chk)
+        lbl_d = layout_out.labelForField(app.spin_guide_d)
+        if lbl_d: lbl_d.setVisible(chk)
+        
+        # Count
+        app.combo_guide_count.setVisible(chk)
+        lbl_c = layout_out.labelForField(app.combo_guide_count)
+        if lbl_c: lbl_c.setVisible(chk)
+        
+        # Offset X
+        app.spin_guide_ox.setVisible(chk)
+        lbl_ox = layout_out.labelForField(app.spin_guide_ox)
+        if lbl_ox: lbl_ox.setVisible(chk)
+        
+        # Offset Y
+        app.spin_guide_oy.setVisible(chk)
+        lbl_oy = layout_out.labelForField(app.spin_guide_oy)
+        if lbl_oy: lbl_oy.setVisible(chk)
         
         if not chk:
             app.spin_guide_d.setValue(0.0)
@@ -132,24 +181,6 @@ def setup_docks(app):
         app.schedule_update()
 
     app.chk_guide_d.stateChanged.connect(lambda _: update_guide_vis())
-
-    app.chk_flares = QCheckBox("Enable Wheel Flares")
-    app.chk_flares.setToolTip("Generate 3D wheel flares/wells on the deck surface to prevent wheelbite.")
-    app.chk_flares.setChecked(False)
-    app.chk_flares.stateChanged.connect(lambda: app.schedule_update())
-    layout_out.addRow(app.chk_flares)
-
-    app.chk_mold_pins = QCheckBox("Truck Pins (Molds)")
-    app.chk_mold_pins.setToolTip("Replaces through-holes with marking pins on the molds (Male/Female).")
-    app.chk_mold_pins.setChecked(False)
-    app.chk_mold_pins.stateChanged.connect(lambda: app.schedule_update())
-    layout_out.addRow(app.chk_mold_pins)
-    
-    app.chk_shaper_pins = QCheckBox("Truck Pins (Shaper)")
-    app.chk_shaper_pins.setToolTip("Replaces through-holes with marking pins on the shapers (Shaper Template).")
-    app.chk_shaper_pins.setChecked(False)
-    app.chk_shaper_pins.stateChanged.connect(lambda: app.schedule_update())
-    layout_out.addRow(app.chk_shaper_pins)
 
     # Initialize dynamic visibility
     update_fillet_vis()
@@ -246,9 +277,41 @@ def setup_docks(app):
     # --- TRUCKS HOLES GROUP ---
     group_trucks = QGroupBox("TRUCKS HOLES")
     layout_trucks = QFormLayout(group_trucks)
+    
+    # New: Toggle to show/hide dimensions
+    app.chk_modify_trucks = QCheckBox("Custom Dimensions")
+    app.chk_modify_trucks.setToolTip("Unlock to modify the standard truck hole spacing and diameter.")
+    app.chk_modify_trucks.setChecked(False)
+    layout_trucks.addRow(app.chk_modify_trucks)
+    
     app.spin_truck_l = add_param(app, layout_trucks, "Hole Distance (Length) (mm)", 5.0, 15.0, app.params.TruckHoleDistL, "Distance between the two truck holes along the length axis.")
     app.spin_truck_w = add_param(app, layout_trucks, "Hole Distance (Width) (mm)", 3.0, 10.0, app.params.TruckHoleDistW, "Distance between the two truck holes along the width axis.")
     app.spin_truck_d = add_param(app, layout_trucks, "Hole Diameter (mm)", 1.0, 3.0, app.params.TruckHoleDiam, "Diameter of the truck mounting holes.")
+    
+    def update_trucks_vis():
+        """Dynamically hides the dimension spinners if Custom Dimensions is unchecked."""
+        chk = app.chk_modify_trucks.isChecked()
+        
+        # Length
+        app.spin_truck_l.setVisible(chk)
+        lbl_l = layout_trucks.labelForField(app.spin_truck_l)
+        if lbl_l: lbl_l.setVisible(chk)
+        
+        # Width
+        app.spin_truck_w.setVisible(chk)
+        lbl_w = layout_trucks.labelForField(app.spin_truck_w)
+        if lbl_w: lbl_w.setVisible(chk)
+        
+        # Diameter
+        app.spin_truck_d.setVisible(chk)
+        lbl_d = layout_trucks.labelForField(app.spin_truck_d)
+        if lbl_d: lbl_d.setVisible(chk)
+
+    # Wire the checkbox to the visibility function
+    app.chk_modify_trucks.stateChanged.connect(lambda _: update_trucks_vis())
+    # Run once at startup to hide the fields by default
+    update_trucks_vis()
+    
     left_controls_layout.addWidget(group_trucks)
     
     scroll_left.setWidget(scroll_content_left)
@@ -279,6 +342,11 @@ def setup_docks(app):
     app.spin_concave_len = add_param(app, layout_deck, "Concave Length (mm)", 10, 60, app.params.ConcaveLength, "Length of the central concave section before kicks begin.")
     app.spin_tub = add_param(app, layout_deck, "Tub Width - Flat (mm)", 0, 20, app.params.TubWidth, "Width of the totally flat central section (Tub concave).")
     app.spin_veneer = add_param(app, layout_deck, "Veneer Thickness (mm)", 0.5, 5.0, app.params.VeneerThickness, "Total physical thickness of the stacked wood veneers.")
+    app.chk_flares = QCheckBox("Enable Wheel Flares")
+    app.chk_flares.setToolTip("Generate 3D wheel flares/wells on the deck surface to prevent wheelbite.")
+    app.chk_flares.setChecked(False)
+    app.chk_flares.stateChanged.connect(lambda: app.schedule_update())
+    layout_deck.addRow(app.chk_flares)
     right_controls_layout.addWidget(group_deck)
 
     # --- WHEEL FLARES GROUP ---
@@ -399,3 +467,16 @@ def setup_docks(app):
     
     app.dock_bottom.setWidget(console_container)
     app.addDockWidget(Qt.BottomDockWidgetArea, app.dock_bottom)
+    # ==========================================
+    # GLOBAL UI TWEAKS
+    # ==========================================
+    # Find all QGroupBox elements and compress their top internal layout margin 
+    # to eliminate the excessive gap under the blue titles.
+    for group in app.findChildren(QGroupBox):
+        layout = group.layout()
+        if layout:
+            # setContentsMargins(left, top, right, bottom)
+            # Default is usually (9, 9, 9, 9). We crush the top margin to 2.
+            layout.setContentsMargins(9, 2, 9, 9)
+            # We also reduce the vertical spacing between the rows inside the box
+            layout.setSpacing(4)

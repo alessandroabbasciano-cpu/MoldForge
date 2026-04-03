@@ -90,9 +90,23 @@ def build_mold(params: MoldParams):
     mold_len = params.MoldLength
     
     # Layout for Guide Holes (Alignment pins)
-    gx = (core_width / 2.0) + ((base_width - core_width) / 4.0)
-    gy = (mold_len / 2.0) - 10.0
-    guides_loc = [(gx, 0), (gx, gy), (gx, -gy), (-gx, 0), (-gx, gy), (-gx, -gy)]
+    gx = (core_width / 2.0) + getattr(params, 'GuideOffsetX', 6.0)
+    gy_max = (mold_len / 2.0) - getattr(params, 'GuideOffsetY', 10.0)
+    
+    raw_count = int(getattr(params, 'GuideHoleCount', 6))
+    # Enforce minimum 4 holes and ensure it's always an even number
+    hole_count = max(4, raw_count + (raw_count % 2))
+    
+    holes_per_side = hole_count // 2
+    guides_loc = []
+    
+    # Calculate the exact vertical spacing between holes
+    y_step = (2.0 * gy_max) / (holes_per_side - 1)
+    
+    for i in range(holes_per_side):
+        y_pos = gy_max - (i * y_step)
+        guides_loc.append((gx, y_pos))
+        guides_loc.append((-gx, y_pos))
     
     # Layout for Truck Mounting Holes
     tx, y_fi, y_ri = params.TruckHoleDistW / 2.0, params.Wheelbase / 2.0, -params.Wheelbase / 2.0

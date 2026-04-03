@@ -23,6 +23,9 @@ class MoldParams:
         self.FilletRadius = 5.0               # Radius of the base reinforcement
         self.AddGuideHoles = True             # Holes for metal alignment pins
         self.GuideDiameter = 6.5              # Diameter of the alignment pins
+        self.GuideHoleCount = 6               # Number of guide holes (e.g., 4, 6, 8)
+        self.GuideOffsetX = 6.0               # X-distance from the core edge
+        self.GuideOffsetY = 10.0              # Y-distance from the mold's top/bottom edge
         self.AddWheelFlares = False           # Toggle 3D wheel flares
         self.AddMoldTruckPins = False         # Emboss truck hole pins on molds
         self.AddShaperTruckPins = False       # Emboss truck hole pins on shapers

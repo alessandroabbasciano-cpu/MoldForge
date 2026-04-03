@@ -6,17 +6,16 @@ linking UI actions to their respective application methods.
 
 import webbrowser
 
-
 def setup_menu(app):
     """
-    Builds the main menu bar (File, View, Help) and connects all 
+    Builds the main menu bar (File, View, Tools, Help) and connects all 
     dropdown actions to the application's core functions.
     """
     menu_bar = app.menuBar()
     
     # ==========================================
     # FILE MENU
-    # Handles loading configs, exporting STLs, and exiting.
+    # Handles loading configs, exporting STLs, external assets, and exiting.
     # ==========================================
     file_menu = menu_bar.addMenu("File")
     
@@ -34,6 +33,11 @@ def setup_menu(app):
     action_batch = file_menu.addAction("Batch Export (Molds + Shaper)...")
     action_batch.triggered.connect(app.batch_export)
     file_menu.addSeparator() 
+    
+    # Community Shapes Store (Moved here as it deals with external file assets)
+    action_community = file_menu.addAction("Community Shapes Store...")
+    action_community.triggered.connect(app.open_community_browser)
+    file_menu.addSeparator()
     
     # Exit application safely
     action_exit = file_menu.addAction("Exit")
@@ -56,34 +60,35 @@ def setup_menu(app):
     app.action_clip = view_menu.addAction("Enable Clipping Plane")
     app.action_clip.setCheckable(True)
     app.action_clip.triggered.connect(app.toggle_clipping)
-    
-    # Switch display units in the log output (mm vs inches)
-    app.action_units = view_menu.addAction("Unit: Metric (mm)")
-    app.action_units.triggered.connect(app.toggle_units)
+    view_menu.addSeparator()
     
     # Show or hide all dock panels (Fullscreen mode for the 3D viewer)
     action_toggle_controls = view_menu.addAction("Show/Hide Controls")
     action_toggle_controls.setShortcut("F11")
     action_toggle_controls.triggered.connect(app.toggle_controls)
 
-    view_menu.addSeparator()
+    # ==========================================
+    # TOOLS MENU
+    # Advanced application states and global preferences.
+    # ==========================================
+    tools_menu = menu_bar.addMenu("Tools")
 
     # Unleash The Beast: Removes all dimensional safety limits
-    app.action_extreme = view_menu.addAction("Unleash the Beast (Extreme Mode)")
+    app.action_extreme = tools_menu.addAction("Unleash the Beast (Extreme Mode)")
     app.action_extreme.setCheckable(True)
     app.action_extreme.setChecked(False)
     app.action_extreme.triggered.connect(app.toggle_extreme_mode)
+    tools_menu.addSeparator()
 
-    view_menu.addSeparator()
-
-    action_community = view_menu.addAction("Community Shapes Store...")
-    action_community.triggered.connect(app.open_community_browser)
+    # Switch display units in the log output (mm vs inches)
+    app.action_units = tools_menu.addAction("Unit: Metric (mm)")
+    app.action_units.triggered.connect(app.toggle_units)
 
     # ==========================================
     # HELP MENU
     # About dialog and community support links.
     # ==========================================
-    help_menu = app.menuBar().addMenu("Help")
+    help_menu = menu_bar.addMenu("Help")
 
     # Wiki
     action_wiki = help_menu.addAction("User Manual")
