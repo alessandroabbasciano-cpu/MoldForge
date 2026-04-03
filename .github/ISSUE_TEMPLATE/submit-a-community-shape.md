@@ -7,10 +7,10 @@ assignees: alessandroabbasciano-cpu
 
 ---
 
-###Shape Name:###
+Shape Name: 
 
-###Designer:###
+Designer:
 
-##Upload your .ZIP file (containing the .DXF) below:##
+Upload your .ZIP file (containing the .DXF) below:
 
-##Upload a preview image below:##
+Upload a preview image below:
