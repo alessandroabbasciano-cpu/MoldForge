@@ -13,12 +13,15 @@ Moving beyond static 3D models and legacy CAD dependencies, this engine gives yo
 * **🏭 Press-Ready Manufacturing:** Built also for the bench vise. The engine automatically calculates crucial physical tolerances, including mold gaps, base reinforcements, vertical print side-locks, and alignment pins to ensure a perfect press every time.
 * **🔄 Real-Time Sync & Performance Control:** Experience live 2D/3D visualization. Need to make massive parameter changes at once? Toggle off the 'Live Preview' and use the manual 'GENERATE 3D' button for a fluid, lag-free UI workflow.
 * **🧠 Zero-Configuration:** No bloated or opinionated factory presets. The app starts clean, allowing you to build your own personal deck database from scratch, automatically managed via a local JSON file.
+* **🌐 Community Shapes Store:** An integrated browser that directly connects to the GitHub repository, allowing you to discover, download, and install custom community-made `.dxf` outlines without ever leaving the application.
+* **🥄 Spoon Kicks:** Advanced 3D concave logic. Add realistic, high-performance spoon-shaped dips to your Nose and Tail to create defined pockets for your fingers.
+* **🔥 Beast Mode:** An extreme override state that disables internal geometric safety limits. Push the sliders from -9999 to 9999 to experiment with highly non-standard, wild mold designs.
 
 ## 📖 Documentation & Guides
 
 This Wiki is your official manual. We strongly recommend reading these pages in order to fully master the engine:
 
-1. **[User Interface & Workflow](2-User-Interface-&-Workflow-Guide.md):** Learn how to navigate the 3D viewport, adjust settings, and batch-export your STL/STEP files. *Read this before tuning the engine.*
+1. **[User Interface & Workflow](2-User-Interface-&-Workflow-Guide.md):** Learn how to navigate the 3D viewport, adjust settings, and batch-export your high-precision STEP files. *Read this before tuning the engine.*
 2. **[The Parametric Engine](3-The-Parametric-Engine.md):** A comprehensive breakdown of every slider, toggle, and setting available in the design panels.
 3. **[Custom Shapes (DXF Guide)](4-Custom-Shapes-DXF.md):** Step-by-step rules for preparing, exporting, and importing your own vector outlines (like Fishtails or Old School cruisers).
 4. **[3D Printing & Manufacturing Guide](5-3D-Printing-Manufacturing.md):** Essential engineering advice on material selection, structural slicer settings, print orientation, and the wood pressing process.

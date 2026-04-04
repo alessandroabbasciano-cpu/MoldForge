@@ -14,6 +14,7 @@ MOLD F.O.R.G.E. bridges the gap between traditional skateboard manufacturing, pr
 * **Popsicle:** The industry-standard, fully symmetrical (or nearly symmetrical) skateboard shape with rounded, matching tips.
 * **Directional Shape:** A custom board design where the Nose and Tail are distinctly different in shape, angle, or length (e.g., Old School, Cruiser, or Fishtail designs).
 * **Wheel Flares:** 3D bumps or raised sections on the deck near the wheels. Designed to prevent "wheelbite" (the wheels rubbing against the deck) and to lock the rider's fingers into position.
+* **Spoon Kicks:** A 3D concave curvature applied to the Nose and Tail. Instead of being perfectly flat planes, the kicks dip in the center, giving the rider's fingers a defined pocket for catching flips.
 
 ---
 
@@ -36,6 +37,8 @@ MOLD F.O.R.G.E. bridges the gap between traditional skateboard manufacturing, pr
 * **True Origin:** The exact mathematical center coordinate of a calculated curve or fillet.
 * **Wireframe:** A lightweight viewing mode that displays the 3D model as a network of sharp feature lines rather than solid, shaded surfaces.
 * **Clipping Plane:** A diagnostic visual tool that cuts a temporary cross-section through the 3D viewport, allowing you to visually inspect the internal core of the closed mold assembly.
+* **Beast Mode:** An advanced override state in MOLD F.O.R.G.E. that disables all internal geometric safety checks and limiters, allowing the user to input extreme parameters at the risk of mathematical errors.
+* **STEP Format:** A highly precise, mathematical 3D CAD format used for manufacturing. Unlike STL (which approximates shapes using flat triangles), STEP preserves perfect, smooth curves for CNC routing and advanced 3D printing.
 
 ---
 **[⬅️ Previous: 3D Printing & Manufacturing](5-3D-Printing-Manufacturing.md)** | **[🏠 Home](1-Introduction.md)**

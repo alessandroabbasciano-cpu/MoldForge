@@ -40,12 +40,33 @@ When **Shape Style** is set to **Custom**, three color-coded handles appear on t
 
 ## 🛠️ The Top Menu Commands
 
-* **Export Current Object (File Menu):** Exports only the specific 3D model currently visible in the viewport as an STL or STEP file.
-* **Batch Export Full Project (File Menu):** Automates the generation of a dedicated project folder and exports the Deck Preview, Male Mold, Female Mold, and Shaper Template all at once (configurable for STL, STEP, or both).
-* **Load Config File (File Menu):** Imports parameters from a previously exported text report, instantly restoring every slider and toggle to a specific production state.
-* **Enable Clipping Plane (View Menu):** Triggers a dynamic cross-section cut through the 3D model, essential for verifying core thickness and internal mold gaps.
-* **Unit Toggle (View Menu):** Instantly converts all console log measurements between **Metric (mm)** and **Imperial (in)**. *(Note: UI input sliders always remain in mm for engineering precision).*
-* **Show Scale Grid (View Menu):** Displays a persistent 3D bounding box with axis labels and absolute measurements around the model.
+The top menu bar is divided into four main categories, mapping exactly to the software's core functions.
+
+### 📁 File Menu
+
+* **Load Config File (*.txt)...:** Imports parameters from a previously exported text report, instantly restoring every slider and toggle to a specific production state.
+* **Export Current Object (STEP)...:** Exports only the specific 3D model currently visible in the viewport strictly as a high-precision STEP file.
+* **Batch Export (Molds + Shaper)...:** Automates the generation of a dedicated project folder and exports the Deck Preview, Male Mold, Female Mold, and Shaper Template all at once as STEP files ready for CNC or 3D Printing.
+* **Community Shapes Store...:** Opens the integrated browser to discover and download custom community-made `.dxf` outlines directly from GitHub.
+* **Exit:** Safely closes the application.
+
+### 👁️ View Menu
+
+* **Show Scale Grid:** Displays a persistent 3D bounding box with axis labels and absolute measurements around the model.
+* **Enable Clipping Plane:** Triggers a dynamic cross-section cut through the 3D model, essential for verifying core thickness and internal mold gaps.
+* **Show/Hide Controls (F11):** Toggles the visibility of all dock panels, allowing for a fullscreen, distraction-free 3D viewport.
+
+### ⚙️ Tools Menu
+
+* **Unleash the Beast (Extreme Mode):** Removes all dimensional safety limits. Push the sliders to extreme values for highly experimental, non-standard mold designs.
+* **Unit: Metric (mm) / Imperial (in):** Instantly converts all console log measurements between Metric and Imperial. *(Note: UI input sliders always remain in mm for engineering precision).*
+
+### ❓ Help Menu
+
+* **User Manual (F1):** Opens this documentation directly in your web browser.
+* **Download Updates...:** Takes you directly to the latest official release page on GitHub.
+* **Support the Project:** Opens a secure link to support the developer's caffeine addiction.
+* **About & License:** Displays the current software version and open-source license information.
 
 ---
 

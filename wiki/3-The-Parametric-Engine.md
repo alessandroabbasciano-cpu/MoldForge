@@ -21,13 +21,15 @@ These settings determine what the engine actually builds and toggle specific str
 * **Add N/T Indicators:** Embosses 'N' (Nose) and 'T' (Tail) markers directly onto the molds and shaper to prevent accidental misalignment during the wood pressing phase.
 * **Enable SideLocks (Vertical Print):** Generates robust interlocking side tabs on the mold halves. These are crucial for preventing the parts from sliding sideways when applying heavy pressure with a vise, and allow for vertical 3D printing.
 * **Add Top Shaper Shell:** Generates an additional mating top shell next to the Shaper Template. This allows you to "sandwich" the wood veneers during the routing phase, heavily preventing splintering.
+* **Truck Pins (Molds):** Replaces the through-holes with small embossing marking pins on the Male and Female molds to help align the veneer stack before pressing.
+* **Truck Pins (Shaper):** Replaces the through-holes with marking pins on the Shaper Template to ensure your cutting guide is perfectly centered.
 * **Base Reinforcement (AddFillet):** Adds a curved structural fillet where the mold core meets the base plate to prevent stress fractures under heavy clamping loads.
 * **Fillet Radius (mm):** The radius of the base reinforcement curve. Appears only when the reinforcement toggle is active.
 * **Add Guide Holes:** Generates vertical holes through the mold shoulders for inserting metal alignment pins (e.g., M6 threaded rods).
 * **Guide Diameter (mm):** The precise diameter of the alignment pin holes. Appears only when guide holes are enabled.
-* **Enable Wheel Flares:** Toggles the generation of 3D wheel flares on the deck surface. Activating this makes the "WHEEL FLARES" parameter group visible in the right panel.
-* **Truck Pins (Molds):** Replaces the through-holes with small embossing marking pins on the Male and Female molds to help align the veneer stack before pressing.
-* **Truck Pins (Shaper):** Replaces the through-holes with marking pins on the Shaper Template to ensure your cutting guide is perfectly centered.
+* **Hole Count:** Number of alignment holes (must be an even number, ranging from 4 to 20). Appears only when guide holes are enabled.
+* **Offset X (mm):** Distance of the guide holes from the edge of the pressing core. Adjust this to ensure pins don't collide with the mold cavity.
+* **Offset Y (mm):** Distance of the guide holes from the absolute top and bottom ends of the mold block.
 
 ---
 
@@ -38,7 +40,7 @@ These settings determine what the engine actually builds and toggle specific str
   * `[Filename]`: Loads a specific DXF vector outline from the external `shapes_library` folder.
 * **Shape Shift Y (mm):** Shifts the DXF shape along the length axis. This is vital for asymmetrical boards (like Fishtails) where the visual center does not align with the truck holes.
 * **Load Preset:** A dropdown to instantly load a saved deck and mold setup from your personal JSON database. *(Note: MOLD F.O.R.G.E. uses a zero-configuration approach and starts with a clean slate; no factory presets are included, ensuring your shapes remain uniquely yours).*
-* **Save / Delete Preset:** Buttons to permanently save your current configuration to your local database or remove it. Clicking "Save Preset" for the first time will automatically generate the `fb_presets.json` file in your directory.
+* **Save / Delete / Reset Preset:** Buttons to manage your local database. "Save" commits the current configuration. If a custom preset is loaded, the second button allows you to "Delete" it permanently. If you are on the default 'Custom' state, the button transforms into "Reset", reverting all sliders to factory defaults.
 
 ---
 
@@ -59,6 +61,7 @@ These settings control the overall physical size and structural thickness of the
 
 Precision parameters for the hardware mounting pattern.
 
+* **Custom Dimensions (Toggle):** Unlock to manually modify the standard truck hole spacing and diameter. Keep this unchecked to use the industry standard.
 * **Hole Distance (Length) (mm):** The longitudinal distance between the two holes in a single truck mount (industry standard is ~7.5mm).
 * **Hole Distance (Width) (mm):** The lateral distance between the two holes (industry standard is ~5.5mm).
 * **Hole Diameter (mm):** The diameter of the truck mounting holes. Default is 1.7mm for a tight fit with standard fingerboard screws.
@@ -75,6 +78,9 @@ These parameters define the fundamental curvature of your fingerboard deck.
 * **Concave Length (mm):** The length of the central section where the concave stays at maximum depth before smoothly flattening out towards the kicks.
 * **Tub Width - Flat (mm):** The width of the totally flat central section. Set to 0 for a continuous "U-shape", or increase for a flat pocket with steeper rails.
 * **Veneer Thickness (mm):** The total nominal thickness of the finished deck, representing the calculated sum of all individual wood plies. This is a primary driver for the CAD engine: it defines the internal offset for the Top Shaper and determines the exact height of the Tapered Truck Pins.
+* **Enable Spoon Kicks:** Adds realistic 3D concave curvature directly to the Nose and Tail (the "Spoon" effect), dipping the center for high-performance board control.
+* **Spoon Depth (mm):** The maximum depth of the concave applied to the kicks. Visible only when Spoon Kicks are enabled.
+* **Enable Wheel Flares:** Toggles the generation of 3D wheel flares on the deck surface. Activating this makes the "WHEEL FLARES" parameter group visible in the right panel.
 
 ---
 

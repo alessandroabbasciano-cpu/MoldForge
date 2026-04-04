@@ -54,9 +54,10 @@ Beyond your personal designs, MOLD F.O.R.G.E. supports an ever-expanding, user-d
 We integrated the download process directly into the application engine, eliminating manual file management.
 
 1. Inside the application, open the **File** menu and select **Community Shapes Store...**.
-2. The dedicated built-in browser will open. The application will automatically read the community's `.json` catalog file, displaying the descriptions, specifications, and details of each available deck.
-3. Select and download the shape you want directly from the interface.
-4. The system will automatically save the downloaded `.dxf` file into your local `shapes_library/` folder, making it instantly available for 3D generation.
+2. The dedicated built-in browser will open and connect directly to the GitHub repository. It automatically parses the community's `catalog.json` file to display the shape's name alongside its **description** and the original **author**.
+3. Files you already have will be smartly greyed out and marked as `[Installed]`.
+4. Select an available shape and click **Download and Install**.
+5. The system will automatically save the `.dxf` file into your local `shapes_library/` folder.
 
 **How to contribute (The Voting Pool):**
 Did you design a killer shape and want to share it with the rest of the makers? The process is strictly regulated:

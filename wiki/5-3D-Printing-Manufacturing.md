@@ -49,13 +49,14 @@ For professional results, a bench vise is required.
 * **Veneer Alignment:** If **Truck Pins (Molds)** is enabled, use the embossed pins to "lock" the veneer stack in place. This ensures your truck holes remain centered even if the wood shifts slightly during the press.
 * **Release Agent:** Apply a thin layer of wax or a specific release agent to the mold surface. This prevents escaped wood glue from permanently bonding your new deck to the 3D-printed plastic.
 * **Curing Time:** Keep the deck under pressure for at least **24 hours** to allow the glue to set fully and minimize "springback" (the wood losing its curve).
+* **Routing with the Top Shaper Shell:** If you enabled **Add Top Shaper Shell** in the Output Options, use it to "sandwich" the pressed wood deck against the Shaper Template before using your router. This firmly compresses the thin veneers and prevents the router bit from tearing out or splintering the edges.
 
 ---
 
 ## 🪚 Post-Processing
 
 * **Sanding:** Even with vertical printing, a light sanding with 400-800 grit sandpaper on the mold surface will improve the final deck's surface quality.
-* **STL Resolution:** Note that MOLD F.O.R.G.E. exports STLs with a high-precision tolerance (0.01/0.1) to eliminate the "orange peel" effect common in lower-quality CAD exports.
+* **STEP Format Perfection:** MOLD F.O.R.G.E. v1.1.0 exports your project strictly as mathematically perfect `.step` files. Unlike legacy `.stl` files which approximate curves using flat triangles (often causing an "orange peel" texture on 3D prints), `.step` files preserve true continuous curves, ensuring your slicer generates flawlessly smooth toolpaths.
 
 ---
 **[⬅️ Previous: Custom Shapes (DXF)](4-Custom-Shapes-DXF.md)** | **[🏠 Home](1-Introduction.md)** | **[Next: Glossary ➡️](6-Glossary.md)**
