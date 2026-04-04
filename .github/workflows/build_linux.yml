@@ -36,12 +36,6 @@ jobs:
       run: |
         pyinstaller MoldForge_linux.spec
 
-    - name: Upload Linux Portable Folder
-      uses: actions/upload-artifact@v5
-      with:
-        name: MoldForge-Linux-Portable
-        path: dist/MOLDFORGE_RELEASE/
-
     - name: Create Clean ZIP
       run: |
         cd dist/MOLDFORGE_RELEASE/
