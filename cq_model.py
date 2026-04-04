@@ -157,106 +157,97 @@ def build_mold(params: MoldParams):
         y_tip_tail = -(mold_len / 2.0 + 4.0)
 
         def get_slice_wire(y_pos, z_pos, rot):
-            """Generates a single 2D cross-section at a specific Y position."""
+            """Generates a 2D cross-section. Selective clamping: C-Shape on kicks, original rise on center."""
             x_outer = gen_width / 2.0
-            x_inner = tub_width / 2.0 if tub_width > 0.1 else 0.0
+            x_inner_base = tub_width / 2.0 if tub_width > 0.1 else 0.0
+            board_half_w = params.BoardWidth / 2.0
             
             y_abs = abs(y_pos)
             local_kick_start = y_kick_start_nose if y_pos >= 0 else abs(y_kick_start_tail)
+            local_tip = y_tip_nose if y_pos >= 0 else abs(y_tip_tail)
             
-            # Interpolate concave depth based on Y position (full in center, zero at kicks)
-            if y_abs <= y_concave_end:
-                concave_factor = 1.0
-            elif y_abs >= local_kick_start or abs(rot) > 0.1:
-                concave_factor = 0.0
+            # --- 1. SPOON CONFIGURATION (Link to Params) ---
+            if getattr(params, 'AddSpoonKicks', False):
+                spoon_drop = getattr(params, 'SpoonDrop', 0.0)
             else:
-                denom = local_kick_start - y_concave_end
-                if denom < 0.01:
-                    concave_factor = 0.0
-                else:
-                    # S-Curve (Cosine) interpolation to remove the geometric scar (C1 continuity)
-                    t = (y_abs - y_concave_end) / denom
-                    concave_factor = (math.cos(t * math.pi) + 1.0) / 2.0
-                    
-            # Wheel Flare calculation
-            add_flare = False
-            flare_y_falloff = 0.0
-            if getattr(params, 'AddWheelFlares', False):
-                fy = (params.Wheelbase / 2.0) + params.FlarePosY
-                fl = params.FlareLength / 2.0
-                dist_from_wheel_y = min(abs(y_pos - fy), abs(y_pos - (-fy)))
-                
-                if dist_from_wheel_y < fl:
-                    add_flare = True
-                    flare_y_falloff = math.cos((dist_from_wheel_y / fl) * (math.pi / 2.0))
+                spoon_drop = 0.0
 
-            # Point generation for the section curve
-            STEPS = 30
+            if spoon_drop > 0.01 and eff_width_half > 0.1:
+                s_rad = (eff_width_half**2 + spoon_drop**2) / (2.0 * spoon_drop)
+            else:
+                s_rad = 100000.0
+
+            # --- 2. 3-ZONE LOGIC ---
+            is_kick_zone = y_abs >= local_kick_start
+
+            if y_abs <= y_concave_end:
+                active_f, active_r, local_inner_x = 1.0, radius_val, x_inner_base
+            elif not is_kick_zone:
+                d = local_kick_start - y_concave_end
+                active_f = (math.cos(((y_abs - y_concave_end) / d) * math.pi) + 1.0) / 2.0 if d > 0.01 else 0.0
+                active_r, local_inner_x = radius_val, x_inner_base
+            else:
+                d = local_tip - local_kick_start
+                active_f = (1.0 - math.cos(((y_abs - local_kick_start) / d) * math.pi)) / 2.0 if d > 0.01 else 0.0
+                active_r, local_inner_x = s_rad, 0.0
+
+            # --- 3. PRE-CALCULATE MAX Z AT BOARD EDGE (For Kicks only) ---
+            dx_edge = board_half_w - local_inner_x
+            if dx_edge <= eff_width_half:
+                z_at_edge = (active_r - math.sqrt(max(0, active_r**2 - dx_edge**2))) * active_f
+            else:
+                z_edge_base = active_r - math.sqrt(max(0, active_r**2 - eff_width_half**2))
+                slope = eff_width_half / math.sqrt(max(0.1, active_r**2 - eff_width_half**2))
+                z_at_edge = (z_edge_base + (slope * (dx_edge - eff_width_half))) * active_f
+
+            # --- 4. POINT GENERATION ---
             pts_local = []
+            STEPS = 30
             for i in range(STEPS + 1):
-                t = i / float(STEPS)
-                current_x = x_outer - (t * gen_width)
-                abs_x = abs(current_x)
+                curr_x = x_outer - (i / float(STEPS) * gen_width)
+                abs_x = abs(curr_x)
                 
-                if abs_x <= x_inner:
-                    current_z = 0.0
-                else:
-                    dx = abs_x - x_inner
-                    
+                if abs_x <= local_inner_x:
+                    cz = 0.0
+                elif abs_x <= board_half_w or not is_kick_zone:
+                    # NORMAL CALCULATION (Inside board OR Central zones)
+                    dx = abs_x - local_inner_x
                     if dx <= eff_width_half:
-                        if dx < radius_val:
-                            current_z = (radius_val - math.sqrt(radius_val**2 - dx**2)) * concave_factor
-                        else:
-                            current_z = radius_val * concave_factor
+                        cz = (active_r - math.sqrt(max(0, active_r**2 - dx**2))) * active_f
                     else:
-                        if eff_width_half < radius_val:
-                            z_edge = radius_val - math.sqrt(radius_val**2 - eff_width_half**2)
-                            slope = eff_width_half / math.sqrt(radius_val**2 - eff_width_half**2)
-                            extra_x = dx - eff_width_half
-                            current_z = (z_edge + (slope * extra_x)) * concave_factor
-                        else:
-                            current_z = radius_val * concave_factor
-                        
-                if add_flare:
-                    fx_edge = params.BoardWidth / 2.0
-                    fw = params.FlareWidth
-                    dist_from_edge_inward = fx_edge - abs_x
-                    
-                    if dist_from_edge_inward <= 0:
-                        flare_x_falloff = 1.0
-                    elif dist_from_edge_inward < fw:
-                        flare_x_falloff = math.cos((dist_from_edge_inward / fw) * (math.pi / 2.0))
-                    else:
-                        flare_x_falloff = 0.0
-                        
-                    current_z += params.FlareHeight * flare_y_falloff * flare_x_falloff
-
-                pts_local.append(cq.Vector(current_x, 0, current_z))
+                        # Original linear rise (Good for the center of the mold)
+                        z_edge_base = active_r - math.sqrt(max(0, active_r**2 - eff_width_half**2))
+                        slope = eff_width_half / math.sqrt(max(0.1, active_r**2 - eff_width_half**2))
+                        cz = (z_edge_base + (slope * (dx - eff_width_half))) * active_f
+                else:
+                    # SELECTIVE CLAMPING (Outside board width AND on Kicks only)
+                    cz = z_at_edge
                 
-            # Apply 3D Rotation for kicks and Translation for positioning
+                # Wheel Flares (only inside board)
+                if getattr(params, 'AddWheelFlares', False) and abs_x <= board_half_w:
+                    fy, fl = (params.Wheelbase / 2.0) + params.FlarePosY, params.FlareLength / 2.0
+                    dy = min(abs(y_pos - fy), abs(y_pos - (-fy)))
+                    if dy < fl:
+                        dist_in = board_half_w - abs_x
+                        fxf = math.cos((dist_in / params.FlareWidth) * (math.pi / 2.0)) if 0 <= dist_in < params.FlareWidth else 0.0
+                        cz += params.FlareHeight * math.cos((dy / fl) * (math.pi / 2.0)) * fxf
+
+                pts_local.append(cq.Vector(curr_x, 0, cz))
+                
+            # --- 5. ROTATION AND ASSEMBLY ---
             pts_global = []
+            rad_rot = math.radians(rot)
             for p in pts_local:
                 z_shifted = p.z + z_offset_flat 
-                rad_rot = math.radians(rot)
-                new_y = p.y * math.cos(rad_rot) - z_shifted * math.sin(rad_rot)
+                new_y = p.y * math.cos(rad_rot) - z_offset_flat * math.sin(rad_rot)
                 new_z = p.y * math.sin(rad_rot) + z_shifted * math.cos(rad_rot)
                 pts_global.append(cq.Vector(p.x, new_y + y_pos, new_z + z_pos))
                 
-            if z_limit > 0:
-                pts_curve = pts_global[::-1] 
-            else:
-                pts_curve = pts_global
-                
-            p_start = pts_curve[0]
-            p_end = pts_curve[-1]
-            
-            p_limit_end = cq.Vector(p_end.x, p_end.y, z_limit)
-            p_limit_start = cq.Vector(p_start.x, p_start.y, z_limit)
-            
-            e1 = cq.Edge.makeSpline(pts_curve)
-            e2 = cq.Edge.makeLine(p_end, p_limit_end)
-            e3 = cq.Edge.makeLine(p_limit_end, p_limit_start)
-            e4 = cq.Edge.makeLine(p_limit_start, p_start)
+            pts_curve = pts_global[::-1] if z_limit > 0 else pts_global
+            p_s, p_e = pts_curve[0], pts_curve[-1]
+            e1, e2 = cq.Edge.makeSpline(pts_curve), cq.Edge.makeLine(p_e, cq.Vector(p_e.x, p_e.y, z_limit))
+            e3 = cq.Edge.makeLine(cq.Vector(p_e.x, p_e.y, z_limit), cq.Vector(p_s.x, p_s.y, z_limit))
+            e4 = cq.Edge.makeLine(cq.Vector(p_s.x, p_s.y, z_limit), p_s)
             
             return cq.Wire.assembleEdges([e1, e2, e3, e4])
 
@@ -557,18 +548,25 @@ def build_mold(params: MoldParams):
         outline_face = make_shaper_outline(params)
         
         # --- ORIGINAL SHAPER (TOP SHAPER SHELL) ---
-        # Generated using cutters_down_veneer. Fits into the concave top of the deck.
-        template_raw = cq.Workplane("XY").add(outline_face.outerWire()).toPending().extrude(params.ShaperHeight + z_mount_target + 50)
+        max_z = params.ShaperHeight + z_mount_target + 50.0
+        template_raw = cq.Workplane("XY").add(outline_face.outerWire()).toPending().extrude(max_z)
         
         if params.ShapeStyle == "Custom":
             template_raw = apply_yellow_fillet(template_raw, params.FilletYellow)
             
-        template = apply_cuts(template_raw, cutters_down_veneer)
+        # --- NEW BOOLEAN APPROACH ---
+        # Create a raw block as large as the mold and cut it
+        shaper_box = cq.Workplane("XY").box(core_width, mold_len, max_z).translate((0, 0, max_z / 2.0))
+        shaper_sheet = apply_cuts(shaper_box, cutters_down_veneer)
         
+        # Extract the shaper via solid intersection instead of surface cut
+        try:
+            template = shaper_sheet.intersect(template_raw)
+        except Exception:
+            template = apply_cuts(template_raw, cutters_down_veneer)
+            
         z_flat_top = z_mount_target + params.ShaperHeight
         trim_box = cq.Workplane("XY").box(500, 500, 500).translate((0, 0, z_flat_top + 250))
-
-        # 1. MAIN SHAPER (TOP SHELL)
         template = template.cut(trim_box)
         
         if getattr(params, 'AddShaperTruckPins', False):
@@ -587,21 +585,23 @@ def build_mold(params: MoldParams):
             text_t = cq.Workplane("XY").workplane(offset=bbox.zmax).center(0, y_tip_tail + 10.0).text("T", font_size, -text_depth)
             template = template.cut(text_n).cut(text_t)
             
-        # Move the base shaper to the floor (Z=0)
         template = template.translate((0, 0, -(z_mount_target - params.VeneerThickness)))
 
-        # --- CONTRO-SHAPER (BOTTOM SHAPER SHELL) ---
+        # --- BOTTOM SHAPER (LOWER SHAPER SHELL) ---
         if getattr(params, 'AddTopShaper', False):
-            # We use cutters_up to get the space BELOW the deck.
-            # This generates a block with a concave top face that cradles the OUTSIDE of the deck.
-            bottom_raw = cq.Workplane("XY").add(outline_face.outerWire()).toPending().extrude(z_mount_target + 50)
-            
+            bot_max_z = z_mount_target + 50.0
+            bottom_raw = cq.Workplane("XY").add(outline_face.outerWire()).toPending().extrude(bot_max_z)
             if params.ShapeStyle == "Custom":
                 bottom_raw = apply_yellow_fillet(bottom_raw, params.FilletYellow)
                 
-            bottom_template = apply_cuts(bottom_raw, cutters_up)
+            bot_box = cq.Workplane("XY").box(core_width, mold_len, bot_max_z).translate((0, 0, bot_max_z / 2.0))
+            bot_sheet = apply_cuts(bot_box, cutters_up)
             
-            # Trim the block from below so it sits exactly at ShaperHeight thickness
+            try:
+                bottom_template = bot_sheet.intersect(bottom_raw)
+            except Exception:
+                bottom_template = apply_cuts(bottom_raw, cutters_up)
+                
             z_flat_bottom = z_mount_target - params.ShaperHeight
             trim_box_bottom = cq.Workplane("XY").box(500, 500, 500).translate((0, 0, z_flat_bottom - 250))
             bottom_template = bottom_template.cut(trim_box_bottom)
@@ -612,16 +612,12 @@ def build_mold(params: MoldParams):
                 bottom_template = bottom_template.cut(truck_holes_cutter)
             
             if params.AddIndicators:
-                # Carve the text into the flat bottom face
                 text_n_bot = cq.Workplane("XY").workplane(offset=z_flat_bottom).center(0, y_tip_nose - 10.0).text("N", font_size, text_depth).mirror("YZ")
                 text_t_bot = cq.Workplane("XY").workplane(offset=z_flat_bottom).center(0, y_tip_tail + 10.0).text("T", font_size, text_depth).mirror("YZ")
                 bottom_template = bottom_template.cut(text_n_bot).cut(text_t_bot)
             
-            # Shift it laterally on the X axis and drop its flat bottom exactly to the floor (Z=0)
             offset_x = params.MoldBaseWidth + 10.0
             bottom_template = bottom_template.translate((offset_x, 0, -z_flat_bottom))
-            
-            # Merge both solids into a single object for preview and export
             template = template.add(bottom_template.vals())
 
         return template
@@ -633,8 +629,19 @@ def build_mold(params: MoldParams):
         if params.ShapeStyle == "Custom":
             board_prism = apply_yellow_fillet(board_prism, params.FilletYellow)
         
-        board = apply_cuts(board_prism, cutters_up)
-        board = apply_cuts(board, cutters_down_veneer)
+        # --- NEW BOOLEAN APPROACH (Spoon Kicks Safe) ---
+        max_z = z_mount_target + 50.0
+        sheet_box = cq.Workplane("XY").box(core_width, mold_len, max_z).translate((0, 0, max_z / 2.0))
+        
+        wood_sheet = apply_cuts(sheet_box, cutters_up)
+        wood_sheet = apply_cuts(wood_sheet, cutters_down_veneer)
+        
+        try:
+            board = wood_sheet.intersect(board_prism)
+        except Exception:
+            board = apply_cuts(board_prism, cutters_up)
+            board = apply_cuts(board, cutters_down_veneer)
+            
         board = board.cut(truck_holes_cutter)
         
         return board.translate((0, 0, -(z_mount_target - params.VeneerThickness)))

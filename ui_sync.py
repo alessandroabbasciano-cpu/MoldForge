@@ -216,6 +216,8 @@ def update_params_object(app):
     p.FilletRadius = app.spin_fillet_rad.value()
     p.AddGuideHoles = app.chk_guide_d.isChecked()
     p.GuideDiameter = app.spin_guide_d.value()
+    p.AddSpoonKicks = app.chk_spoon.isChecked()
+    p.SpoonDrop = app.spin_spoon_drop.value()
     
     if hasattr(app, 'combo_guide_count'):
         p.GuideHoleCount = int(app.combo_guide_count.currentText())
@@ -342,6 +344,8 @@ def reset_to_defaults(app):
             app.spin_flare_l.setValue(default.FlareLength)
             app.spin_flare_w.setValue(default.FlareWidth)
             app.spin_flare_py.setValue(default.FlarePosY)
+        if hasattr(app, 'chk_spoon'): app.chk_spoon.setChecked(default.AddSpoonKicks)
+        if hasattr(app, 'spin_spoon_drop'): app.spin_spoon_drop.setValue(default.SpoonDrop)
         
         app.spin_n_c1x.setValue(default.NoseCtrl1X)
         app.spin_n_c1y.setValue(default.NoseCtrl1Y)
@@ -352,6 +356,7 @@ def reset_to_defaults(app):
         app.spin_t_c1y.setValue(default.TailCtrl1Y)
         app.spin_t_c2x.setValue(default.TailCtrl2X)
         app.spin_t_s_y.setValue(default.TailStraightP)
+        
         
         # Enforce mechanical limits on the newly set default values
         validate_cross_dependencies(app)

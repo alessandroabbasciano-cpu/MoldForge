@@ -34,7 +34,7 @@ class MoldParams:
         self.MoldBaseWidth = 75.0             # Total width of the mold block
         self.MoldBaseHeight = 10.0            # Thickness of the solid structural base
         self.MoldCoreWidth = 45.0             # Width of the central pressing core
-        self.MoldCoreHeight = 5.0             # Thickness of the core at its lowest point
+        self.MoldCoreHeight = 6.5             # Thickness of the core at its lowest point
         self.MoldLength = 115.0               # Total physical length of the mold block
         self.MoldCornerRadius = 5.0           # Radius of the mold's outer corners
 
@@ -48,6 +48,8 @@ class MoldParams:
         self.Wheelbase = 44.0                 # Distance between the inner truck holes
         self.ConcaveDrop = 1.5                # Depth of the central concave
         self.ConcaveLength = 40.0             # Length of the central concave section
+        self.AddSpoonKicks = False            # Toggle the spoon-shaped nose and tail sections
+        self.SpoonDrop = 1.0                  # Additional drop in the nose and tail sections
         self.TubWidth = 8.0                   # Width of the totally flat central section
         self.VeneerThickness = 2.5            # Total physical thickness of the stacked wood veneers
         self.MoldGap = 2.5                    # Distance between the male and female molds

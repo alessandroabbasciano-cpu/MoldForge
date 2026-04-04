@@ -51,7 +51,7 @@ These settings control the overall physical size and structural thickness of the
 * **Base Height (mm):** The thickness of the solid structural foundation plate that absorbs the clamping force.
 * **Base Width (mm):** The total width of the mold block, including the side shoulders. *Pro Tip: Set this equal to 'Core Width' to create flush, flat sides for vertical printing.*
 * **Min. Core Thickness (mm):** The thickness of the core at its lowest/thinnest point.
-* **Mold Gap (mm):** The modeled distance between the male and female molds. Usually equals your veneer thickness plus a tiny margin for glue.
+* **Mold Gap (mm):** The physical gap between the male and female molds. While it should generally match your Veneer Thickness, can set this value slightly lower (e.g., -0.1mm or -0.2mm) to force a tighter compression and squeeze out all excess glue during pressing.
 
 ---
 
@@ -74,7 +74,7 @@ These parameters define the fundamental curvature of your fingerboard deck.
 * **Concave Drop (mm):** The vertical depth of the concave curve in the center of the board.
 * **Concave Length (mm):** The length of the central section where the concave stays at maximum depth before smoothly flattening out towards the kicks.
 * **Tub Width - Flat (mm):** The width of the totally flat central section. Set to 0 for a continuous "U-shape", or increase for a flat pocket with steeper rails.
-* **Veneer Thickness (mm):** The total physical thickness of the stacked wood veneers.
+* **Veneer Thickness (mm):** The total nominal thickness of the finished deck, representing the calculated sum of all individual wood plies. This is a primary driver for the CAD engine: it defines the internal offset for the Top Shaper and determines the exact height of the Tapered Truck Pins.
 
 ---
 

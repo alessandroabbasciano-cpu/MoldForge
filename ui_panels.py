@@ -342,6 +342,24 @@ def setup_docks(app):
     app.spin_concave_len = add_param(app, layout_deck, "Concave Length (mm)", 10, 60, app.params.ConcaveLength, "Length of the central concave section before kicks begin.")
     app.spin_tub = add_param(app, layout_deck, "Tub Width - Flat (mm)", 0, 20, app.params.TubWidth, "Width of the totally flat central section (Tub concave).")
     app.spin_veneer = add_param(app, layout_deck, "Veneer Thickness (mm)", 0.5, 5.0, app.params.VeneerThickness, "Total physical thickness of the stacked wood veneers.")
+    # --- SPOON KICKS ---
+    app.chk_spoon = QCheckBox("Enable Spoon Kicks")
+    app.chk_spoon.setToolTip("Adds 3D concave curvature to the Nose and Tail (Spoon effect).")
+    app.chk_spoon.setChecked(app.params.AddSpoonKicks)
+    layout_deck.addRow(app.chk_spoon)
+    
+    app.spin_spoon_drop = add_param(app, layout_deck, "Spoon Depth (mm)", 0.0, 2.0, app.params.SpoonDrop, "Depth of the concave on the kicks.")
+    
+    def update_spoon_vis():
+        visible = app.chk_spoon.isChecked()
+        app.spin_spoon_drop.setVisible(visible)
+        lbl = layout_deck.labelForField(app.spin_spoon_drop)
+        if lbl: lbl.setVisible(visible)
+        app.schedule_update()
+
+    app.chk_spoon.stateChanged.connect(update_spoon_vis)
+    update_spoon_vis() # Initialize state
+
     app.chk_flares = QCheckBox("Enable Wheel Flares")
     app.chk_flares.setToolTip("Generate 3D wheel flares/wells on the deck surface to prevent wheelbite.")
     app.chk_flares.setChecked(False)
