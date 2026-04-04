@@ -2,6 +2,10 @@ import os
 import json
 import urllib.request
 import urllib.error
+import ssl      
+import certifi
+ssl_context = ssl.create_default_context(cafile=certifi.where())
+urllib.request.install_opener(urllib.request.build_opener(urllib.request.HTTPSHandler(context=ssl_context)))
 from PySide6.QtWidgets import (QDialog, QVBoxLayout, QHBoxLayout, QListWidget, 
                                QPushButton, QLabel, QMessageBox, QApplication, QListWidgetItem)
 from PySide6.QtCore import Qt
