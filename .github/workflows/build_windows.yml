@@ -15,7 +15,8 @@ jobs:
 
     - name: Generate version file from Git Tag
       shell: powershell
-      run: echo "__version__ = '${{ github.ref_name }}'" > version.py
+      run: |
+        "__version__ = '${{ github.ref_name }}'" | Out-File -FilePath version.py -Encoding utf8
 
     - name: Build with PyInstaller on Windows
       shell: cmd
