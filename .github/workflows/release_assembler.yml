@@ -56,7 +56,7 @@ jobs:
         generate_release_notes: false
         files: release_assets/*
         body: |
-          🔥 **MOLD F.O.R.G.E. - v1.0.3** 🔥
+          🔥 **MOLD F.O.R.G.E. - v1.1.0** 🔥
 
           The first standalone, cross-platform, parametric fingerboard mold designer.
           MoldForge combines the raw power of the OpenCASCADE CAD engine with a lightning-fast native GUI.
@@ -69,14 +69,16 @@ jobs:
 
           📖 **Community:** We opened a Guestbook! Drop by the GitHub Discussions tab and say hi.
 
-          **What's New in v1.0.3:**
+          **What's New in v1.1.0:**
 
-          ### Fixed
-          - **3D Engine (Topological Crash):** Resolved a critical `ValueError: Inner wires not allowed` in the OpenCASCADE kernel. The crash occurred when generating tapered truck pins with a diameter exceeding 1.9mm due to overlapping extrusion boundaries. Re-engineered the boolean operation to instantiate and translate a single master pin via `.eachpoint()`, preventing wire collisions entirely.
-          - **UI / Data Parsing (Race Condition):** Fixed a signal loop bug where loading asymmetric configuration files (`.json` or `.txt`) would inadvertently trigger the "Symmetrical" checkbox state change. This caused the UI to aggressively overwrite the imported Tail parameters with Nose values. Implemented strict `blockSignals()` shielding during the data injection phase to ensure asymmetric setups load accurately.
+          ### New Features
+          - **Spoon Kicks:** Added 3D concave curvature logic for Nose and Tail, allowing for high-performance board shapes.
+          - **Beast Mode (Extreme Mode):** New toggle to unlock all geometric safety limits (-9999 to 9999) for experimental and non-standard mold design.
+          - **Community Shapes Store:** Integrated browser to download community-designed DXF shapes directly from GitHub.
+          - **Parametric Bolt Holes:** Full control over truck hole diameter and spacing (Old School vs. New School vs. Custom).
+          - **Version Checker:** Automatic background check for new releases on startup.
 
-          ### Changed
-          - **GUI (Parameter Limits):** Increased the maximum allowable Mold Base Width from 70mm to 90mm.
-
-          ### Documentation
-          - **Custom Shapes (DXF):** Heavily revised the vector import guidelines (`4-Custom-Shapes-DXF.md`). Added critical warnings regarding ghost/hidden layers (e.g., Layer 0) and imperial/metric unit conflicts. These vector artifacts were responsible for massive bounding box miscalculations, leading to `Out of bounds` boolean failures in the 3D engine.
+          ### Fixed/Improved
+          - **STL Export Removed:** Switched entirely to high-precision STEP exports for better CNC/3D Printing compatibility.
+          - **UI Refactoring:** Grouped Wheel Flare parameters and optimized panel spacing for smaller screens.
+          - **MacOS/Linux Stability:** Patched several OpenGL and font-cache related deadlocks during startup.

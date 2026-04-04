@@ -46,6 +46,28 @@ Use the **`Shape Shift Y (mm)`** slider in the Left Panel. This parameter allows
 
 ---
 
+## 🌍 The Community Shapes Library
+
+Beyond your personal designs, MOLD F.O.R.G.E. supports an ever-expanding, user-driven open-source database.
+
+**How to download Community DXFs:**
+We integrated the download process directly into the application engine, eliminating manual file management.
+
+1. Inside the application, open the **File** menu and select **Community Shapes Store...**.
+2. The dedicated built-in browser will open. The application will automatically read the community's `.json` catalog file, displaying the descriptions, specifications, and details of each available deck.
+3. Select and download the shape you want directly from the interface.
+4. The system will automatically save the downloaded `.dxf` file into your local `shapes_library/` folder, making it instantly available for 3D generation.
+
+**How to contribute (The Voting Pool):**
+Did you design a killer shape and want to share it with the rest of the makers? The process is strictly regulated:
+
+1. **Submit:** Open a new Issue on GitHub using the dedicated **DXF Submission Template** and attach your file.
+2. **Validation:** The Issue will be tagged as *pending-validation*. A topological check will be run on your vector to ensure it complies with the strict rules of OpenCASCADE (perfectly closed loops, zero ghost layers).
+3. **Voting Pool:** If the file passes the geometry check, the Issue will be opened for public community voting.
+4. **Merge:** If your shape reaches the minimum threshold of **10 up-votes**, it will be officially merged into the `community_shapes/` repository folder and documented in the global JSON catalog.
+
+---
+
 ## 🧠 Behind the Scenes: Spline vs. Polygon
 
 When you load a custom DXF, the engine attempts two distinct mathematical methods to reconstruct your shape:

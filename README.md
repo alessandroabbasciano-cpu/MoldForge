@@ -2,13 +2,14 @@
 
 **F**ORGE **O**utputs **R**ealistic **G**narly **E**quipment.
 
-![Version](https://img.shields.io/badge/version-V1.0.0_Standalone-2ecc71.svg)
+![Version](https://img.shields.io/badge/version-V1.1.0_Standalone-2ecc71.svg)
 ![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-blue.svg)
 ![License](https://img.shields.io/badge/license-AGPLv3-red.svg)
 
 **MOLD F.O.R.G.E.** is a professional, standalone parametric CAD suite engineered exclusively for the fingerboard industry.
 
-Moving beyond basic scripts and legacy CAD dependencies, Version 1.0.0 marks the completion of *Project Exodus*. MOLD F.O.R.G.E. is now a 100% native, multi-threaded desktop application powered by **CadQuery (OpenCASCADE)**, **PyVista (VTK)**, and **PySide6**.
+Starting from Version 1.0.0 (*Project Exodus*), MOLD F.O.R.G.E. is a 100% native, multi-threaded desktop application powered by **CadQuery (OpenCASCADE)**, **PyVista (VTK)**, and **PySide6**.
+Version 1.1.0 pushes the boundaries further by introducing experimental geometries and community-driven features.
 
 Design custom decks with mathematical precision, tweak transitions in real-time without UI freezes, and export production-ready, press-safe molds directly to your 3D printer.
 
@@ -24,8 +25,9 @@ Design custom decks with mathematical precision, tweak transitions in real-time 
 ## 🔥 Core Features
 
 - **⚡ Standalone & Multi-Threaded:** No Python environments or Conda setups required. The heavy CAD geometry engine runs asynchronously in the background, keeping the UI perfectly fluid.
-- **📐 Dynamic Asymmetry:** Break free from standard shapes. Sculpt independent nose and tail angles via the interactive 2D Bezier editor.
-- **📁 Auto-Scanning DXF Library:** Drop your custom `.dxf` vector outlines (Fishtails, Cruisers, etc.) into the `shapes_library/` folder. The software automatically detects them and dynamically adapts the 3D mesh.
+- **📐 Dynamic Asymmetry & Spoon Kicks:** Break free from standard shapes. Sculpt independent nose and tail angles, and apply parametric 3D bowl-like concave (Spoon effect) directly to your kicks.
+- **👹 BEAST MODE:** A dedicated toggle for advanced users to disable mechanical safety limits, allowing for extreme and highly experimental deck geometries.
+- **🌍 Community Shapes & Auto-Scanning DXF:** Drop your custom `.dxf` vector outlines into the `shapes_library/` folder, or use the integrated community-submitted shapes catalog. The software automatically detects them and dynamically adapts the 3D mesh.
 - **🏭 Press-Ready Manufacturing:** Built to withstand the bench vise. The engine calculates precise mold gaps, base structural fillets, hardware alignment pins, and vertical interlocking SideLocks.
 - **🔄 Real-Time Sync:** Live 2D/3D visualization with built-in geometric collision prevention.
 - **⚙️ Automated Production:** A dedicated Batch Export system generates the Male Mold, Female Mold, and 2D Shaper Template in a single, perfectly aligned sequence.

@@ -19,7 +19,7 @@ binaries = []
 hidden_imports = [
     'cq_model', 'cq_utils', 'custom_widgets', 'file_manager', 
     'params', 'shape_loader', 'ui_builder', 'ui_menus', 
-    'ui_panels', 'ui_sync', 'viewer_3d'
+    'ui_panels', 'ui_sync', 'viewer_3d', 'community_browser'
 ]
 
 # Use collect_all for complex libraries (VTK, CadQuery, etc.)

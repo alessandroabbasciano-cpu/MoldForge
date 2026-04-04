@@ -62,7 +62,8 @@ def apply_main_preset(app, preset_name):
             "TailCtrl1X": app.spin_t_c1x, "TailCtrl1Y": app.spin_t_c1y, "TailCtrl2X": app.spin_t_c2x, "TailStraightP": app.spin_t_s_y,
             "FlareHeight": app.spin_flare_h, "FlareLength": app.spin_flare_l,
             "FlareWidth": app.spin_flare_w, "FlarePosY": app.spin_flare_py,
-            "ShapeOffsetY": app.spin_shape_offset_y
+            "ShapeOffsetY": app.spin_shape_offset_y,
+            "SpoonDrop": app.spin_spoon_drop
         }
         for key, val in data.items():
             if key in mapping: mapping[key].setValue(float(val))
@@ -78,7 +79,7 @@ def apply_main_preset(app, preset_name):
         check_map = { 
             "SideLocks": app.chk_sidelocks, "AddFillet": app.chk_fillet, 
             "AddGuideHoles": app.chk_guide_d, "AddIndicators": app.chk_indicators, 
-            "AddWheelFlares": app.chk_flares 
+            "AddWheelFlares": app.chk_flares, "AddSpoonKicks": app.chk_spoon 
         }
         for key, checkbox in check_map.items():
             if key in data:
@@ -207,7 +208,7 @@ def apply_parsed_data_to_ui(app, data):
             "TailCtrl2X": app.spin_t_c2x, "TailStraightP": app.spin_t_s_y,
             "FlareHeight": app.spin_flare_h, "FlareLength": app.spin_flare_l,
             "FlareWidth": app.spin_flare_w, "FlarePosY": app.spin_flare_py,
-            "ShapeOffsetY": app.spin_shape_offset_y
+            "ShapeOffsetY": app.spin_shape_offset_y, "SpoonDrop": app.spin_spoon_drop
         }
         
         for key, spinbox in spin_map.items():
@@ -233,7 +234,8 @@ def apply_parsed_data_to_ui(app, data):
 
         check_map = { "SideLocks": app.chk_sidelocks, "AddFillet": app.chk_fillet, 
                      "AddGuideHoles": app.chk_guide_d, "AddIndicators": app.chk_indicators, 
-                     "AddWheelFlares": app.chk_flares }
+                     "AddWheelFlares": app.chk_flares,"AddSpoonKicks": app.chk_spoon }
+        
         for key, checkbox in check_map.items():
             if key in data: checkbox.setChecked(data[key] == "True")
         
