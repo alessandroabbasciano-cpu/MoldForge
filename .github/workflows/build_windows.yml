@@ -27,12 +27,6 @@ jobs:
         venv\Scripts\pip.exe install -r requirements.txt
         venv\Scripts\pyinstaller.exe MoldForge_win.spec
 
-    - name: Upload Windows Portable Folder
-      uses: actions/upload-artifact@v5
-      with:
-        name: MoldForge-Windows-Portable
-        path: dist/MOLDFORGE_RELEASE/
-
     - name: Create Clean ZIP
       shell: powershell
       run: |
