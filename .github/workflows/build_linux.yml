@@ -6,6 +6,9 @@ on:
       - 'v*'
   workflow_dispatch:
 
+permissions:
+  contents: read
+  
 jobs:
   build-linux:
     runs-on: [self-hosted, arch-local]
