@@ -153,8 +153,8 @@ def build_mold(params: MoldParams):
         y_kick_start_tail = -((params.Wheelbase / 2.0) + params.TruckHoleDistL + params.TailKickGap)
         y_concave_end = params.ConcaveLength / 2.0
         gen_width = core_width + 20.0 
-        y_tip_nose = mold_len / 2.0 + 4.0
-        y_tip_tail = -(mold_len / 2.0 + 4.0)
+        y_tip_nose = mold_len / 2.0 + 50.0
+        y_tip_tail = -(mold_len / 2.0 + 50.0)
 
         def get_slice_wire(y_pos, z_pos, rot):
             """Generates a 2D cross-section. Selective clamping: C-Shape on kicks, original rise on center."""
@@ -332,7 +332,8 @@ def build_mold(params: MoldParams):
 
     # Generate the Three Primary Cutters
     cutters_up = build_cutter_solids(radius_concave, 0.0, 200.0)
-    cutters_down = build_cutter_solids(radius_concave, params.MoldGap, -200.0)
+    radius_down = radius_concave - params.MoldGap
+    cutters_down = build_cutter_solids(radius_down, params.MoldGap, -200.0)
     cutters_down_veneer = build_cutter_solids(radius_concave, -params.VeneerThickness, -200.0)
 
     # Move cutters to the target assembly height
