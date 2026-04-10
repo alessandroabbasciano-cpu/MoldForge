@@ -143,7 +143,7 @@ class UpdateCheckerWorker(QThread):
                 
                 # Compare fetched version with the existing global APP_VERSION
                 # Skip the check if running a Dev-Build
-                if APP_VERSION != "Dev-Build" and latest_version and latest_version > APP_VERSION:
+                if APP_VERSION != "Dev-Build" and latest_version and tuple(map(int, latest_version.split('.'))) > tuple(map(int, APP_VERSION.split('.'))):
                     self.update_found.emit(latest_version)
                     
         except Exception:
@@ -247,11 +247,18 @@ class MoldApp(QMainWindow):
         self.log("System initialized. Ready to shred.", "INFO")
 
         self._is_loading = False
-
-        # --- UPDATE CHECKER ---
-        self.update_worker = UpdateCheckerWorker()
-        self.update_worker.update_found.connect(self.on_update_found)
-        self.update_worker.start()
+        
+        # Try loading last session. If none exists, render the default startup state.
+        if not file_manager.load_last_session(self):
+            QTimer.singleShot(200, self.start_preview)
+        
+        # --- CLOSE NATIVE SPLASH SCREEN ---
+        try:
+            import pyi_splash  # type: ignore
+            if pyi_splash.is_alive():
+                pyi_splash.close()
+        except Exception:
+            pass
         
         # Force the first explicit render
         QTimer.singleShot(200, self.start_preview)
@@ -267,6 +274,12 @@ class MoldApp(QMainWindow):
             except (ImportError, KeyError):
                 # Silently fail if the module or IPC is not available
                 pass
+
+    def closeEvent(self, event):
+        """Fired natively by Qt when the user closes the main window."""
+        self.update_params_object()
+        file_manager.save_last_session(self)
+        event.accept()
     
     def on_update_found(self, latest_version):
         self.log(f">>> NEW VERSION AVAILABLE: v{latest_version} <<<", "WARN")
@@ -343,8 +356,8 @@ class MoldApp(QMainWindow):
         file_manager.save_preset(self)
 
     def delete_preset(self):
-        current_selection = self.combo_preset.currentText()
-        if current_selection == "Custom":
+        current_selection = self.combo_preset.currentText().replace("[M] ", "")
+        if current_selection == "Default / Reset" or current_selection == "Custom":
             self.reset_to_defaults()
         else:
             self._clean_modded_combo()
@@ -381,18 +394,19 @@ class MoldApp(QMainWindow):
         self.schedule_update()
 
     def schedule_update(self):
+        """Restarts the delay timer. Pushes the actual calculation 600ms into the future."""
         if getattr(self, 'is_updating_preset', False): return 
 
+        # --- PRESET MODDED FLAG ---
         if hasattr(self, 'combo_preset'):
             idx = self.combo_preset.currentIndex()
             text = self.combo_preset.currentText()
-            if text != "Custom" and not text.startswith("[M] "):
+            
+            # Prevent adding [M] to the default reset state
+            if text != "Default / Reset" and text != "Custom" and not text.startswith("[M] "):
                 self.combo_preset.blockSignals(True)
                 self.combo_preset.setItemText(idx, f"[M] {text}")
                 self.combo_preset.blockSignals(False)
-
-        if hasattr(self, 'chk_live_update') and not self.chk_live_update.isChecked():
-            return
 
         if hasattr(self, 'update_timer'):
             self.update_timer.start()

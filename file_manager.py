@@ -36,80 +36,34 @@ def load_databases(app):
 
 def apply_main_preset(app, preset_name):
     """
-    Maps parameters from a chosen JSON preset to the UI spinboxes and combos.
-    Uses a dictionary mapping to efficiently update all numeric inputs.
+    Loads parameters from a chosen JSON preset.
+    Uses the universal ui_sync.apply_state_to_ui for bulletproof mapping.
     """
+    import ui_sync
     if preset_name == "Default / Reset":
-        app.reset_to_defaults()
+        ui_sync.reset_to_defaults(app)
         return
     if preset_name not in app.presets_data: return
     
-    # Silence the UI update signal to prevent multiple re-renders during batch update
-    app.is_updating_preset = True
-    try:
-        data = app.presets_data[preset_name]
-        
-        # Define the mapping between JSON keys and specific UI SpinBoxes
-        mapping = { 
-            "MoldCoreHeight": app.spin_core_h, "Wheelbase": app.spin_wb, "ConcaveDrop": app.spin_concave, 
-            "NoseLength": app.spin_nose_len, "TailLength": app.spin_tail_len, "NoseAngle": app.spin_nose_ang, 
-            "TailAngle": app.spin_tail_ang, "ConcaveLength": app.spin_concave_len, "TubWidth": app.spin_tub, 
-            "NoseTransitionLength": app.spin_n_trans, "TailTransitionLength": app.spin_t_trans,
-            "NoseKickGap": app.spin_n_gap, "TailKickGap": app.spin_t_gap,
-            "MoldGap": app.spin_mold_gap, "VeneerThickness": app.spin_veneer,
-            "TruckHoleDistL": app.spin_truck_l, "TruckHoleDistW": app.spin_truck_w, "TruckHoleDiam": app.spin_truck_d,
-            "NoseCtrl1X": app.spin_n_c1x, "NoseCtrl1Y": app.spin_n_c1y, "NoseCtrl2X": app.spin_n_c2x, "NoseStraightP": app.spin_n_s_y,
-            "TailCtrl1X": app.spin_t_c1x, "TailCtrl1Y": app.spin_t_c1y, "TailCtrl2X": app.spin_t_c2x, "TailStraightP": app.spin_t_s_y,
-            "FlareHeight": app.spin_flare_h, "FlareLength": app.spin_flare_l,
-            "FlareWidth": app.spin_flare_w, "FlarePosY": app.spin_flare_py,
-            "ShapeOffsetY": app.spin_shape_offset_y,
-            "SpoonDrop": app.spin_spoon_drop
-        }
-        for key, val in data.items():
-            if key in mapping: mapping[key].setValue(float(val))
-            if key == "ShapeStyle": 
-                app.combo_shape_style.setCurrentText(str(val))
-            # Handle legacy keys or consolidated parameters
-            if key == "TransitionLength":
-                app.spin_n_trans.setValue(float(val)); app.spin_t_trans.setValue(float(val))
-            if key == "KickGap":
-                app.spin_n_gap.setValue(float(val)); app.spin_t_gap.setValue(float(val))
-
-        # --- FIX: CHECKBOX STATE MANAGEMENT ---
-        check_map = { 
-            "SideLocks": app.chk_sidelocks, "AddFillet": app.chk_fillet, 
-            "AddGuideHoles": app.chk_guide_d, "AddIndicators": app.chk_indicators, 
-            "AddWheelFlares": app.chk_flares, "AddSpoonKicks": app.chk_spoon 
-        }
-        for key, checkbox in check_map.items():
-            if key in data:
-                # Support both strict booleans and string representations ("True"/"False")
-                is_checked = str(data[key]).lower() == "true"
-                checkbox.setChecked(is_checked)
-
-        # --- FIX: AUTOMATIC SYMMETRY DETECTION ---
-        is_sym = True
-        if "NoseAngle" in data and "TailAngle" in data:
-            if float(data["NoseAngle"]) != float(data["TailAngle"]): is_sym = False
-        if "NoseLength" in data and "TailLength" in data:
-            if float(data["NoseLength"]) != float(data["TailLength"]): is_sym = False
-        if "NoseCtrl1X" in data and "TailCtrl1X" in data:
-            if float(data["NoseCtrl1X"]) != float(data["TailCtrl1X"]): is_sym = False
-
-        app.chk_sym.blockSignals(True)
-        app.chk_sym.setChecked(is_sym)
-        app.chk_sym.blockSignals(False)
-
-    finally:
-        app.is_updating_preset = False
-       
-    # Trigger a single master render after all parameters are loaded
-    app.start_preview()
+    data = app.presets_data[preset_name]
+    loaded_params = cq_model.MoldParams()
+    
+    # Safely update the fresh params object with the JSON data
+    for key, value in data.items():
+        if hasattr(loaded_params, key):
+            # Ensure string booleans from older JSONs are parsed correctly
+            if isinstance(value, str):
+                if value.lower() == 'true': value = True
+                elif value.lower() == 'false': value = False
+            setattr(loaded_params, key, value)
+            
+    # Apply the fully assembled object to the UI
+    ui_sync.apply_state_to_ui(app, loaded_params)
 
 def save_preset(app):
     """
     Gathers current UI parameters and saves them as a new named preset in the JSON file.
-    Automatically refreshes the preset dropdown list upon completion.
+    Automatically refreshes the preset dropdown list upon completion without triggering false loads.
     """
     preset_name, ok = QInputDialog.getText(app, "Save Preset", "Preset Name:")
     if ok and preset_name:
@@ -125,14 +79,12 @@ def save_preset(app):
         if os.path.exists(preset_file):
             with open(preset_file, "r") as f:
                 try: data = json.load(f)
-                except: pass
+                except Exception: pass
         
         # Commit current UI values to the parameters object
         app.update_params_object()
         current_params = app.params.__dict__.copy()
-        # Remove 'MoldType' from preset so it doesn't force a specific piece when loaded
         current_params.pop("MoldType", None)
-        # CRITICAL: Prevent ExtremeMode from sneaking into saved presets
         current_params.pop("ExtremeMode", None)
         
         data[preset_name] = current_params
@@ -144,9 +96,14 @@ def save_preset(app):
         
         # Refresh the UI list
         load_databases(app)
+        
+        app.combo_preset.blockSignals(True)
         app.combo_preset.clear()
         app.combo_preset.addItem("Default / Reset")
         app.combo_preset.addItems(sorted(app.presets_data.keys()))
+        
+        # Unblock signals BEFORE setting the text to natively trigger the button state update
+        app.combo_preset.blockSignals(False)
         app.combo_preset.setCurrentText(preset_name)
 
 def load_config_file(app):
@@ -163,7 +120,6 @@ def load_config_file(app):
         
         for line in lines:
             line = line.strip()
-            # Start parsing after the header separator
             if line.startswith("---"): parsing_started = True; continue
             if line and ":" in line:
                 parts = line.split(":", 1)
@@ -175,95 +131,57 @@ def load_config_file(app):
             QMessageBox.warning(app, "Warning", "Could not read parameters from this file.")
             return
 
-        # Apply the parsed dictionary to the actual UI widgets
         apply_parsed_data_to_ui(app, parsed_data)
         
         app.log(f"Configuration loaded successfully from {os.path.basename(path)}")
-        app.start_preview()
     except Exception as e:
         app.on_error(f"Error loading config: {e}")
 
 def apply_parsed_data_to_ui(app, data):
     """
-    Sub-helper that populates every UI widget based on a raw dictionary.
-    Includes comprehensive mapping for spinboxes, checkboxes, and combos.
+    Sub-helper that populates every UI widget based on a raw dictionary of strings.
+    Uses the universal ui_sync.apply_state_to_ui for bulletproof mapping.
     """
-    app.is_updating_preset = True
-    try:
-        spin_map = { 
-            "MoldLength": app.spin_length, "MoldCoreWidth": app.spin_width, "MoldBaseHeight": app.spin_base_h, 
-            "MoldBaseWidth": app.spin_base_w, "MoldCoreHeight": app.spin_core_h, "Wheelbase": app.spin_wb, 
-            "BoardWidth": app.spin_board_w, "ConcaveDrop": app.spin_concave, "ConcaveLength": app.spin_concave_len, 
-            "TubWidth": app.spin_tub, "NoseAngle": app.spin_nose_ang, "TailAngle": app.spin_tail_ang, 
-            "NoseLength": app.spin_nose_len, "TailLength": app.spin_tail_len, 
-            "NoseTransitionLength": app.spin_n_trans, "TailTransitionLength": app.spin_t_trans,
-            "NoseKickGap": app.spin_n_gap, "TailKickGap": app.spin_t_gap,
-            "MoldGap": app.spin_mold_gap, "VeneerThickness": app.spin_veneer,
-            "TruckHoleDistL": app.spin_truck_l, "TruckHoleDistW": app.spin_truck_w, "TruckHoleDiam": app.spin_truck_d,
-            "FilletRadius": app.spin_fillet_rad, "GuideDiameter": app.spin_guide_d,
-            "ShaperHeight": app.spin_shaper_h, "FilletYellow": app.spin_fillet_yellow,
-            "NoseCtrl1X": app.spin_n_c1x, "NoseCtrl1Y": app.spin_n_c1y,
-            "NoseCtrl2X": app.spin_n_c2x, "NoseStraightP": app.spin_n_s_y,
-            "TailCtrl1X": app.spin_t_c1x, "TailCtrl1Y": app.spin_t_c1y,
-            "TailCtrl2X": app.spin_t_c2x, "TailStraightP": app.spin_t_s_y,
-            "FlareHeight": app.spin_flare_h, "FlareLength": app.spin_flare_l,
-            "FlareWidth": app.spin_flare_w, "FlarePosY": app.spin_flare_py,
-            "ShapeOffsetY": app.spin_shape_offset_y, "SpoonDrop": app.spin_spoon_drop
-        }
-        
-        for key, spinbox in spin_map.items():
-            if key in data:
-                try: spinbox.setValue(float(data[key]))
-                except ValueError: pass 
+    import ui_sync
+    loaded_params = cq_model.MoldParams()
+    
+    for key, value_str in data.items():
+        if hasattr(loaded_params, key):
+            orig_val = getattr(loaded_params, key)
+            try:
+                # Cast the string back to its intended data type based on factory defaults
+                if isinstance(orig_val, bool):
+                    setattr(loaded_params, key, value_str.lower() == "true")
+                elif isinstance(orig_val, int):
+                    setattr(loaded_params, key, int(float(value_str)))
+                elif isinstance(orig_val, float):
+                    setattr(loaded_params, key, float(value_str))
+                else:
+                    setattr(loaded_params, key, value_str)
+            except ValueError:
+                pass
                 
-        if "ShapeStyle" in data:
-            app.combo_shape_style.setCurrentText(str(data["ShapeStyle"]))
+    # Handle legacy txt keys if present
+    if "TransitionLength" in data:
+        try: 
+            val = float(data["TransitionLength"])
+            loaded_params.NoseTransitionLength = val
+            loaded_params.TailTransitionLength = val
+        except ValueError: pass
 
-        # Handle unified/legacy keys
-        if "TransitionLength" in data:
-            try: 
-                val = float(data["TransitionLength"])
-                app.spin_n_trans.setValue(val); app.spin_t_trans.setValue(val)
-            except ValueError: pass
+    if "KickGap" in data:
+        try: 
+            val = float(data["KickGap"])
+            loaded_params.NoseKickGap = val
+            loaded_params.TailKickGap = val
+        except ValueError: pass
 
-        if "KickGap" in data:
-            try: 
-                val = float(data["KickGap"])
-                app.spin_n_gap.setValue(val); app.spin_t_gap.setValue(val)
-            except ValueError: pass
+    # Retain the requested MoldType from the txt file
+    if "MoldType" in data:
+        idx = app.combo_type.findText(data["MoldType"])
+        if idx >= 0: app.combo_type.setCurrentIndex(idx)
 
-        check_map = { "SideLocks": app.chk_sidelocks, "AddFillet": app.chk_fillet, 
-                     "AddGuideHoles": app.chk_guide_d, "AddIndicators": app.chk_indicators, 
-                     "AddWheelFlares": app.chk_flares,"AddSpoonKicks": app.chk_spoon }
-        
-        for key, checkbox in check_map.items():
-            if key in data: checkbox.setChecked(data[key] == "True")
-        
-        if "MoldType" in data:
-            idx = app.combo_type.findText(data["MoldType"])
-            if idx >= 0: app.combo_type.setCurrentIndex(idx)
-
-        # --- FIX: AUTOMATIC SYMMETRY DETECTION FOR .TXT FILES ---
-        is_sym = True
-        try:
-            if "NoseAngle" in data and "TailAngle" in data:
-                if float(data["NoseAngle"]) != float(data["TailAngle"]): is_sym = False
-            if "NoseLength" in data and "TailLength" in data:
-                if float(data["NoseLength"]) != float(data["TailLength"]): is_sym = False
-            if "NoseCtrl1X" in data and "TailCtrl1X" in data:
-                if float(data["NoseCtrl1X"]) != float(data["TailCtrl1X"]): is_sym = False
-        except ValueError:
-            pass
-            
-        app.chk_sym.blockSignals(True)
-        app.chk_sym.setChecked(is_sym)
-        app.chk_sym.blockSignals(False)
-        
-        if "MoldType" in data:
-            idx = app.combo_type.findText(data["MoldType"])
-            if idx >= 0: app.combo_type.setCurrentIndex(idx)
-    finally:
-        app.is_updating_preset = False
+    ui_sync.apply_state_to_ui(app, loaded_params)
 
 def delete_preset(app):
     """
@@ -310,15 +228,14 @@ def delete_preset(app):
         # Refresh the database and UI
         load_databases(app)
         
-        app.is_updating_preset = True
+        app.combo_preset.blockSignals(True)
         app.combo_preset.clear()
         app.combo_preset.addItem("Default / Reset")
         app.combo_preset.addItems(sorted(app.presets_data.keys()))
-        app.is_updating_preset = False
         
-        # Force the UI back to the default state to avoid ghostly parameters
+        # Unblock signals BEFORE changing index so apply_main_preset triggers naturally
+        app.combo_preset.blockSignals(False)
         app.combo_preset.setCurrentIndex(0)
-        apply_main_preset(app, "Default / Reset")
 
 def export_step(app):
     """
@@ -418,3 +335,80 @@ def batch_export(app):
         # Restore the original mold type in the UI to match the current view
         app.params.MoldType = original_type
         app.ui_loading(False)
+
+def get_base_dir():
+    """Helper to locate the writable application directory in PyInstaller."""
+    if getattr(sys, 'frozen', False): 
+        base_dir = os.path.dirname(sys.executable)
+        if sys.platform == 'darwin' and '.app/Contents/MacOS' in base_dir:
+            base_dir = os.path.abspath(os.path.join(base_dir, '../../..'))
+        return base_dir
+    else: 
+        return os.path.dirname(os.path.abspath(__file__))
+
+def save_last_session(app):
+    """
+    Dumps the current parameter object to a session file on exit.
+    Also captures the purely visual state of the preset dropdown.
+    """
+    path = os.path.join(get_base_dir(), "last_session.json")
+    try:
+        # Copy the parameters dictionary to avoid altering the active object
+        session_data = app.params.__dict__.copy()
+        
+        # Inject the active preset name as a special UI-only key
+        if hasattr(app, 'combo_preset'):
+            session_data["_ActivePreset"] = app.combo_preset.currentText()
+            
+        with open(path, 'w') as f:
+            json.dump(session_data, f, indent=4)
+    except Exception:
+        pass  # Fail silently on exit if there are permission issues
+
+def load_last_session(app):
+    """
+    Loads the session file on startup and pushes it to the UI.
+    Restores both the physical parameters and the visual preset dropdown state.
+    """
+    import ui_sync
+    path = os.path.join(get_base_dir(), "last_session.json")
+    if os.path.exists(path):
+        try:
+            with open(path, 'r') as f:
+                data = json.load(f)
+            
+            # Extract the UI-only preset name (defaults to Reset if missing)
+            active_preset = data.pop("_ActivePreset", "Default / Reset")
+            
+            # Create a fresh params object
+            loaded_params = cq_model.MoldParams()
+            
+            # Update it safely with the loaded dictionary
+            for key, value in data.items():
+                if hasattr(loaded_params, key):
+                    setattr(loaded_params, key, value)
+            
+            # Apply to UI
+            ui_sync.apply_state_to_ui(app, loaded_params)
+            
+            # --- RESTORE THE PRESET DROPDOWN STATE ---
+            if hasattr(app, 'combo_preset'):
+                # Block signals so setting the text doesn't trigger a false reload
+                app.combo_preset.blockSignals(True)
+                app.combo_preset.setCurrentText(active_preset)
+                # Update the Delete/Reset button visual state to match the loaded text
+                if hasattr(app, 'btn_delete_preset'):
+                    clean_text = active_preset.replace("[M] ", "")
+                    if clean_text == "Default / Reset" or clean_text == "Custom":
+                        app.btn_delete_preset.setText("Reset")
+                        app.btn_delete_preset.setStyleSheet("QPushButton { color: #ff6b6b; } QPushButton:hover { background-color: #fa5b21; }")
+                    else:
+                        app.btn_delete_preset.setText("Delete")
+                        app.btn_delete_preset.setStyleSheet("QPushButton { color: #ff6b6b; } QPushButton:hover { background-color: #5a2a2a; }")
+                app.combo_preset.blockSignals(False)
+            
+            app.log("Last session state restored automatically.", "INFO")
+            return True
+        except Exception as e:
+            app.log(f"Failed to load last session: {e}", "WARN")
+    return False

@@ -14,8 +14,8 @@ These settings determine what the engine actually builds and toggle specific str
 
 * **Object Type:** Selects which part of the project to generate and render in the 3D viewport.
   * `Board_Preview`: A realistic 3D representation of the final deck to check the shape and concaves.
-  * `Male_Mold`: The bottom block of the press.
-  * `Female_Mold`: The top block of the press.
+  * `Female_Mold`: The bottom block of the press.
+  * `Male_Mold`: The top block of the press.
   * `Shaper_Template`: The 2D-outline guide used to route/cut the board after pressing.
 * **Clean Wireframe (Feature Edges):** Toggles the 3D viewport rendering style. When checked, it hides the dense triangular mesh and displays only the sharp feature edges for a cleaner, professional CAD look.
 * **Add N/T Indicators:** Embosses 'N' (Nose) and 'T' (Tail) markers directly onto the molds and shaper to prevent accidental misalignment during the wood pressing phase.
