@@ -229,7 +229,7 @@ def setup_docks(app):
     # --- PRESETS 
     
     app.combo_preset = QComboBox()
-    app.combo_preset.addItem("Custom")
+    app.combo_preset.addItem("Default / Reset")
     app.combo_preset.addItems(sorted(app.presets_data.keys()))
     
     lbl_preset = QLabel("Load Preset:")
@@ -249,7 +249,11 @@ def setup_docks(app):
     layout_shape_style.addRow("", layout_preset_actions)
     
     def update_delete_btn_state(text):
-        if text == "Custom":
+        """Updates the visual state of the delete/reset button based on current selection."""
+        clean_text = text.replace("[M] ", "") if text else ""
+        
+        # Support both the new and legacy default names
+        if clean_text == "Default / Reset" or clean_text == "Custom":
             app.btn_delete_preset.setText("Reset")
             app.btn_delete_preset.setToolTip("Reset all parameters to factory defaults.")
             app.btn_delete_preset.setStyleSheet("QPushButton { color: #ff6b6b; } QPushButton:hover { background-color: #fa5b21; }")
@@ -259,13 +263,10 @@ def setup_docks(app):
             app.btn_delete_preset.setStyleSheet("QPushButton { color: #ff6b6b; } QPushButton:hover { background-color: #5a2a2a; }")
 
     app.combo_preset.currentTextChanged.connect(update_delete_btn_state)
+    
+    # Force the initial state correctly on startup
+    update_delete_btn_state(app.combo_preset.currentText())
 
-    layout_preset_actions = QHBoxLayout()
-    layout_preset_actions.addWidget(app.btn_save_preset)
-    layout_preset_actions.addWidget(app.btn_delete_preset)
-    
-    layout_shape_style.addRow("", layout_preset_actions)
-    
     left_controls_layout.addWidget(group_shape_style)
 
     # --- MOLD DIMENSIONS GROUP ---

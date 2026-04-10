@@ -36,3 +36,4 @@ ENV/
 .pytest_cache/
 .coverage
 htmlcov/
+last_session.json

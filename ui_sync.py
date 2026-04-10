@@ -301,94 +301,109 @@ def update_params_object(app):
     p.TailStraightP = app.spin_t_s_y.value()
 
 
-def reset_to_defaults(app):
+def apply_state_to_ui(app, state):
     """
-    Restores all UI inputs to their factory defaults (defined in cq_model.MoldParams).
-    Temporarily suspends the 3D rendering pipeline during the reset to avoid massive lag.
+    Maps a MoldParams data object directly to the UI widgets.
+    Used for both restoring the last session and resetting to factory defaults.
     """
     app.is_updating_preset = True 
     try:
-        default = cq_model.MoldParams()
-        
+        # --- COMBO BOXES ---
+        if hasattr(app, 'combo_type'): app.combo_type.setCurrentText(state.MoldType)
+        if hasattr(app, 'combo_shape_style'): app.combo_shape_style.setCurrentText(state.ShapeStyle)
+
         # --- MOLD DIMENSIONS ---
-        app.spin_length.setValue(default.MoldLength)
-        app.spin_width.setValue(default.MoldCoreWidth)
-        app.spin_base_h.setValue(default.MoldBaseHeight)
-        app.spin_base_w.setValue(default.MoldBaseWidth)
-        app.spin_core_h.setValue(default.MoldCoreHeight)
-        app.spin_mold_gap.setValue(default.MoldGap)
+        app.spin_length.setValue(state.MoldLength)
+        app.spin_width.setValue(state.MoldCoreWidth)
+        app.spin_base_h.setValue(state.MoldBaseHeight)
+        app.spin_base_w.setValue(state.MoldBaseWidth)
+        app.spin_core_h.setValue(state.MoldCoreHeight)
+        app.spin_mold_gap.setValue(state.MoldGap)
         
         # --- DECK GEOMETRY ---
-        app.spin_wb.setValue(default.Wheelbase)
-        app.spin_board_w.setValue(default.BoardWidth)
-        app.spin_concave.setValue(default.ConcaveDrop)
-        app.spin_concave_len.setValue(default.ConcaveLength)
-        app.spin_tub.setValue(default.TubWidth)
-        app.spin_veneer.setValue(default.VeneerThickness)
+        app.spin_wb.setValue(state.Wheelbase)
+        app.spin_board_w.setValue(state.BoardWidth)
+        app.spin_concave.setValue(state.ConcaveDrop)
+        app.spin_concave_len.setValue(state.ConcaveLength)
+        app.spin_tub.setValue(state.TubWidth)
+        app.spin_veneer.setValue(state.VeneerThickness)
         
         # --- KICKS (NOSE / TAIL) ---
-        app.spin_nose_ang.setValue(default.NoseAngle)
-        app.spin_tail_ang.setValue(default.TailAngle)
-        app.spin_nose_len.setValue(default.NoseLength)
-        app.spin_tail_len.setValue(default.TailLength)
-        app.spin_n_trans.setValue(default.NoseTransitionLength)
-        app.spin_t_trans.setValue(default.TailTransitionLength)
-        app.spin_n_gap.setValue(default.NoseKickGap)
-        app.spin_t_gap.setValue(default.TailKickGap)
+        app.spin_nose_ang.setValue(state.NoseAngle)
+        app.spin_tail_ang.setValue(state.TailAngle)
+        app.spin_nose_len.setValue(state.NoseLength)
+        app.spin_tail_len.setValue(state.TailLength)
+        app.spin_n_trans.setValue(state.NoseTransitionLength)
+        app.spin_t_trans.setValue(state.TailTransitionLength)
+        app.spin_n_gap.setValue(state.NoseKickGap)
+        app.spin_t_gap.setValue(state.TailKickGap)
         
         # --- TRUCK HOLES ---
-        app.spin_truck_l.setValue(default.TruckHoleDistL)
-        app.spin_truck_w.setValue(default.TruckHoleDistW)
-        app.spin_truck_d.setValue(default.TruckHoleDiam)
+        app.spin_truck_l.setValue(state.TruckHoleDistL)
+        app.spin_truck_w.setValue(state.TruckHoleDistW)
+        app.spin_truck_d.setValue(state.TruckHoleDiam)
 
         # --- TOGGLES & FEATURES ---
-        if hasattr(app, 'spin_shape_offset_y'): app.spin_shape_offset_y.setValue(default.ShapeOffsetY)
-        if hasattr(app, 'chk_sidelocks'): app.chk_sidelocks.setChecked(default.SideLocks)
-        if hasattr(app, 'chk_top_shaper'): app.chk_top_shaper.setChecked(default.AddTopShaper)
-        if hasattr(app, 'chk_indicators'): app.chk_indicators.setChecked(default.AddIndicators)
-        if hasattr(app, 'chk_cut_base'): app.chk_cut_base.setChecked(default.CutBase)
+        if hasattr(app, 'spin_shape_offset_y'): app.spin_shape_offset_y.setValue(state.ShapeOffsetY)
+        if hasattr(app, 'chk_sidelocks'): app.chk_sidelocks.setChecked(state.SideLocks)
+        if hasattr(app, 'chk_top_shaper'): app.chk_top_shaper.setChecked(state.AddTopShaper)
+        if hasattr(app, 'chk_indicators'): app.chk_indicators.setChecked(state.AddIndicators)
+        if hasattr(app, 'chk_cut_base'): app.chk_cut_base.setChecked(state.CutBase)
         
-        if hasattr(app, 'chk_fillet'): app.chk_fillet.setChecked(default.AddFillet)
-        if hasattr(app, 'spin_fillet_rad'): app.spin_fillet_rad.setValue(default.FilletRadius)
+        if hasattr(app, 'chk_fillet'): app.chk_fillet.setChecked(state.AddFillet)
+        if hasattr(app, 'spin_fillet_rad'): app.spin_fillet_rad.setValue(state.FilletRadius)
 
         if hasattr(app, 'chk_guide_d'): 
-            app.chk_guide_d.setChecked(default.AddGuideHoles)
-            if hasattr(app, 'combo_guide_count'): app.combo_guide_count.setCurrentText(str(default.GuideHoleCount))
-            if hasattr(app, 'spin_guide_ox'): app.spin_guide_ox.setValue(default.GuideOffsetX)
-            if hasattr(app, 'spin_guide_oy'): app.spin_guide_oy.setValue(default.GuideOffsetY)
+            app.chk_guide_d.setChecked(state.AddGuideHoles)
+            if hasattr(app, 'combo_guide_count'): app.combo_guide_count.setCurrentText(str(state.GuideHoleCount))
+            if hasattr(app, 'spin_guide_ox'): app.spin_guide_ox.setValue(state.GuideOffsetX)
+            if hasattr(app, 'spin_guide_oy'): app.spin_guide_oy.setValue(state.GuideOffsetY)
             
-        if hasattr(app, 'chk_mold_pins'): app.chk_mold_pins.setChecked(default.AddMoldTruckPins)
-        if hasattr(app, 'chk_shaper_pins'): app.chk_shaper_pins.setChecked(default.AddShaperTruckPins)
+        if hasattr(app, 'chk_mold_pins'): app.chk_mold_pins.setChecked(state.AddMoldTruckPins)
+        if hasattr(app, 'chk_shaper_pins'): app.chk_shaper_pins.setChecked(state.AddShaperTruckPins)
         
-        if hasattr(app, 'chk_spoon'): app.chk_spoon.setChecked(default.AddSpoonKicks)
-        if hasattr(app, 'spin_spoon_drop'): app.spin_spoon_drop.setValue(default.SpoonDrop)
+        if hasattr(app, 'chk_spoon'): app.chk_spoon.setChecked(state.AddSpoonKicks)
+        if hasattr(app, 'spin_spoon_drop'): app.spin_spoon_drop.setValue(state.SpoonDrop)
             
         if hasattr(app, 'chk_flares'):
-            app.chk_flares.setChecked(default.AddWheelFlares)
-            app.spin_flare_h.setValue(default.FlareHeight)
-            app.spin_flare_l.setValue(default.FlareLength)
-            app.spin_flare_w.setValue(default.FlareWidth)
-            app.spin_flare_py.setValue(default.FlarePosY)
+            app.chk_flares.setChecked(state.AddWheelFlares)
+            app.spin_flare_h.setValue(state.FlareHeight)
+            app.spin_flare_l.setValue(state.FlareLength)
+            app.spin_flare_w.setValue(state.FlareWidth)
+            app.spin_flare_py.setValue(state.FlarePosY)
             
         # --- SHAPER / BEZIER HANDLES ---
-        if hasattr(app, 'spin_shaper_h'): app.spin_shaper_h.setValue(default.ShaperHeight)
-        if hasattr(app, 'spin_fillet_yellow'): app.spin_fillet_yellow.setValue(default.FilletYellow)
+        if hasattr(app, 'spin_shaper_h'): app.spin_shaper_h.setValue(state.ShaperHeight)
+        if hasattr(app, 'spin_fillet_yellow'): app.spin_fillet_yellow.setValue(state.FilletYellow)
 
-        app.spin_n_c1x.setValue(default.NoseCtrl1X)
-        app.spin_n_c1y.setValue(default.NoseCtrl1Y)
-        app.spin_n_c2x.setValue(default.NoseCtrl2X)
-        app.spin_n_s_y.setValue(default.NoseStraightP)
+        app.spin_n_c1x.setValue(state.NoseCtrl1X)
+        app.spin_n_c1y.setValue(state.NoseCtrl1Y)
+        app.spin_n_c2x.setValue(state.NoseCtrl2X)
+        app.spin_n_s_y.setValue(state.NoseStraightP)
         
-        app.spin_t_c1x.setValue(default.TailCtrl1X)
-        app.spin_t_c1y.setValue(default.TailCtrl1Y)
-        app.spin_t_c2x.setValue(default.TailCtrl2X)
-        app.spin_t_s_y.setValue(default.TailStraightP)
+        app.spin_t_c1x.setValue(state.TailCtrl1X)
+        app.spin_t_c1y.setValue(state.TailCtrl1Y)
+        app.spin_t_c2x.setValue(state.TailCtrl2X)
+        app.spin_t_s_y.setValue(state.TailStraightP)
+
+        # --- AUTOMATIC SYMMETRY DETECTION ---
+        is_sym = (state.NoseAngle == state.TailAngle and 
+                  state.NoseLength == state.TailLength and 
+                  state.NoseCtrl1X == state.TailCtrl1X)
+        app.chk_sym.blockSignals(True)
+        app.chk_sym.setChecked(is_sym)
+        app.chk_sym.blockSignals(False)
         
-        # Enforce mechanical limits on the newly set default values
+        # Enforce mechanical limits on the newly set values
         validate_cross_dependencies(app)
-        app.log("All parameters reset to default values.", "INFO")
-
+        
     finally:
         # Re-enable the pipeline and trigger a single master render
         app.is_updating_preset = False
-        app.start_preview() 
+        app.start_preview()
+
+def reset_to_defaults(app):
+    """Restores all UI inputs to their factory defaults."""
+    default = cq_model.MoldParams()
+    apply_state_to_ui(app, default)
+    app.log("All parameters reset to default values.", "INFO")
