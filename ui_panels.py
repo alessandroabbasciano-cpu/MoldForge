@@ -98,12 +98,17 @@ def setup_docks(app):
     app.chk_shaper_pins.setChecked(False)
     app.chk_shaper_pins.stateChanged.connect(lambda: app.schedule_update())
     layout_out.addRow(app.chk_shaper_pins)
-        
+
+    app.chk_cut_base = QCheckBox("Cut Base (Flush Sides)")
+    app.chk_cut_base.setToolTip("Sets the mold's Base Width equal to the Core Width, creating flush sides for vertical printing.")
+    app.chk_cut_base.setChecked(False)
+    layout_out.addRow(app.chk_cut_base)
+
     app.chk_fillet = QCheckBox("Base Reinforcement (AddFillet)")
     app.chk_fillet.setToolTip("Add a curved fillet at the base of the mold core to prevent stress fractures.")
     app.chk_fillet.setChecked(True)
     layout_out.addRow(app.chk_fillet)
-    
+        
     app.spin_fillet_rad = add_param(app, layout_out, "Fillet Radius (mm)", 0.0, 10.0, app.params.FilletRadius, "Radius of the base reinforcement curve.")
     
     def update_fillet_vis():
@@ -121,7 +126,7 @@ def setup_docks(app):
         app.schedule_update()
 
     app.chk_fillet.stateChanged.connect(lambda _: update_fillet_vis())
-    
+
     app.chk_guide_d = QCheckBox("Add Guide Holes")
     app.chk_guide_d.setToolTip("Add vertical holes through the mold for metal alignment pins.")
     app.chk_guide_d.setChecked(True)
@@ -272,6 +277,52 @@ def setup_docks(app):
     app.spin_base_w = add_param(app, layout_dim, "Base Width (mm)", 30, 90, app.params.MoldBaseWidth, "Total width of the mold block, including side shoulders.")
     app.spin_core_h = add_param(app, layout_dim, "Min. Core Thickness (mm)", 2, 30, app.params.MoldCoreHeight, "Thickness of the core at its lowest/thinnest point.")
     app.spin_mold_gap = add_param(app, layout_dim, "Mold Gap (mm)", 0.5, 5, app.params.MoldGap, "Distance between the male and female molds (usually equals Veneer Thickness).")
+    
+    def update_cut_base_vis():
+        """
+        Dynamically hides the Base Width spinner and disables Guide Holes 
+        AND Base Fillet if Cut Base (Flush Sides) is checked.
+        Restores defaults when unchecked.
+        """
+        chk = app.chk_cut_base.isChecked()
+        
+        # Manage visibility of Base Width slider
+        app.spin_base_w.setVisible(not chk)
+        lbl = layout_dim.labelForField(app.spin_base_w)
+        if lbl: lbl.setVisible(not chk)
+        
+        if chk:
+            # Force Base Width to match Core Width
+            app.spin_base_w.setValue(app.spin_width.value())
+            
+            # Disable and uncheck Guide Holes and Fillet
+            app.chk_guide_d.setChecked(False)
+            app.chk_guide_d.setEnabled(False)
+            
+            app.chk_fillet.setChecked(False)
+            app.chk_fillet.setEnabled(False)
+        else:
+            # Re-enable Guide Holes and Fillet when shoulders are restored
+            app.chk_guide_d.setEnabled(True)
+            app.chk_fillet.setEnabled(True)
+            
+            # Restore to default checked state
+            app.chk_guide_d.setChecked(True)
+            app.chk_fillet.setChecked(True)
+            
+            # Restore the Base Width to its factory default
+            if app.spin_base_w.value() <= app.spin_width.value():
+                app.spin_base_w.setValue(75.0)
+            
+        # Trigger visibility updates for child parameters
+        update_guide_vis()
+        update_fillet_vis()
+        
+        app.schedule_update()
+
+    app.chk_cut_base.stateChanged.connect(lambda _: update_cut_base_vis())
+    update_cut_base_vis()
+
     left_controls_layout.addWidget(group_dim)
 
     # --- TRUCKS HOLES GROUP ---

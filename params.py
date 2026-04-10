@@ -29,6 +29,7 @@ class MoldParams:
         self.AddWheelFlares = False           # Toggle 3D wheel flares
         self.AddMoldTruckPins = False         # Emboss truck hole pins on molds
         self.AddShaperTruckPins = False       # Emboss truck hole pins on shapers
+        self.CutBase = False                  # Toggle to set Base Width equal to Core Width
         
         # --- MOLD DIMENSIONS ---
         self.MoldBaseWidth = 75.0             # Total width of the mold block

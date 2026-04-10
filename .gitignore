@@ -12,10 +12,6 @@ dist/
 .DS_Store
 Thumbs.db
 
-# Virtual Environments
-venv/
-env/
-
 # IDEs and Editors
 .vscode/
 .idea/
@@ -28,3 +24,15 @@ MF_Mem/
 MF_Mem*
 env_test/
 version.py
+
+# Ambienti Virtuali e Dipendenze
+.venv/
+venv/
+env/
+ENV/
+.env
+
+# Strumenti di Test e Sviluppo
+.pytest_cache/
+.coverage
+htmlcov/
