@@ -432,12 +432,15 @@ def build_mold(params: MoldParams):
     total_height = top_z + base_height
     
     # SideLock Dimensioning
-    lock_ext = 12.0
+    lock_ext = 6.0
     male_lw = max(15.0, core_width - 30.0)  
-    clearance = 0.4  
+    clearance = 0.25  
     gap_width = male_lw + (clearance * 2.0)
     fem_lw = (base_width - gap_width) / 2.0  
-    ly = (mold_len / 2.0) + (lock_ext / 2.0)
+    
+    # Base Y limit (the exact edge of the mold blocks)
+    ly_edge = mold_len / 2.0
+    
     fx = (gap_width / 2.0) + (fem_lw / 2.0)
 
     # --- PART GENERATION BRANCHES ---
@@ -481,16 +484,38 @@ def build_mold(params: MoldParams):
         if params.SideLocks:
             safe_clearance = params.MoldGap + 3.0
             male_lock_h = max(5.0, total_height - safe_clearance)
-            male_locks = (
+            overlap = 1.0  # 0.5mm overlap into the mold, 0.5mm into the column
+            
+            # 1. Main Lock Column (Shifted outward by 0.4mm, robust full height to floor)
+            col_len = lock_ext - clearance
+            ly_col = ly_edge + clearance + (col_len / 2.0)
+            
+            male_cols = (
                 cq.Workplane("XY")
-                .pushPoints([(0, ly), (0, -ly)])
-                .box(male_lw, lock_ext, male_lock_h)
+                .pushPoints([(0, ly_col), (0, -ly_col)])
+                .box(male_lw, col_len, male_lock_h)
                 .translate((0, 0, male_lock_h / 2.0))
             )
+            
+            # 2. Attachment Tab (Dynamically matches the height of the mold edge with kicks)
+            tab_len = clearance + overlap
+            ly_tab = ly_edge + (clearance / 2.0)
+            
+            male_edge_h = (base_height + params.MoldCoreHeight) + max_kick_rise
+            
+            male_tabs = (
+                cq.Workplane("XY")
+                .pushPoints([(0, ly_tab), (0, -ly_tab)])
+                .box(male_lw, tab_len, male_edge_h)
+                .translate((0, 0, male_edge_h / 2.0))
+            )
+            
+            male_locks = male_cols.union(male_tabs)
             try: male_locks = male_locks.edges(">Z").chamfer(1.5) 
             except Exception: pass
-            final = final.union(male_locks)
             
+            final = final.union(male_locks)
+
         return final
 
     elif params.MoldType == "Female_Mold":
@@ -533,14 +558,35 @@ def build_mold(params: MoldParams):
             safe_clearance = params.MoldGap + 3.0
             fem_lock_bottom = safe_clearance
             fem_lock_h = max(5.0, total_height - safe_clearance)
-            female_locks = (
+            overlap = 1.0  # 0.5mm overlap into the mold, 0.5mm into the column
+            
+            col_len = lock_ext - clearance
+            ly_col = ly_edge + clearance + (col_len / 2.0)
+            
+            fem_cols = (
                 cq.Workplane("XY")
-                .pushPoints([(fx, ly), (-fx, ly), (fx, -ly), (-fx, -ly)])
-                .box(fem_lw, lock_ext, fem_lock_h)
+                .pushPoints([(fx, ly_col), (-fx, ly_col), (fx, -ly_col), (-fx, -ly_col)])
+                .box(fem_lw, col_len, fem_lock_h)
                 .translate((0, 0, fem_lock_bottom + (fem_lock_h / 2.0)))
             )
+            # 2. Attachment Tab (Dynamically matches the solid top edge of the female mold)
+            tab_len = clearance + overlap
+            ly_tab = ly_edge + (clearance / 2.0)
+            
+            fem_edge_h = base_height + params.MoldCoreHeight  # Slightly reduced to ensure it doesn't protrude beyond the mold edge
+            
+            fem_tabs = (
+                cq.Workplane("XY")
+                .pushPoints([(fx, ly_tab), (-fx, ly_tab), (fx, -ly_tab), (-fx, -ly_tab)])
+                .box(fem_lw, tab_len, fem_edge_h)
+                .translate((0, 0, total_height - (fem_edge_h / 2.0)))
+            )
+            
+            female_locks = fem_cols.union(fem_tabs)
+
             try: female_locks = female_locks.edges("<Z").chamfer(1.5) 
             except Exception: pass
+            
             final = final.union(female_locks)
              
         return final.translate((0, 0, -z_fem_target))
