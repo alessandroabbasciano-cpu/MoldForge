@@ -20,8 +20,8 @@ MOLD F.O.R.G.E. bridges the gap between traditional skateboard manufacturing, pr
 
 ## 🏭 Manufacturing Terms
 
-* **Male Mold (Positive):** The bottom half of the mold press. It has a convex (bulging) shape that defines the bottom curve of the deck.
-* **Female Mold (Negative):** The top half of the mold press. It has a concave (hollow) shape that presses down onto the wood.
+* **Female Mold (Positive):** The bottom half of the mold press. It has a convex (bulging) shape that defines the bottom curve of the deck.
+* **Male Mold (Negative):** The top half of the mold press. It has a concave (hollow) shape that presses down onto the wood.
 * **Mold Gap:** The precisely calculated physical distance between the closed Male and Female molds. It must equal the total thickness of your wood veneers plus a microscopic allowance for wood glue.
 * **Veneer:** A single, extremely thin sheet of wood. Fingerboards are typically made by stacking and gluing 5 to 7 layers of maple veneer.
 * **SideLocks:** Interlocking geometric tabs on the sides of the mold halves. They prevent the blocks from sliding around under the extreme pressure of a bench vise.

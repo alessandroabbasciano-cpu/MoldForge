@@ -23,10 +23,10 @@ def render_mold(app, result):
     mode = app.params.MoldType
     
     # Material presets based on mold type to visually distinguish parts
-    if mode == "Male_Mold": 
+    if mode == "Female_Mold": 
         color = "#3498db"
         spec = 0.6; diff = 0.8; spec_p = 30
-    elif mode == "Female_Mold": 
+    elif mode == "Male_Mold": 
         color = "#e74c3c"
         spec = 0.6; diff = 0.8; spec_p = 30
     elif mode == "Shaper_Template": 

@@ -403,7 +403,27 @@ def apply_state_to_ui(app, state):
         app.start_preview()
 
 def reset_to_defaults(app):
-    """Restores all UI inputs to their factory defaults."""
+    """
+    Restores geometry parameters to factory defaults, but preserves 
+    the user's current Output Options (MoldType and checkboxes).
+    """
+    # 1. Commit the current UI state to the app.params object
+    app.update_params_object()
+    
+    # 2. Generate a fresh set of factory defaults
     default = cq_model.MoldParams()
+    
+    # 3. Graft the user's active Output Options onto the default object
+    default.MoldType = app.params.MoldType
+    default.AddIndicators = app.params.AddIndicators
+    default.SideLocks = app.params.SideLocks
+    default.AddTopShaper = app.params.AddTopShaper
+    default.AddMoldTruckPins = app.params.AddMoldTruckPins
+    default.AddShaperTruckPins = app.params.AddShaperTruckPins
+    default.CutBase = app.params.CutBase
+    default.AddFillet = app.params.AddFillet
+    default.AddGuideHoles = app.params.AddGuideHoles
+    
+    # 4. Apply the hybrid state to the UI
     apply_state_to_ui(app, default)
-    app.log("All parameters reset to default values.", "INFO")
+    app.log("Parameters reset to default (Output Options preserved).", "INFO")

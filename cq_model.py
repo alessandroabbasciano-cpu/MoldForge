@@ -444,7 +444,7 @@ def build_mold(params: MoldParams):
     fx = (gap_width / 2.0) + (fem_lw / 2.0)
 
     # --- PART GENERATION BRANCHES ---
-    if params.MoldType == "Male_Mold":
+    if params.MoldType == "Female_Mold":
         max_z = z_mount_target + 50.0
         core_box = cq.Workplane("XY").box(core_width, mold_len, max_z).translate((0, 0, max_z / 2.0))
         male_core = apply_cuts(core_box, cutters_up)
@@ -518,7 +518,7 @@ def build_mold(params: MoldParams):
 
         return final
 
-    elif params.MoldType == "Female_Mold":
+    elif params.MoldType == "Male_Mold":
         fem_core = cq.Workplane("XY").box(core_width, mold_len, total_height).translate((0, 0, total_height / 2.0))
         fem_base = make_rounded_box(base_width, mold_len, base_height, params.MoldCornerRadius).translate((0, 0, top_z))
         final = fem_core.union(fem_base)
