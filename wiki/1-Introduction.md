@@ -10,11 +10,12 @@ Moving beyond static 3D models and legacy CAD dependencies, this engine gives yo
 
 * **⚡ Standalone & Multi-Threaded Engine:** Powered by CadQuery (OpenCASCADE) and PySide6, MOLD F.O.R.G.E. is now a 100% native application. Heavy 3D calculations run in a dedicated background thread, ensuring your interface and 2D/3D viewports never freeze during complex lofting operations.
 * **📐 Dynamic Asymmetry:** Break free from standard shapes. Achieve independent nose and tail sculpting using our interactive Bezier curve editor, or import your own custom `.dxf` outlines for immediate 3D generation.
-* **🏭 Press-Ready Manufacturing:** Built also for the bench vise. The engine automatically calculates crucial physical tolerances, including mold gaps, base reinforcements, vertical print side-locks, and alignment pins to ensure a perfect press every time.
+* **🏭 Press-Ready Manufacturing:** Built to withstand the bench vise. The engine automatically calculates crucial physical tolerances, including mold gaps, base reinforcements, vertical print side-locks, dynamic alignment pins with custom X/Y offsets, and optional embossed marking pins.
+* **🧊 Vertical Print Optimization:** Enable the **Cut Base (Flush Sides)** feature to force the mold's base width to perfectly match the core width. It intelligently strips away side fillets and guide holes to guarantee a flawless, flat contact surface for printing molds vertically along the Z-axis.
 * **🔄 Real-Time Sync & Performance Control:** Experience live 2D/3D visualization. Need to make massive parameter changes at once? Toggle off the 'Live Preview' and use the manual 'GENERATE 3D' button for a fluid, lag-free UI workflow.
 * **🧠 Zero-Configuration:** No bloated or opinionated factory presets. The app starts clean, allowing you to build your own personal deck database from scratch, automatically managed via a local JSON file.
 * **🌐 Community Shapes Store:** An integrated browser that directly connects to the GitHub repository, allowing you to discover, download, and install custom community-made `.dxf` outlines without ever leaving the application.
-* **🥄 Spoon Kicks:** Advanced 3D concave logic. Add realistic, high-performance spoon-shaped dips to your Nose and Tail to create defined pockets for your fingers.
+* **🥄 Spoon Kicks:** Advanced 3D concave logic. Add realistic, high-performance spoon-shaped dips to your Nose and Tail to create defined pockets for your fingers using robust solid intersections.
 * **🔥 Beast Mode:** An extreme override state that disables internal geometric safety limits. Push the sliders from -9999 to 9999 to experiment with highly non-standard, wild mold designs.
 
 ## 📖 Documentation & Guides

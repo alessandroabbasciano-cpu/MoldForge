@@ -1,6 +1,6 @@
 # 2. User Interface & Workflow Guide
 
-MOLD F.O.R.G.E. features a professional, industrial-grade interface built on PySide6, designed specifically for high-precision CAD work and streamlined manufacturing.
+MOLD F.O.R.G.E. features a professional, "Dark Industrial" themed interface built on PySide6, designed specifically for high-precision CAD work, reduced eye strain, and streamlined manufacturing.
 This guide explains how to master the real-time 3D viewport, use the interactive 2D shape designer, and leverage the full command set to optimize your workflow.
 
 ---
@@ -16,7 +16,7 @@ The central area of the application is your real-time 3D workspace, powered by a
   * **Zoom:** Use the mouse wheel or Right-click and drag.
   * **Pan:** Middle-click (scroll wheel click) and drag.
 * **Camera Overlays (Top-Left):** Quick-snap buttons (**ISO, TOP, FRONT, SIDE**) allow you to instantly align the view to standard engineering perspectives.
-* **Performance Controls (Top-Right):** Features the **Live Preview** toggle. By default, the engine recalculates the 3D model automatically when you adjust a slider. If you need to make massive parameter changes at once, uncheck this box. The interface will become completely lag-free, and a manual **GENERATE 3D** button will appear for you to click when you are ready to render.
+* **Performance Controls (Top-Right):** Features the **Live Preview** toggle. By default, the engine recalculates the 3D model automatically when you adjust a slider. If you need to make massive parameter changes at once, uncheck this box. The interface will become completely lag-free, and a manual **GENERATE 3D** button will appear for you to click when you are ready to render. *(Note: Activating Extreme Mode will automatically disable Live Preview to prevent calculation loops).*
 
 ---
 
@@ -45,9 +45,9 @@ The top menu bar is divided into four main categories, mapping exactly to the so
 ### 📁 File Menu
 
 * **Load Config File (*.txt)...:** Imports parameters from a previously exported text report, instantly restoring every slider and toggle to a specific production state.
-* **Export Current Object (STEP)...:** Exports only the specific 3D model currently visible in the viewport strictly as a high-precision STEP file.
+* **Export Current Object (STEP)...:** Exports only the specific 3D model currently visible in the viewport strictly as a high-precision STEP file for your CAD/CAM software.
 * **Batch Export (Molds + Shaper)...:** Automates the generation of a dedicated project folder and exports the Deck Preview, Male Mold, Female Mold, and Shaper Template all at once as STEP files ready for CNC or 3D Printing.
-* **Community Shapes Store...:** Opens the integrated browser to discover and download custom community-made `.dxf` outlines directly from GitHub.
+* **Community Shapes Store...:** Opens the integrated browser to discover and download custom community-made `.dxf` outlines directly from GitHub. The shape list updates dynamically upon download.
 * **Exit:** Safely closes the application.
 
 ### 👁️ View Menu
@@ -58,14 +58,14 @@ The top menu bar is divided into four main categories, mapping exactly to the so
 
 ### ⚙️ Tools Menu
 
-* **Unleash the Beast (Extreme Mode):** Removes all dimensional safety limits. Push the sliders to extreme values for highly experimental, non-standard mold designs.
+* **Unleash the Beast (Extreme Mode):** Removes all dimensional safety limits. Push the sliders to extreme values (-9999 to 9999) for highly experimental, non-standard mold designs. *Warning: To protect your system, Live Preview is disabled while this mode is active.*
 * **Unit: Metric (mm) / Imperial (in):** Instantly converts all console log measurements between Metric and Imperial. *(Note: UI input sliders always remain in mm for engineering precision).*
 
 ### ❓ Help Menu
 
 * **User Manual (F1):** Opens this documentation directly in your web browser.
-* **Download Updates...:** Takes you directly to the latest official release page on GitHub.
-* **Support the Project:** Opens a secure link to support the developer's caffeine addiction.
+* **Download Updates...:** Takes you directly to the latest official release page on GitHub. *The application now features a non-blocking background version checker that alerts you in the console on startup if a new update is available.*
+* **Support the Project:** Opens a secure Ko-fi link to support the developer's caffeine addiction and server costs.
 * **About & License:** Displays the current software version and open-source license information.
 
 ---
