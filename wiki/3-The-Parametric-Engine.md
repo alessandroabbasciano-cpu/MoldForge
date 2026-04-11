@@ -19,15 +19,16 @@ These settings determine what the engine actually builds and toggle specific str
   * `Shaper_Template`: The 2D-outline guide used to route/cut the board after pressing.
 * **Clean Wireframe (Feature Edges):** Toggles the 3D viewport rendering style. When checked, it hides the dense triangular mesh and displays only the sharp feature edges for a cleaner, professional CAD look.
 * **Add N/T Indicators:** Embosses 'N' (Nose) and 'T' (Tail) markers directly onto the molds and shaper to prevent accidental misalignment during the wood pressing phase.
-* **Enable SideLocks (Vertical Print):** Generates robust interlocking side tabs on the mold halves. These are crucial for preventing the parts from sliding sideways when applying heavy pressure with a vise, and allow for vertical 3D printing.
+* **Enable SideLocks (Vertical Print):** Generates robust interlocking side tabs on the mold halves. Refactored in v1.2.1 to use a dynamic 2-part column and tab system with an ultra-tight 0.25mm clearance, these locks dynamically adapt to the mold edge and kick height to absolutely prevent horizontal slipping under heavy vise pressure.
 * **Add Top Shaper Shell:** Generates an additional mating top shell next to the Shaper Template. This allows you to "sandwich" the wood veneers during the routing phase, heavily preventing splintering.
-* **Truck Pins (Molds):** Replaces the through-holes with small embossing marking pins on the Male and Female molds to help align the veneer stack before pressing.
-* **Truck Pins (Shaper):** Replaces the through-holes with marking pins on the Shaper Template to ensure your cutting guide is perfectly centered.
+* **Truck Pins (Molds):** Replaces standard through-holes with 0.5mm tapered embossed marking pins on the Male and Female molds. These press tiny pilot dimples directly into the wood veneer to ensure perfect alignment before drilling.
+* **Truck Pins (Shaper):** Replaces through-holes with the same 0.5mm tapered marking pins on the Shaper Template to ensure your cutting guide is perfectly centered.
+* **Cut Base (Flush Sides):** A manufacturing toggle optimized for vertical 3D printing. It forces the mold's Base Width to perfectly match the Core Width, creating flat, flush sides. *Activating this automatically disables Guide Holes and Base Fillets to guarantee a flat contact surface for the printer's build plate.*
 * **Base Reinforcement (AddFillet):** Adds a curved structural fillet where the mold core meets the base plate to prevent stress fractures under heavy clamping loads.
 * **Fillet Radius (mm):** The radius of the base reinforcement curve. Appears only when the reinforcement toggle is active.
 * **Add Guide Holes:** Generates vertical holes through the mold shoulders for inserting metal alignment pins (e.g., M6 threaded rods).
 * **Guide Diameter (mm):** The precise diameter of the alignment pin holes. Appears only when guide holes are enabled.
-* **Hole Count:** Number of alignment holes (must be an even number, ranging from 4 to 20). Appears only when guide holes are enabled.
+* **Hole Count:** Number of alignment holes. Must be an even number ranging from 4 to 20. Appears only when guide holes are enabled.
 * **Offset X (mm):** Distance of the guide holes from the edge of the pressing core. Adjust this to ensure pins don't collide with the mold cavity.
 * **Offset Y (mm):** Distance of the guide holes from the absolute top and bottom ends of the mold block.
 
@@ -51,9 +52,9 @@ These settings control the overall physical size and structural thickness of the
 * **Mold Length (mm):** The total physical length of the mold block. It must be longer than your deck to ensure the Nose and Tail are fully supported.
 * **Core Width (mm):** The width of the elevated central pressing core. It must be wider than your deck to ensure even pressure.
 * **Base Height (mm):** The thickness of the solid structural foundation plate that absorbs the clamping force.
-* **Base Width (mm):** The total width of the mold block, including the side shoulders. *Pro Tip: Set this equal to 'Core Width' to create flush, flat sides for vertical printing.*
+* **Base Width (mm):** The total width of the mold block, including the side shoulders. *Note: If the "Cut Base (Flush Sides)" toggle is active, this slider is hidden and the value is locked to match the Core Width.*
 * **Min. Core Thickness (mm):** The thickness of the core at its lowest/thinnest point.
-* **Mold Gap (mm):** The physical gap between the male and female molds. While it should generally match your Veneer Thickness, can set this value slightly lower (e.g., -0.1mm or -0.2mm) to force a tighter compression and squeeze out all excess glue during pressing.
+* **Mold Gap (mm):** The physical gap between the male and female molds. While it should generally match your Veneer Thickness, you can set this value slightly lower (e.g., -0.1mm or -0.2mm) to force a tighter compression and squeeze out all excess glue during pressing.
 
 ---
 
@@ -61,7 +62,7 @@ These settings control the overall physical size and structural thickness of the
 
 Precision parameters for the hardware mounting pattern.
 
-* **Custom Dimensions (Toggle):** Unlock to manually modify the standard truck hole spacing and diameter. Keep this unchecked to use the industry standard.
+* **Custom Dimensions (Toggle):** Unlock to manually modify the standard truck hole spacing and diameter. Keep this unchecked to use the industry standard and prevent accidental geometry breaks.
 * **Hole Distance (Length) (mm):** The longitudinal distance between the two holes in a single truck mount (industry standard is ~7.5mm).
 * **Hole Distance (Width) (mm):** The lateral distance between the two holes (industry standard is ~5.5mm).
 * **Hole Diameter (mm):** The diameter of the truck mounting holes. Default is 1.7mm for a tight fit with standard fingerboard screws.
@@ -78,7 +79,7 @@ These parameters define the fundamental curvature of your fingerboard deck.
 * **Concave Length (mm):** The length of the central section where the concave stays at maximum depth before smoothly flattening out towards the kicks.
 * **Tub Width - Flat (mm):** The width of the totally flat central section. Set to 0 for a continuous "U-shape", or increase for a flat pocket with steeper rails.
 * **Veneer Thickness (mm):** The total nominal thickness of the finished deck, representing the calculated sum of all individual wood plies. This is a primary driver for the CAD engine: it defines the internal offset for the Top Shaper and determines the exact height of the Tapered Truck Pins.
-* **Enable Spoon Kicks:** Adds realistic 3D concave curvature directly to the Nose and Tail (the "Spoon" effect), dipping the center for high-performance board control.
+* **Enable Spoon Kicks:** Adds realistic 3D concave curvature directly to the Nose and Tail (the "Spoon" effect). MOLD F.O.R.G.E. uses a proprietary 3-Zone mathematical logic (cosine interpolation) to seamlessly blend the central radial concave into the kicks, ensuring flawless G2 geometric continuity.
 * **Spoon Depth (mm):** The maximum depth of the concave applied to the kicks. Visible only when Spoon Kicks are enabled.
 * **Enable Wheel Flares:** Toggles the generation of 3D wheel flares on the deck surface. Activating this makes the "WHEEL FLARES" parameter group visible in the right panel.
 
@@ -86,7 +87,7 @@ These parameters define the fundamental curvature of your fingerboard deck.
 
 ## 🛞 WHEEL FLARES
 
-Visible only if **Enable Wheel Flares** is checked in the Output Options.
+Visible only if **Enable Wheel Flares** is checked in the Deck Geometry panel.
 
 * **Flare Height (mm):** Maximum Z-height of the wheel flare bumps.
 * **Flare Length (mm):** Total span of the flare along the board edge.

@@ -29,7 +29,7 @@ MOLD F.O.R.G.E. allows you to optimize your print strategy based on your priorit
 
 1. **Standard Flat Printing:** Prints faster and is easier to set up, but may result in "stair-stepping" on the nose and tail curves.
 2. **Vertical/Side Printing:** This is the professional choice. By printing the mold on its side, the layers run perpendicular to the pressing force, and the nose/tail curves become perfectly smooth.
-   * *MOLD F.O.R.G.E. Feature:* Use the **SideLocks** toggle to ensure the mold halves stay perfectly registered during vertical pressing.
+   * *MOLD F.O.R.G.E. Feature:* Enable the **Cut Base (Flush Sides)** toggle. This forces the base width to equal the core width and intelligently disables side fillets and guide holes, providing a perfectly flat and flush contact surface for your 3D printer's build plate.
 
 ![MOLD FORGE Print Orientation](assets/molds.jpg)
 
@@ -41,12 +41,12 @@ MOLD F.O.R.G.E. allows you to optimize your print strategy based on your priorit
 
 For professional results, a bench vise is required.
 
-* **SideLocks:** Always enable **SideLocks** in the Output Options. These interlocking tabs are vital to prevent the mold halves from sliding laterally as the vise applies pressure.
-* **Alignment Pins:** Use the **Add Guide Holes** feature to insert metal rods (like M6 bolts) for perfect axial alignment.
+* **SideLocks:** Always enable **SideLocks** in the Output Options. In v1.2.1, this system was completely redesigned with a dynamic 2-part column and tab architecture. Operating with a tight 0.25mm clearance, they absolutely prevent the mold halves from sliding laterally as the vise applies pressure.
+* **Alignment Pins:** Use the **Add Guide Holes** feature to insert metal rods (like M6 bolts) for perfect axial alignment. *(Note: Ensure Cut Base is disabled if you need guide holes).*
 
 ### 🛹 Assembly Tips
 
-* **Veneer Alignment:** If **Truck Pins (Molds)** is enabled, use the embossed pins to "lock" the veneer stack in place. This ensures your truck holes remain centered even if the wood shifts slightly during the press.
+* **Veneer Alignment:** If **Truck Pins (Molds)** is enabled, the engine replaces standard through-holes with 0.5mm tapered embossed pins. These will press tiny pilot dimples into the veneer stack, ensuring your truck holes remain perfectly centered for post-press drilling even if the wood shifts slightly during the press.
 * **Release Agent:** Apply a thin layer of wax or a specific release agent to the mold surface. This prevents escaped wood glue from permanently bonding your new deck to the 3D-printed plastic.
 * **Curing Time:** Keep the deck under pressure for at least **24 hours** to allow the glue to set fully and minimize "springback" (the wood losing its curve).
 * **Routing with the Top Shaper Shell:** If you enabled **Add Top Shaper Shell** in the Output Options, use it to "sandwich" the pressed wood deck against the Shaper Template before using your router. This firmly compresses the thin veneers and prevents the router bit from tearing out or splintering the edges.
@@ -56,7 +56,7 @@ For professional results, a bench vise is required.
 ## 🪚 Post-Processing
 
 * **Sanding:** Even with vertical printing, a light sanding with 400-800 grit sandpaper on the mold surface will improve the final deck's surface quality.
-* **STEP Format Perfection:** MOLD F.O.R.G.E. v1.1.0 exports your project strictly as mathematically perfect `.step` files. Unlike legacy `.stl` files which approximate curves using flat triangles (often causing an "orange peel" texture on 3D prints), `.step` files preserve true continuous curves, ensuring your slicer generates flawlessly smooth toolpaths.
+* **STEP Format Perfection:** MOLD F.O.R.G.E. v1.2.1 exports your project strictly as mathematically perfect `.step` files. Utilizing advanced solid intersection booleans, the engine ensures topological stability even with extreme Spoon Kick geometries. Unlike legacy `.stl` files which approximate curves using flat triangles (often causing an "orange peel" texture on 3D prints), `.step` files preserve true continuous curves, ensuring your slicer generates flawlessly smooth toolpaths.
 
 ---
 **[⬅️ Previous: Custom Shapes (DXF)](4-Custom-Shapes-DXF.md)** | **[🏠 Home](1-Introduction.md)** | **[Next: Glossary ➡️](6-Glossary.md)**

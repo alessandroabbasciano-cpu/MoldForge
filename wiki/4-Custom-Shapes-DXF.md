@@ -57,7 +57,7 @@ We integrated the download process directly into the application engine, elimina
 2. The dedicated built-in browser will open and connect directly to the GitHub repository. It automatically parses the community's `catalog.json` file to display the shape's name alongside its **description** and the original **author**.
 3. Files you already have will be smartly greyed out and marked as `[Installed]`.
 4. Select an available shape and click **Download and Install**.
-5. The system will automatically save the `.dxf` file into your local `shapes_library/` folder.
+5. The system will automatically save the `.dxf` file into your local `shapes_library/` folder and **dynamically refresh the Select Shape dropdown**, allowing you to use your new design instantly without restarting the application.
 
 **How to contribute (The Voting Pool):**
 Did you design a killer shape and want to share it with the rest of the makers? The process is strictly regulated:
