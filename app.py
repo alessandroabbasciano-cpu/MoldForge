@@ -262,34 +262,22 @@ class MoldApp(QMainWindow):
         self.update_worker.api_error.connect(lambda msg: self.log(msg, "WARN"))
         self.update_worker.start()
 
+        self._is_loading = True
+        
+        file_manager.load_last_session(self)
+        
         self._is_loading = False
         
-        # Try loading last session. If none exists, render the default startup state.
-        if not file_manager.load_last_session(self):
-            QTimer.singleShot(200, self.start_preview)
-        
-        # --- CLOSE NATIVE SPLASH SCREEN ---
-        try:
-            import pyi_splash  # type: ignore
-            if pyi_splash.is_alive():
-                pyi_splash.close()
-        except Exception:
-            pass
-        
-        # Force the first explicit render
-        QTimer.singleShot(200, self.start_preview)
-        
         # --- CLOSE NATIVE SPLASH SCREEN (Cross-platform safe) ---
-        # On macOS ARM64, the splash IPC often fails or is not initialized.
-        # We skip this entirely on Darwin to avoid KeyError: '_PYI_SPLASH_IPC'.
         if sys.platform != 'darwin':
             try:
                 import pyi_splash # type: ignore
                 if pyi_splash.is_alive():
                     pyi_splash.close()
             except (ImportError, KeyError):
-                # Silently fail if the module or IPC is not available
                 pass
+
+        QTimer.singleShot(200, self.start_preview)
 
     def closeEvent(self, event):
         """Fired natively by Qt when the user closes the main window."""
