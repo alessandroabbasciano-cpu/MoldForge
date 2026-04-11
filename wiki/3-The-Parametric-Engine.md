@@ -19,7 +19,7 @@ These settings determine what the engine actually builds and toggle specific str
   * `Shaper_Template`: The 2D-outline guide used to route/cut the board after pressing.
 * **Clean Wireframe (Feature Edges):** Toggles the 3D viewport rendering style. When checked, it hides the dense triangular mesh and displays only the sharp feature edges for a cleaner, professional CAD look.
 * **Add N/T Indicators:** Embosses 'N' (Nose) and 'T' (Tail) markers directly onto the molds and shaper to prevent accidental misalignment during the wood pressing phase.
-* **Enable SideLocks (Vertical Print):** Generates robust interlocking side tabs on the mold halves. Refactored in v1.2.1 to use a dynamic 2-part column and tab system with an ultra-tight 0.25mm clearance, these locks dynamically adapt to the mold edge and kick height to absolutely prevent horizontal slipping under heavy vise pressure.
+* **Enable SideLocks (Vertical Print):** Generates interlocking side tabs on the mold halves.
 * **Add Top Shaper Shell:** Generates an additional mating top shell next to the Shaper Template. This allows you to "sandwich" the wood veneers during the routing phase, heavily preventing splintering.
 * **Truck Pins (Molds):** Replaces standard through-holes with 0.5mm tapered embossed marking pins on the Male and Female molds. These press tiny pilot dimples directly into the wood veneer to ensure perfect alignment before drilling.
 * **Truck Pins (Shaper):** Replaces through-holes with the same 0.5mm tapered marking pins on the Shaper Template to ensure your cutting guide is perfectly centered.

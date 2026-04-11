@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.2.2] - 2026-04-12
+
+### Fixed
+
+* **Geometry Smoothing:** Fixed a regression in the high-res geometry engine where smooth transitions on the kicks were incorrectly rendered as sharp angles. Restored ultra-high resolution curvature for better veneer compression.
+
+### Changed
+
+* **SideLocks (Solid Reversion):** Nuked the experimental "grooved/ribbed" structure introduced in v1.2.1. Reverted to 100% solid interlocking blocks to eliminate unnecessary printer head micro-movements and ensure uniform infill.
+* **Mechanical Tolerance:** Standardized the X-axis sidelock clearance at a calibrated `0.25mm`. This provides a reliable "sliding fit" that prevents friction without sacrificing structural stability.
+
 ## [1.2.1] - 2026-04-11
 
 ### Added
