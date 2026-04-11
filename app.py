@@ -17,7 +17,7 @@ try:
     from version import __version__ # type: ignore # 
     APP_VERSION = __version__
 except ImportError:
-    APP_VERSION = "Dev-Build"
+    APP_VERSION = "Dev-Build" # Fallback version if version.py is missing
 
 # --- CRITICAL FIX FOR MATPLOTLIB DEADLOCK ON MACOS ---
 # 1. Force Matplotlib to use a writable temp directory for its cache
@@ -125,30 +125,41 @@ class GeneratorWorker(QThread):
 
 class UpdateCheckerWorker(QThread):
     """
-    Background thread that silently queries the public GitHub API.
-    If it fails (e.g., no internet connection), it dies silently without UI errors.
+    Background thread that queries the public GitHub API.
+    Handles PyInstaller SSL bundle issues, cleans version strings, and logs errors gracefully.
     """
     update_found = Signal(str)
+    api_error = Signal(str)
 
     def run(self):
         try:
-            url = "https://api.github.com/repos/alessandroabbasciano-cpu/MoldForge/releases/latest"
+            import urllib.request
+            import ssl
+            import json
             
-            # Custom header to prevent GitHub API rate limits/blocks
+            url = "https://api.github.com/repos/alessandroabbasciano-cpu/MoldForge/releases/latest"
             req = urllib.request.Request(url, headers={'User-Agent': 'MoldForge-App'})
             
-            with urllib.request.urlopen(req, timeout=5) as response:
+            ctx = ssl.create_default_context()
+            ctx.check_hostname = False
+            ctx.verify_mode = ssl.CERT_NONE
+            
+            with urllib.request.urlopen(req, timeout=5, context=ctx) as response:
                 data = json.loads(response.read().decode())
+                
                 latest_version = data.get("tag_name", "").replace("v", "")
                 
-                # Compare fetched version with the existing global APP_VERSION
-                # Skip the check if running a Dev-Build
-                if APP_VERSION != "Dev-Build" and latest_version and tuple(map(int, latest_version.split('.'))) > tuple(map(int, APP_VERSION.split('.'))):
-                    self.update_found.emit(latest_version)
+                if APP_VERSION != "Dev-Build" and latest_version:
+                    clean_app_version = APP_VERSION.replace("v", "").split("_")[0]
                     
-        except Exception:
-            # Zero-trust approach: fail silently on any network or parsing error
-            pass
+                    latest_tuple = tuple(map(int, latest_version.split('.')))
+                    current_tuple = tuple(map(int, clean_app_version.split('.')))
+                    
+                    if latest_tuple > current_tuple:
+                        self.update_found.emit(latest_version)
+                        
+        except Exception as e:
+            self.api_error.emit(f"Update Check Failed: {str(e)}")
 class MoldApp(QMainWindow):
     """
     The Main Window class. Holds the UI state, centralizes event routing,
@@ -245,6 +256,11 @@ class MoldApp(QMainWindow):
         self.log(f"MOLD F.O.R.G.E. - {APP_VERSION}", "INFO")
         self.log("============================", "INFO")
         self.log("System initialized. Ready to shred.", "INFO")
+
+        self.update_worker = UpdateCheckerWorker()
+        self.update_worker.update_found.connect(self.on_update_found)
+        self.update_worker.api_error.connect(lambda msg: self.log(msg, "WARN"))
+        self.update_worker.start()
 
         self._is_loading = False
         
