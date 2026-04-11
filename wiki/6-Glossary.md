@@ -24,7 +24,7 @@ MOLD F.O.R.G.E. bridges the gap between traditional skateboard manufacturing, pr
 * **Male Mold (Negative):** The top half of the mold press. It has a concave (hollow) shape that presses down onto the wood.
 * **Mold Gap:** The precisely calculated physical distance between the closed Male and Female molds. It must equal the total thickness of your wood veneers plus a microscopic allowance for wood glue.
 * **Veneer:** A single, extremely thin sheet of wood. Fingerboards are typically made by stacking and gluing 5 to 7 layers of maple veneer.
-* **SideLocks:** Interlocking geometric tabs on the sides of the mold halves. Refactored in v1.2.1 as a dynamic 2-part column and tab system with a tight 0.25mm clearance, they absolutely prevent the blocks from sliding around under the extreme pressure of a bench vise.
+* **SideLocks:** Interlocking geometric tabs on the sides of the mold halves.
 * **Cut Base (Flush Sides):** A manufacturing optimization feature that forces the mold's base width to perfectly match the core width. It intelligently strips away guide holes and side fillets to create a perfectly flat contact surface, ideal for printing molds vertically on the Z-axis.
 * **Marking Pins (Truck Pins):** Tiny 0.5mm tapered embossed pins that replace standard through-holes on the molds or shapers.
 

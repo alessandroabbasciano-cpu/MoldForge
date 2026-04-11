@@ -2,9 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.2.2] - 2026-04-12
+
+**Fixed:**
+
+* **Geometry Smoothing:** Fixed a regression in the high-res geometry engine where smooth transitions on the kicks were incorrectly rendered as sharp angles. Restored ultra-high resolution curvature for better veneer compression.
+
+**Changed:**
+
+* **SideLocks (Solid Reversion):** Nuked the experimental "grooved/ribbed" structure introduced in v1.2.1. Reverted to 100% solid interlocking blocks to eliminate unnecessary printer head micro-movements and ensure uniform infill.
+* **Mechanical Tolerance:** Standardized the X-axis sidelock clearance at a calibrated `0.25mm`. This provides a reliable "sliding fit" that prevents friction without sacrificing structural stability.
+
 ## [1.2.1] - 2026-04-11
 
-### Added
+**Added:**
 
 * **Spoon Kicks Geometry:** Introduced a new 3-Zone geometric logic to support "Spoon Kicks" (3D concave curvature extending into the Nose and Tail). Includes a dynamically visible `Spoon Depth` parameter.
 * **Extreme Mode (Unleash The Beast):** Added a global safety override toggle. Removes all topological clamps (-9999 to 9999) for experimental mold design. Automatically disables Live Preview to prevent calculation loops.
@@ -15,7 +26,7 @@ All notable changes to this project will be documented in this file.
 * **Custom Dimensions Toggle:** Added a UI lock/unlock toggle for standard Truck Hole dimensions to prevent accidental modifications to standard wheelbases.
 * **Background Version Checker:** Added a non-blocking background thread (`UpdateCheckerWorker`) that queries the public GitHub API on startup to notify users of new releases, bypassing PyInstaller SSL bundle issues.
 
-### Changed
+**Changed:**
 
 * **STEP Export:** Replaced the legacy `save_stl` function with `export_step` for higher fidelity CAD exports.
 * **Boolean Kernel Optimization:** Migrated from surface cuts to solid intersections (`intersect()`) for Shapers and Wood Sheets. This ensures topological stability when generating complex Spoon Kick geometries.
@@ -23,7 +34,7 @@ All notable changes to this project will be documented in this file.
 * **UI/UX Polish:** Applied the "Dark Industrial" theme to the Top Menu Bar and Dropdowns. Compressed the vertical margins of all `QGroupBox` elements to eliminate excessive dead space under panel titles.
 * **Support Link:** Migrated the donation link from PayPal to Ko-fi.
 
-### Fixed
+**Fixed:**
 
 * **Mac OS Deadlocks:** Added critical environment variable patches (`MPLCONFIGDIR`) to prevent `matplotlib` caching from hanging the PyInstaller build on macOS.
 * **Zero-Thickness Geometry:** Added safety clamps (`max(0.01)`) to straight kick sections and a sink extension (`1.5mm`) to Truck Pins to prevent OpenCASCADE boolean failures.

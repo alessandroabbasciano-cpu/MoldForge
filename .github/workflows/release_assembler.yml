@@ -56,7 +56,7 @@ jobs:
         generate_release_notes: false
         files: release_assets/*
         body: |
-          🔥 **MOLD F.O.R.G.E. - v1.2.1** 🔥
+          🔥 **MOLD F.O.R.G.E. - v1.2.2** 🔥
 
           The first standalone, cross-platform, parametric fingerboard mold designer.
           MoldForge combines the raw power of the OpenCASCADE CAD engine with a lightning-fast native GUI.
@@ -69,7 +69,15 @@ jobs:
 
           📖 **Community:** We opened a Guestbook! Drop by the GitHub Discussions tab and say hi.
 
-          **What's New in v1.2.1:**
+          ### 🛠 What's New in v1.2.2:
+
+          **Geometry Fix:**
+          Fixed a regression in the high-res geometry engine that caused smooth transitions to turn into sharp angles. All curves are now back to being ultra-high resolution and smooth as glass. Perfect for pressing veneers without stress points.
+
+          **SideLock:**
+          Nuked the "grooved" sidelock experiment from v1.2.1. It caused unnecessary micro-movements and poor infill during 3D printing.
+
+          ** 🕒 Previously in v1.2.1:**
 
           ### Hotfixes
           - **Damn versioning:** We had a minor hiccup with our version tracking and release tagging, which caused some confusion. This update fixes the internal versioning system and ensures that the correct release tags are applied moving forward.
@@ -80,6 +88,6 @@ jobs:
           - **Cut Base (Flush Sides) Toggle:** Added a dedicated mode for vertical 3D printing. It automatically matches the Base Width to the Core Width to create flush sides, smartly disabling irrelevant hardware like guide holes and base fillets.
 
           ### Fixed / Improved
-          - **SideLocks Friction Fix:** Completely redesigned the interlocking side tabs. They now feature a dynamic L-shape ribbed structure that guarantees a perfect clearance on the Y-axis, completely eliminating rubbing and friction when closing the molds.
+          - **SideLocks (Legacy):** (Superseded by v1.2.2) Attempted a ribbed structure for friction reduction.
           - **Mold Terminology Correction:** Apparently, we "misgendered" our molds (shoutout to some sexist out there who pointed this out!). We have gracefully swapped the 'Male' and 'Female' designations across the entire UI, logic, and exported filenames to strictly adhere to standard CNC/manufacturing terminology.
           - **Mold Gap Precision:** Fixed calculation anomalies and boolean constraints regarding the Mold Gap to ensure flawless intersections and spacing.
