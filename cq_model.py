@@ -80,7 +80,7 @@ def build_mold(params: MoldParams):
     using boolean subtraction of 'Cutter' solids from base blocks.
     """
     # --- DYNAMIC CORE PROTECTION ---
-    # Prevents holes in the female mold when using extreme concave drops or kick angles
+    # Prevents holes in the male mold when using extreme concave drops or kick angles
     extra_kicks = max(0.0, max(params.NoseAngle, params.TailAngle) - 20.0) * 0.15
     dynamic_core_height = params.MoldCoreHeight + extra_kicks
 
@@ -115,7 +115,7 @@ def build_mold(params: MoldParams):
 
     # Vertical Target offsets for Male and Female parts
     z_mount_target = base_height + dynamic_core_height
-    z_fem_target = z_mount_target + params.MoldGap
+    z_male_target = z_mount_target + params.MoldGap
 
     # --- CONCAVE GEOMETRY CALCULATION ---
     board_width = params.BoardWidth
@@ -396,13 +396,13 @@ def build_mold(params: MoldParams):
     if params.GuideDiameter > 0.1:
         guide_holes_cutter = cq.Workplane("XY").pushPoints(guides_loc).circle(params.GuideDiameter / 2.0).extrude(500).translate((0, 0, -100))
     
-    female_pins = None
-    male_pin_holes = None
+    male_pins = None
+    female_pin_holes = None
     shaper_pins_up = None
     shaper_pins_down = None
 
     if getattr(params, 'AddMoldTruckPins', False) or getattr(params, 'AddShaperTruckPins', False):
-        pin_radius_base = (params.TruckHoleDiam / 2.0) + 0.2
+        pin_radius_base = (params.TruckHoleDiam / 2.0) + 0.1
         pin_height = (params.VeneerThickness / 2.0) - 0.1
         tip_radius = 0.25
         
@@ -411,13 +411,13 @@ def build_mold(params: MoldParams):
         true_base_radius = pin_radius_base + (sink * math.tan(math.radians(taper_angle)))
         total_height = pin_height + sink
 
-        master_female = cq.Workplane("XY").circle(true_base_radius).extrude(total_height, taper=taper_angle).mirror("XY")
-        master_male = cq.Workplane("XY").circle(true_base_radius + 0.4).extrude(total_height + 0.5, taper=taper_angle).mirror("XY")
+        master_male = cq.Workplane("XY").circle(true_base_radius).extrude(total_height, taper=taper_angle).mirror("XY")
+        master_female = cq.Workplane("XY").circle(true_base_radius + 0.4).extrude(total_height + 0.5, taper=taper_angle).mirror("XY")
         master_shaper_up = cq.Workplane("XY").circle(true_base_radius).extrude(total_height, taper=taper_angle)
         master_shaper_down = cq.Workplane("XY").circle(true_base_radius).extrude(total_height, taper=taper_angle).mirror("XY")
 
-        female_pins = cq.Workplane("XY").pushPoints(trucks_loc).eachpoint(lambda loc: master_female.val().located(loc)).translate((0, 0, z_fem_target + sink))
-        male_pin_holes = cq.Workplane("XY").pushPoints(trucks_loc).eachpoint(lambda loc: master_male.val().located(loc)).translate((0, 0, z_mount_target + sink))
+        male_pins = cq.Workplane("XY").pushPoints(trucks_loc).eachpoint(lambda loc: master_male.val().located(loc)).translate((0, 0, z_male_target + sink))
+        female_pin_holes = cq.Workplane("XY").pushPoints(trucks_loc).eachpoint(lambda loc: master_female.val().located(loc)).translate((0, 0, z_mount_target + sink))
         shaper_pins_up = cq.Workplane("XY").pushPoints(trucks_loc).eachpoint(lambda loc: master_shaper_up.val().located(loc)).translate((0, 0, z_mount_target - sink))
         
         z_shaper_bottom = z_mount_target - params.VeneerThickness
@@ -428,25 +428,25 @@ def build_mold(params: MoldParams):
     rise_tail = params.TailLength * math.sin(math.radians(params.TailAngle))
     max_kick_rise = max(rise_nose, rise_tail)
     
-    top_z = z_fem_target + max(max_kick_rise, max_concave_rise) + dynamic_core_height + 5
+    top_z = z_male_target + max(max_kick_rise, max_concave_rise) + dynamic_core_height + 5
     total_height = top_z + base_height
     
     # SideLock Dimensioning
     lock_ext = 6.0
-    male_lw = max(15.0, core_width - 30.0)  
+    female_lw = max(15.0, core_width - 30.0)  
     clearance = 0.25  
-    gap_width = male_lw + (clearance * 2.0)
-    fem_lw = (base_width - gap_width) / 2.0  
+    gap_width = female_lw + (clearance * 2.0)
+    male_lw = (base_width - gap_width) / 2.0  
     ly = (mold_len / 2.0) + (lock_ext / 2.0)
-    fx = (gap_width / 2.0) + (fem_lw / 2.0)
+    fx = (gap_width / 2.0) + (male_lw / 2.0)
 
     # --- PART GENERATION BRANCHES ---
     if params.MoldType == "Female_Mold":
         max_z = z_mount_target + 50.0
         core_box = cq.Workplane("XY").box(core_width, mold_len, max_z).translate((0, 0, max_z / 2.0))
-        male_core = apply_cuts(core_box, cutters_up)
+        female_core = apply_cuts(core_box, cutters_up)
         base = make_rounded_box(base_width, mold_len, base_height, params.MoldCornerRadius)
-        final = male_core.union(base)
+        final = female_core.union(base)
         
         if params.AddFillet and params.FilletRadius > 0.0:
             try:
@@ -462,7 +462,7 @@ def build_mold(params: MoldParams):
         
         final = final.cut(truck_holes_cutter)
         if getattr(params, 'AddMoldTruckPins', False):
-            final = final.cut(male_pin_holes)
+            final = final.cut(female_pin_holes)
         else:
             final = final.cut(truck_holes_cutter)
 
@@ -480,23 +480,23 @@ def build_mold(params: MoldParams):
             
         if params.SideLocks:
             safe_clearance = params.MoldGap + 3.0
-            male_lock_h = max(5.0, total_height - safe_clearance)
-            male_locks = (
+            female_lock_h = max(5.0, total_height - safe_clearance)
+            female_locks = (
                 cq.Workplane("XY")
                 .pushPoints([(0, ly), (0, -ly)])
-                .box(male_lw, lock_ext, male_lock_h)
-                .translate((0, 0, male_lock_h / 2.0))
+                .box(female_lw, lock_ext, female_lock_h)
+                .translate((0, 0, female_lock_h / 2.0))
             )
-            try: male_locks = male_locks.edges(">Z").chamfer(1.5) 
+            try: female_locks = female_locks.edges(">Z").chamfer(1.5) 
             except Exception: pass
-            final = final.union(male_locks)
+            final = final.union(female_locks)
 
         return final
 
     elif params.MoldType == "Male_Mold":
-        fem_core = cq.Workplane("XY").box(core_width, mold_len, total_height).translate((0, 0, total_height / 2.0))
-        fem_base = make_rounded_box(base_width, mold_len, base_height, params.MoldCornerRadius).translate((0, 0, top_z))
-        final = fem_core.union(fem_base)
+        male_core = cq.Workplane("XY").box(core_width, mold_len, total_height).translate((0, 0, total_height / 2.0))
+        male_base = make_rounded_box(base_width, mold_len, base_height, params.MoldCornerRadius).translate((0, 0, top_z))
+        final = male_core.union(male_base)
         final = apply_cuts(final, cutters_down)
         
         if params.AddFillet and params.FilletRadius > 0.0:
@@ -512,7 +512,7 @@ def build_mold(params: MoldParams):
                 pass
 
         if getattr(params, 'AddMoldTruckPins', False):
-            final = final.union(female_pins)
+            final = final.union(male_pins)
         else:
             final = final.cut(truck_holes_cutter)
         
@@ -531,19 +531,19 @@ def build_mold(params: MoldParams):
             
         if params.SideLocks:
             safe_clearance = params.MoldGap + 3.0
-            fem_lock_bottom = safe_clearance
-            fem_lock_h = max(5.0, total_height - safe_clearance)
-            female_locks = (
+            male_lock_bottom = safe_clearance
+            male_lock_h = max(5.0, total_height - safe_clearance)
+            male_locks = (
                 cq.Workplane("XY")
                 .pushPoints([(fx, ly), (-fx, ly), (fx, -ly), (-fx, -ly)])
-                .box(fem_lw, lock_ext, fem_lock_h)
-                .translate((0, 0, fem_lock_bottom + (fem_lock_h / 2.0)))
+                .box(male_lw, lock_ext, male_lock_h)
+                .translate((0, 0, male_lock_bottom + (male_lock_h / 2.0)))
             )
-            try: female_locks = female_locks.edges("<Z").chamfer(1.5) 
+            try: male_locks = male_locks.edges("<Z").chamfer(1.5) 
             except Exception: pass
-            final = final.union(female_locks)
+            final = final.union(male_locks)
              
-        return final.translate((0, 0, -z_fem_target))
+        return final.translate((0, 0, -z_male_target))
                  
     elif params.MoldType == "Shaper_Template":
         outline_face = make_shaper_outline(params)

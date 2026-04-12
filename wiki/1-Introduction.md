@@ -16,7 +16,7 @@ Moving beyond static 3D models and legacy CAD dependencies, this engine gives yo
 * **🧠 Zero-Configuration:** No bloated or opinionated factory presets. The app starts clean, allowing you to build your own personal deck database from scratch, automatically managed via a local JSON file.
 * **🌐 Community Shapes Store:** An integrated browser that directly connects to the GitHub repository, allowing you to discover, download, and install custom community-made `.dxf` outlines without ever leaving the application.
 * **🥄 Spoon Kicks:** Advanced 3D concave logic. Add realistic, high-performance spoon-shaped dips to your Nose and Tail to create defined pockets for your fingers using robust solid intersections.
-* **🔥 Beast Mode:** An extreme override state that disables internal geometric safety limits. Push the sliders from -9999 to 9999 to experiment with highly non-standard, wild mold designs.
+* **🔥 Extreme Mode:** An extreme override state that disables internal geometric safety limits. Push the sliders from -9999 to 9999 to experiment with highly non-standard, wild mold designs.
 
 ## 📖 Documentation & Guides
 

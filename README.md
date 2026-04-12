@@ -25,7 +25,7 @@ Design custom decks with mathematical precision, tweak transitions in real-time 
 
 - **⚡ Standalone & Multi-Threaded:** No Python environments or Conda setups required. The heavy CAD geometry engine runs asynchronously in the background, keeping the UI perfectly fluid.
 - **📐 Dynamic Asymmetry & Spoon Kicks:** Break free from standard shapes. Sculpt independent nose and tail angles, and apply parametric 3D bowl-like concave (Spoon effect) directly to your kicks with rock-solid boolean solid intersections.
-- **👹 BEAST MODE:** A dedicated toggle for advanced users to disable mechanical safety limits, allowing for extreme and highly experimental deck geometries.
+- **👹 EXTREME MODE:** A dedicated toggle for advanced users to disable mechanical safety limits, allowing for extreme and highly experimental deck geometries.
 - **🌍 Community Shapes & Auto-Scanning DXF:** Drop your custom `.dxf` vector outlines into the `shapes_library/` folder, or use the integrated community-submitted shapes catalog. The software automatically detects them and dynamically adapts the 3D mesh.
 - **🏭 Press-Ready Manufacturing:** Built to withstand the bench vise. The engine calculates precise mold gaps, base structural fillets, vertical interlocking SideLocks, and dynamic alignment pins with custom X/Y offsets. Optionally replace through-holes with embossed **Marking Pins** to press pilot dimples directly into the wood.
 - **🧊 Vertical Print Optimization:** New **Cut Base (Flush Sides)** toggle forces the mold's base width to perfectly match the core width. It intelligently strips away side fillets and guide holes to guarantee a flawless, flat contact surface for printing molds vertically on your Z-axis.
@@ -116,3 +116,19 @@ If this tool streamlines your manufacturing process, saves your brand time and m
   <br><br>
 </div>
 Your tips directly help cover these mandatory hardware costs, keep the project alive, and fuel future updates. Every little bit is hugely appreciated! 🛹🛠️
+
+## 🛠️ Community & R&D Lab
+
+There is a private Discord server dedicated to the **MOLD F.O.R.G.E.** ecosystem.
+
+**This is NOT a tech support server.** It is a strictly technical environment for Apprentice Smiths, CAD developers, and DIY hardware testers to discuss parametric geometry, share custom DXF shapes, and optimize physical manufacturing (3D printing & pressing).
+
+If you are looking for basic tutorials or refuse to read this documentation, do not join.
+Access is restricted by a protocol. The answers are hidden in the wiki.
+
+<div align="center">
+  <a href="https://discord.gg/pgeyAfzMq2" target="_blank">
+    <img src="https://img.shields.io/badge/Discord-Enter_The_Delve-5865F2?style=for-the-badge&logo=discord&logoColor=white" alt="Discord">
+  </a>
+  <br><br>
+</div>
