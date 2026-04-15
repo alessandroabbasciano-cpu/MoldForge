@@ -440,6 +440,11 @@ def build_mold(params: MoldParams):
     ly = (mold_len / 2.0) + (lock_ext / 2.0)
     fx = (gap_width / 2.0) + (male_lw / 2.0)
 
+    # --- GAP & EXTENSION VARIABLES ---
+    gap_y = getattr(params, 'SideLocksGap', 0.15)
+    lock_ext_gapped = lock_ext - gap_y
+    ly_gapped = (mold_len / 2.0) + gap_y + (lock_ext_gapped / 2.0)
+
     # --- PART GENERATION BRANCHES ---
     if params.MoldType == "Female_Mold":
         max_z = z_mount_target + 50.0
@@ -479,16 +484,51 @@ def build_mold(params: MoldParams):
             final = final.cut(text_n).cut(text_t)
             
         if params.SideLocks:
-            safe_clearance = params.MoldGap + 3.0
-            female_lock_h = max(5.0, total_height - safe_clearance)
-            female_locks = (
-                cq.Workplane("XY")
-                .pushPoints([(0, ly), (0, -ly)])
-                .box(female_lw, lock_ext, female_lock_h)
-                .translate((0, 0, female_lock_h / 2.0))
-            )
-            try: female_locks = female_locks.edges(">Z").chamfer(1.5) 
+            bbox = final.val().BoundingBox()
+            z_floor = bbox.zmin
+
+            # Virtual needle to sample the EXACT height of the parting line
+            def get_z_ceil(y_pos):
+                try:
+                    needle = cq.Workplane("XY").center(0, y_pos).box(0.1, 0.1, 1000)
+                    inter = final.intersect(needle)
+                    if inter.vals(): return inter.val().BoundingBox().zmax
+                except Exception: pass
+                return z_mount_target + max_kick_rise
+
+            z_ceil_nose = get_z_ceil((mold_len / 2.0) - 0.1)
+            z_ceil_tail = get_z_ceil(-(mold_len / 2.0) + 0.1)
+
+            # Max height the female extensions can reach (3mm below male roof)
+            f_ext_limit_z = total_height - 3.0
+
+            # --- NOSE LOCK ---
+            f_lock_h_n = z_ceil_nose - z_floor
+            f_base_n = cq.Workplane("XY").pushPoints([(0, ly)]).box(female_lw, lock_ext, f_lock_h_n).translate((0, 0, z_floor + (f_lock_h_n / 2.0)))
+            
+            f_ext_h_n = f_ext_limit_z - z_ceil_nose
+            if f_ext_h_n > 0:
+                f_ext_n = cq.Workplane("XY").pushPoints([(0, ly_gapped)]).box(female_lw, lock_ext_gapped, f_ext_h_n).translate((0, 0, z_ceil_nose + (f_ext_h_n / 2.0)))
+                f_lock_n = f_base_n.union(f_ext_n)
+            else:
+                f_lock_n = f_base_n
+
+            # --- TAIL LOCK ---
+            f_lock_h_t = z_ceil_tail - z_floor
+            f_base_t = cq.Workplane("XY").pushPoints([(0, -ly)]).box(female_lw, lock_ext, f_lock_h_t).translate((0, 0, z_floor + (f_lock_h_t / 2.0)))
+            
+            f_ext_h_t = f_ext_limit_z - z_ceil_tail
+            if f_ext_h_t > 0:
+                f_ext_t = cq.Workplane("XY").pushPoints([(0, -ly_gapped)]).box(female_lw, lock_ext_gapped, f_ext_h_t).translate((0, 0, z_ceil_tail + (f_ext_h_t / 2.0)))
+                f_lock_t = f_base_t.union(f_ext_t)
+            else:
+                f_lock_t = f_base_t
+
+            # Combine and Chamfer (1.0mm on top edges)
+            female_locks = f_lock_n.union(f_lock_t)
+            try: female_locks = female_locks.edges(">Z").chamfer(1.0) 
             except Exception: pass
+            
             final = final.union(female_locks)
 
         return final
@@ -530,17 +570,55 @@ def build_mold(params: MoldParams):
             final = final.cut(text_n).cut(text_t)
             
         if params.SideLocks:
-            safe_clearance = params.MoldGap + 3.0
-            male_lock_bottom = safe_clearance
-            male_lock_h = max(5.0, total_height - safe_clearance)
-            male_locks = (
-                cq.Workplane("XY")
-                .pushPoints([(fx, ly), (-fx, ly), (fx, -ly), (-fx, -ly)])
-                .box(male_lw, lock_ext, male_lock_h)
-                .translate((0, 0, male_lock_bottom + (male_lock_h / 2.0)))
-            )
-            try: male_locks = male_locks.edges("<Z").chamfer(1.5) 
+            bbox = final.val().BoundingBox()
+            z_roof = bbox.zmax
+
+            # Virtual needle to sample the EXACT bottom surface
+            def get_z_parting(y_pos):
+                try:
+                    needle = cq.Workplane("XY").center(fx, y_pos).box(0.1, 0.1, 1000)
+                    inter = final.intersect(needle)
+                    if inter.vals(): return inter.val().BoundingBox().zmin
+                except Exception: pass
+                # Fallback manual offset
+                return bbox.zmin + (max_kick_rise + dynamic_core_height - params.MoldCoreHeight) + 2.75
+
+            flush_n = 0.09 * (params.NoseAngle / 30.0)
+            flush_t = 0.09 * (params.TailAngle / 30.0)
+
+            z_parting_nose = get_z_parting((mold_len / 2.0) - 0.1) + flush_n
+            z_parting_tail = get_z_parting(-(mold_len / 2.0) + 0.1) + flush_t
+
+            # Lowest point the male extensions can reach (3mm above absolute floor + mold gap)
+            m_ext_limit_z = 3.0 + params.MoldGap
+
+            # --- NOSE LOCKS ---
+            m_lock_h_n = z_roof - z_parting_nose
+            m_base_n = cq.Workplane("XY").pushPoints([(fx, ly), (-fx, ly)]).box(male_lw, lock_ext, m_lock_h_n).translate((0, 0, z_parting_nose + (m_lock_h_n / 2.0)))
+            
+            m_ext_h_n = z_parting_nose - m_ext_limit_z
+            if m_ext_h_n > 0:
+                m_ext_n = cq.Workplane("XY").pushPoints([(fx, ly_gapped), (-fx, ly_gapped)]).box(male_lw, lock_ext_gapped, m_ext_h_n).translate((0, 0, m_ext_limit_z + (m_ext_h_n / 2.0)))
+                m_lock_n = m_base_n.union(m_ext_n)
+            else:
+                m_lock_n = m_base_n
+
+            # --- TAIL LOCKS ---
+            m_lock_h_t = z_roof - z_parting_tail
+            m_base_t = cq.Workplane("XY").pushPoints([(fx, -ly), (-fx, -ly)]).box(male_lw, lock_ext, m_lock_h_t).translate((0, 0, z_parting_tail + (m_lock_h_t / 2.0)))
+            
+            m_ext_h_t = z_parting_tail - m_ext_limit_z
+            if m_ext_h_t > 0:
+                m_ext_t = cq.Workplane("XY").pushPoints([(fx, -ly_gapped), (-fx, -ly_gapped)]).box(male_lw, lock_ext_gapped, m_ext_h_t).translate((0, 0, m_ext_limit_z + (m_ext_h_t / 2.0)))
+                m_lock_t = m_base_t.union(m_ext_t)
+            else:
+                m_lock_t = m_base_t
+
+            # Combine and Chamfer (1.0mm on bottom edges)
+            male_locks = m_lock_n.union(m_lock_t)
+            try: male_locks = male_locks.edges("<Z").chamfer(1.0) 
             except Exception: pass
+
             final = final.union(male_locks)
              
         return final.translate((0, 0, -z_male_target))

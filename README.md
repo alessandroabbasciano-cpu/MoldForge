@@ -1,3 +1,4 @@
+<!--markdownlint-disable MD033-->
 # 🛹 **MOLD F.O.R.G.E.**
 
 **F**ORGE **O**utputs **R**ealistic **G**narly **E**quipment.

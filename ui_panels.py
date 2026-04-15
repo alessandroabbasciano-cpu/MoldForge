@@ -76,10 +76,23 @@ def setup_docks(app):
     app.chk_indicators.stateChanged.connect(lambda: app.schedule_update())
     layout_out.addRow(app.chk_indicators)
     
-    app.chk_sidelocks = QCheckBox("Enable SideLocks (Vertical Print)")
+    app.chk_sidelocks = QCheckBox("Enable SideLocks")
     app.chk_sidelocks.setToolTip("Add interlocking side tabs to align the molds perfectly during pressing.")
-    app.chk_sidelocks.stateChanged.connect(lambda: app.schedule_update())
     layout_out.addRow(app.chk_sidelocks)
+    
+    app.spin_sidelocks_gap = add_param(app, layout_out, "SideLocks Y Gap (mm)", 0.05, 0.30, app.params.SideLocksGap, "Clearance between male and female locks. 0.15 is ideal for sliding fit.")
+    app.spin_sidelocks_gap.setSingleStep(0.01) 
+    
+    def update_sidelocks_vis():
+        """Dynamically hides the SideLocks Gap spinner if SideLocks is unchecked."""
+        chk = app.chk_sidelocks.isChecked()
+        app.spin_sidelocks_gap.setVisible(chk)
+        lbl = layout_out.labelForField(app.spin_sidelocks_gap)
+        if lbl: lbl.setVisible(chk)
+        app.schedule_update()
+
+    app.chk_sidelocks.stateChanged.connect(lambda _: update_sidelocks_vis())
+    update_sidelocks_vis() # Inizializza lo stato visivo all'avvio
 
     app.chk_top_shaper = QCheckBox("Add Top Shaper Shell")
     app.chk_top_shaper.setToolTip("Generates the mating top shell next to the Shaper Template. Useful for pressing thin veneers.")

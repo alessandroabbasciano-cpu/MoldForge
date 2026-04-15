@@ -229,6 +229,7 @@ def update_params_object(app):
     
     if hasattr(app, 'spin_shape_offset_y'): p.ShapeOffsetY = app.spin_shape_offset_y.value()
     if hasattr(app, 'chk_sidelocks'): p.SideLocks = app.chk_sidelocks.isChecked()
+    if hasattr(app, 'spin_sidelocks_gap'): p.SideLocksGap = app.spin_sidelocks_gap.value()
     if hasattr(app, 'chk_top_shaper'): p.AddTopShaper = app.chk_top_shaper.isChecked()
     if hasattr(app, 'chk_indicators'): p.AddIndicators = app.chk_indicators.isChecked()
     
@@ -346,6 +347,7 @@ def apply_state_to_ui(app, state):
         # --- TOGGLES & FEATURES ---
         if hasattr(app, 'spin_shape_offset_y'): app.spin_shape_offset_y.setValue(state.ShapeOffsetY)
         if hasattr(app, 'chk_sidelocks'): app.chk_sidelocks.setChecked(state.SideLocks)
+        if hasattr(app, 'spin_sidelocks_gap'): app.spin_sidelocks_gap.setValue(state.SideLocksGap)
         if hasattr(app, 'chk_top_shaper'): app.chk_top_shaper.setChecked(state.AddTopShaper)
         if hasattr(app, 'chk_indicators'): app.chk_indicators.setChecked(state.AddIndicators)
         if hasattr(app, 'chk_cut_base'): app.chk_cut_base.setChecked(state.CutBase)
