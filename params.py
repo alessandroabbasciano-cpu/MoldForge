@@ -31,6 +31,8 @@ class MoldParams:
         self.AddMoldTruckPins = False         # Emboss truck hole pins on molds
         self.AddShaperTruckPins = False       # Emboss truck hole pins on shapers
         self.CutBase = False                  # Toggle to set Base Width equal to Core Width
+        self.LogTruckWidths = False           # Flag to print deck width at truck coords
+        self.IsMetric = True                  # Toggle for Metric (mm) vs Imperial (in)
         
         # --- MOLD DIMENSIONS ---
         self.MoldBaseWidth = 75.0             # Total width of the mold block

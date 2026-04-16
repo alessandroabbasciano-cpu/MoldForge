@@ -246,6 +246,11 @@ def update_params_object(app):
     if hasattr(app, 'chk_shaper_pins'): p.AddShaperTruckPins = app.chk_shaper_pins.isChecked()
     if hasattr(app, 'chk_cut_base'): p.CutBase = app.chk_cut_base.isChecked()
 
+    if hasattr(app, 'action_log_width'): 
+        p.LogTruckWidths = app.action_log_width.isChecked()
+    if hasattr(app, 'action_units'):
+        p.IsMetric = not app.action_units.isChecked()
+
     # --- MOLD DIMENSIONS ---
     p.MoldLength = app.spin_length.value()
     p.MoldCoreWidth = app.spin_width.value()
@@ -373,6 +378,22 @@ def apply_state_to_ui(app, state):
             app.spin_flare_l.setValue(state.FlareLength)
             app.spin_flare_w.setValue(state.FlareWidth)
             app.spin_flare_py.setValue(state.FlarePosY)
+
+        # --- SYNC TOOLS MENU ---
+        if hasattr(app, 'action_log_width'):
+            app.action_log_width.blockSignals(True)
+            app.action_log_width.setChecked(getattr(state, 'LogTruckWidths', False))
+            app.action_log_width.blockSignals(False)
+            
+        if hasattr(app, 'action_units'):
+            is_metric_val = getattr(state, 'IsMetric', True)
+            
+            app.action_units.blockSignals(True)
+            app.action_units.setChecked(not is_metric_val)
+            app.action_units.blockSignals(False)
+            
+            app.is_metric = is_metric_val
+            app.params.IsMetric = is_metric_val
             
         # --- SHAPER / BEZIER HANDLES ---
         if hasattr(app, 'spin_shaper_h'): app.spin_shaper_h.setValue(state.ShaperHeight)
@@ -425,7 +446,9 @@ def reset_to_defaults(app):
     default.CutBase = app.params.CutBase
     default.AddFillet = app.params.AddFillet
     default.AddGuideHoles = app.params.AddGuideHoles
-    
+    default.LogTruckWidths = getattr(app.params, 'LogTruckWidths', False)
+    default.IsMetric = getattr(app.params, 'IsMetric', True)
+
     # 4. Apply the hybrid state to the UI
     apply_state_to_ui(app, default)
     app.log("Parameters reset to default (Output Options preserved).", "INFO")

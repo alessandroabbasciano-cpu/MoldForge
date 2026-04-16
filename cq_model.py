@@ -79,6 +79,38 @@ def build_mold(params: MoldParams):
     Main orchestration function. Builds the requested part (Male, Female, or Template)
     using boolean subtraction of 'Cutter' solids from base blocks.
     """
+    # --- LOG TRUCK WIDTHS DIAGNOSTIC ---
+    if getattr(params, 'LogTruckWidths', False):
+        try:
+            # Retrieve 2D deck footprint and extrude a thin slice
+            face_2d = make_shaper_outline(params)
+            temp_solid = cq.Workplane("XY").add(face_2d.outerWire()).toPending().extrude(1)
+            
+            # Target Y coords (truck centers)
+            y_front = (params.Wheelbase / 2.0) + (params.TruckHoleDistL / 2.0)
+            y_rear = -y_front
+            
+            # Sample widths via boolean intersection
+            needle_f = cq.Workplane("XY").center(0, y_front).box(500, 0.01, 10)
+            needle_r = cq.Workplane("XY").center(0, y_rear).box(500, 0.01, 10)
+            
+            slice_f = temp_solid.intersect(needle_f.val())
+            slice_r = temp_solid.intersect(needle_r.val())
+            
+            w_f = slice_f.val().BoundingBox().xlen if slice_f.vals() else 0.0
+            w_r = slice_r.val().BoundingBox().xlen if slice_r.vals() else 0.0
+            
+            # Unit Handling
+            if getattr(params, 'IsMetric', True):
+                print(f"Effective Width at Trucks -> FRONT: {w_f:.2f} mm | REAR: {w_r:.2f} mm")
+            else:
+                # Convert mm to inches (1 inch = 25.4 mm)
+                w_f_in, w_r_in = w_f / 25.4, w_r / 25.4
+                print(f"Effective Width at Trucks -> FRONT: {w_f_in:.3f} in | REAR: {w_r_in:.3f} in")
+                
+        except Exception:
+            pass # Ignore temporary geometry errors during live preview
+        
     # --- DYNAMIC CORE PROTECTION ---
     # Prevents holes in the male mold when using extreme concave drops or kick angles
     extra_kicks = max(0.0, max(params.NoseAngle, params.TailAngle) - 20.0) * 0.15

@@ -619,6 +619,26 @@ class MoldApp(QMainWindow):
         self.combo_shape_style.blockSignals(False)
         self.log("Community Shapes list updated successfully.", "INFO")
 
+    def toggle_log_widths(self, enabled):
+        self.params.LogTruckWidths = enabled
+        state = "ON" if enabled else "OFF"
+        self.log(f"Truck Width Logging {state}.", "INFO")
+        if enabled and self.current_result:
+            self.start_preview()
+
+    def toggle_units(self):
+        # The checkbox 'action_units' represents "Imperial Mode"
+        is_imperial = self.action_units.isChecked()
+        self.is_metric = not is_imperial
+        self.params.IsMetric = self.is_metric
+        
+        unit_label = "Imperial (in)" if is_imperial else "Metric (mm)"
+        self.log(f"Display units set to {unit_label}.", "INFO")
+        
+        # Trigger re-render to update the logic and logs
+        if self.current_result: 
+            self.start_preview()
+
 if __name__ == "__main__":
     import multiprocessing
     multiprocessing.freeze_support()
