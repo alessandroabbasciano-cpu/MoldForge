@@ -86,7 +86,12 @@ def setup_menu(app):
     app.action_log_width.setChecked(False)
     app.action_log_width.setToolTip("Prints the effective deck width at the truck mounting points to the Console.")
     app.action_log_width.triggered.connect(app.toggle_log_widths)
-    tools_menu.addSeparator()
+
+    # Wheelbase Reference 
+    app.action_show_outer_wb = tools_menu.addAction("Show Outer Wheelbase Eq.")
+    app.action_show_outer_wb.setCheckable(True)
+    app.action_show_outer_wb.setChecked(False)
+    app.action_show_outer_wb.triggered.connect(app.toggle_outer_wb_display)
 
     # Unit Toggle (Now consistent with checkmark)
     app.action_units = tools_menu.addAction("Use Imperial Units (inches)")

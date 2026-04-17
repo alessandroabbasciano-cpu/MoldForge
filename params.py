@@ -32,6 +32,7 @@ class MoldParams:
         self.AddShaperTruckPins = False       # Emboss truck hole pins on shapers
         self.CutBase = False                  # Toggle to set Base Width equal to Core Width
         self.LogTruckWidths = False           # Flag to print deck width at truck coords
+        self.ShowOuterWheelbase = False       # Toggle to show outer wheelbase equivalent
         self.IsMetric = True                  # Toggle for Metric (mm) vs Imperial (in)
         
         # --- MOLD DIMENSIONS ---

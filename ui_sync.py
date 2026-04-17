@@ -261,6 +261,10 @@ def update_params_object(app):
     
     # --- DECK GEOMETRY ---
     p.Wheelbase = app.spin_wb.value()
+    if hasattr(app, 'action_log_width'): 
+        p.LogTruckWidths = app.action_log_width.isChecked()
+    if hasattr(app, 'action_show_outer_wb'): 
+        p.ShowOuterWheelbase = app.action_show_outer_wb.isChecked()
     p.BoardWidth = app.spin_board_w.value()
     p.ConcaveDrop = app.spin_concave.value()
     p.ConcaveLength = app.spin_concave_len.value()
@@ -380,6 +384,18 @@ def apply_state_to_ui(app, state):
             app.spin_flare_py.setValue(state.FlarePosY)
 
         # --- SYNC TOOLS MENU ---
+        if hasattr(app, 'action_show_outer_wb'):
+            show_outer = getattr(state, 'ShowOuterWheelbase', False)
+            app.action_show_outer_wb.blockSignals(True)
+            app.action_show_outer_wb.setChecked(show_outer)
+            app.action_show_outer_wb.blockSignals(False)
+            
+            # Show/Hide both title and value
+            app.lbl_outer_wb_title.setVisible(show_outer)
+            app.lbl_outer_wb_val.setVisible(show_outer)
+            if show_outer:
+                app.update_outer_wb_label()
+
         if hasattr(app, 'action_log_width'):
             app.action_log_width.blockSignals(True)
             app.action_log_width.setChecked(getattr(state, 'LogTruckWidths', False))
