@@ -5,7 +5,7 @@ setting up the camera toolbar overlay, and assembling the various dock panels.
 """
 
 import sys
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QFrame, QGridLayout, QMainWindow, QCheckBox, QSizePolicy
+from PySide6.QtWidgets import QLabel, QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QFrame, QGridLayout, QMainWindow, QCheckBox, QSizePolicy
 from PySide6.QtCore import Qt
 from pyvistaqt import QtInteractor
 from custom_widgets import CollapsibleDockTitleBar
@@ -73,7 +73,60 @@ def setup_ui(app):
         btn.setStyleSheet(button_style)
         btn.clicked.connect(func)
         cam_toolbar.addWidget(btn)
-        
+
+    # --- NEW MEASUREMENT TOOL WITH EXTERNAL DISPLAY (FINAL FIX) ---
+    app.btn_measure = QPushButton("MEASURE")
+    app.btn_measure.setFixedSize(70, 30)
+    app.btn_measure.setFocusPolicy(Qt.NoFocus)
+    app.btn_measure.setStyleSheet(button_style)
+    app.btn_measure.setCheckable(True)
+    
+    # Label for the measurement value
+    app.lbl_measure_val = QLabel("")
+    # Changed background to a solid dark color to prevent text overlapping (ghosting)
+    app.lbl_measure_val.setStyleSheet("color: #e67e22; font-weight: bold; margin-left: 10px; font-size: 14px; background-color: #1a1a1a; padding: 0px 5px; border-radius: 3px;")    
+    app.lbl_measure_val.hide() # Keep it hidden by default
+    
+    def toggle_measure(checked):
+        if checked:
+            # UI Feedback
+            app.btn_measure.setStyleSheet(button_style + "border: 2px solid #e67e22; background-color: #3b3b3b;")
+            app.lbl_measure_val.setText("Select 2 points...")
+            app.lbl_measure_val.show()
+            
+            # Callback MUST accept 3 arguments from PyVista (point 1, point 2, and the calculated distance)
+            def update_display(p1, p2, distance):
+                if distance > 0:
+                    app.lbl_measure_val.setText(f"{distance:.2f} mm")
+                else:
+                    app.lbl_measure_val.setText("Select 2 points...")
+
+            # Activate the measurement widget and capture the resulting object
+            widget = app.plotter.add_measurement_widget(
+                callback=update_display,
+                color="#e67e22"
+            )
+            
+            # COMPLETELY hide the native 3D floating text by forcing an empty text format
+            try:
+                if widget is not None:
+                    widget.GetDistanceRepresentation().SetLabelFormat("")
+            except Exception: pass
+            
+            app.log("Measurement Tool ON: Click two points on the 3D model.", "INFO")
+        else:
+            # UI Feedback
+            app.btn_measure.setStyleSheet(button_style)
+            app.plotter.clear_measure_widgets()
+            app.lbl_measure_val.hide()
+            app.lbl_measure_val.setText("") 
+            app.log("Measurement Tool OFF.", "INFO")
+            
+    app.btn_measure.clicked.connect(toggle_measure)
+    
+    cam_toolbar.addWidget(app.btn_measure)
+    cam_toolbar.addWidget(app.lbl_measure_val)
+    
     viewer_grid.addLayout(cam_toolbar, 0, 0, Qt.AlignTop | Qt.AlignLeft)
 
     # ==========================================

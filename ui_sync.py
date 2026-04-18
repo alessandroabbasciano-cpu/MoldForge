@@ -229,6 +229,7 @@ def update_params_object(app):
     
     if hasattr(app, 'spin_shape_offset_y'): p.ShapeOffsetY = app.spin_shape_offset_y.value()
     if hasattr(app, 'chk_sidelocks'): p.SideLocks = app.chk_sidelocks.isChecked()
+    if hasattr(app, 'spin_sidelocks_gap'): p.SideLocksGap = app.spin_sidelocks_gap.value()
     if hasattr(app, 'chk_top_shaper'): p.AddTopShaper = app.chk_top_shaper.isChecked()
     if hasattr(app, 'chk_indicators'): p.AddIndicators = app.chk_indicators.isChecked()
     
@@ -245,6 +246,11 @@ def update_params_object(app):
     if hasattr(app, 'chk_shaper_pins'): p.AddShaperTruckPins = app.chk_shaper_pins.isChecked()
     if hasattr(app, 'chk_cut_base'): p.CutBase = app.chk_cut_base.isChecked()
 
+    if hasattr(app, 'action_log_width'): 
+        p.LogTruckWidths = app.action_log_width.isChecked()
+    if hasattr(app, 'action_units'):
+        p.IsMetric = not app.action_units.isChecked()
+
     # --- MOLD DIMENSIONS ---
     p.MoldLength = app.spin_length.value()
     p.MoldCoreWidth = app.spin_width.value()
@@ -255,6 +261,10 @@ def update_params_object(app):
     
     # --- DECK GEOMETRY ---
     p.Wheelbase = app.spin_wb.value()
+    if hasattr(app, 'action_log_width'): 
+        p.LogTruckWidths = app.action_log_width.isChecked()
+    if hasattr(app, 'action_show_outer_wb'): 
+        p.ShowOuterWheelbase = app.action_show_outer_wb.isChecked()
     p.BoardWidth = app.spin_board_w.value()
     p.ConcaveDrop = app.spin_concave.value()
     p.ConcaveLength = app.spin_concave_len.value()
@@ -346,6 +356,7 @@ def apply_state_to_ui(app, state):
         # --- TOGGLES & FEATURES ---
         if hasattr(app, 'spin_shape_offset_y'): app.spin_shape_offset_y.setValue(state.ShapeOffsetY)
         if hasattr(app, 'chk_sidelocks'): app.chk_sidelocks.setChecked(state.SideLocks)
+        if hasattr(app, 'spin_sidelocks_gap'): app.spin_sidelocks_gap.setValue(state.SideLocksGap)
         if hasattr(app, 'chk_top_shaper'): app.chk_top_shaper.setChecked(state.AddTopShaper)
         if hasattr(app, 'chk_indicators'): app.chk_indicators.setChecked(state.AddIndicators)
         if hasattr(app, 'chk_cut_base'): app.chk_cut_base.setChecked(state.CutBase)
@@ -371,6 +382,34 @@ def apply_state_to_ui(app, state):
             app.spin_flare_l.setValue(state.FlareLength)
             app.spin_flare_w.setValue(state.FlareWidth)
             app.spin_flare_py.setValue(state.FlarePosY)
+
+        # --- SYNC TOOLS MENU ---
+        if hasattr(app, 'action_show_outer_wb'):
+            show_outer = getattr(state, 'ShowOuterWheelbase', False)
+            app.action_show_outer_wb.blockSignals(True)
+            app.action_show_outer_wb.setChecked(show_outer)
+            app.action_show_outer_wb.blockSignals(False)
+            
+            # Show/Hide both title and value
+            app.lbl_outer_wb_title.setVisible(show_outer)
+            app.lbl_outer_wb_val.setVisible(show_outer)
+            if show_outer:
+                app.update_outer_wb_label()
+
+        if hasattr(app, 'action_log_width'):
+            app.action_log_width.blockSignals(True)
+            app.action_log_width.setChecked(getattr(state, 'LogTruckWidths', False))
+            app.action_log_width.blockSignals(False)
+            
+        if hasattr(app, 'action_units'):
+            is_metric_val = getattr(state, 'IsMetric', True)
+            
+            app.action_units.blockSignals(True)
+            app.action_units.setChecked(not is_metric_val)
+            app.action_units.blockSignals(False)
+            
+            app.is_metric = is_metric_val
+            app.params.IsMetric = is_metric_val
             
         # --- SHAPER / BEZIER HANDLES ---
         if hasattr(app, 'spin_shaper_h'): app.spin_shaper_h.setValue(state.ShaperHeight)
@@ -423,7 +462,9 @@ def reset_to_defaults(app):
     default.CutBase = app.params.CutBase
     default.AddFillet = app.params.AddFillet
     default.AddGuideHoles = app.params.AddGuideHoles
-    
+    default.LogTruckWidths = getattr(app.params, 'LogTruckWidths', False)
+    default.IsMetric = getattr(app.params, 'IsMetric', True)
+
     # 4. Apply the hybrid state to the UI
     apply_state_to_ui(app, default)
     app.log("Parameters reset to default (Output Options preserved).", "INFO")

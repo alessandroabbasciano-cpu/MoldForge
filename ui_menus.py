@@ -73,15 +73,30 @@ def setup_menu(app):
     # ==========================================
     tools_menu = menu_bar.addMenu("Tools")
 
-    # Unleash The Beast: Removes all dimensional safety limits
+    # Unleash The Beast
     app.action_extreme = tools_menu.addAction("Unleash the Beast (Extreme Mode)")
     app.action_extreme.setCheckable(True)
     app.action_extreme.setChecked(False)
     app.action_extreme.triggered.connect(app.toggle_extreme_mode)
     tools_menu.addSeparator()
 
-    # Switch display units in the log output (mm vs inches)
-    app.action_units = tools_menu.addAction("Unit: Metric (mm)")
+    # Log Truck Widths
+    app.action_log_width = tools_menu.addAction("Log Truck Widths")
+    app.action_log_width.setCheckable(True)
+    app.action_log_width.setChecked(False)
+    app.action_log_width.setToolTip("Prints the effective deck width at the truck mounting points to the Console.")
+    app.action_log_width.triggered.connect(app.toggle_log_widths)
+
+    # Wheelbase Reference 
+    app.action_show_outer_wb = tools_menu.addAction("Show Outer Wheelbase Eq.")
+    app.action_show_outer_wb.setCheckable(True)
+    app.action_show_outer_wb.setChecked(False)
+    app.action_show_outer_wb.triggered.connect(app.toggle_outer_wb_display)
+
+    # Unit Toggle (Now consistent with checkmark)
+    app.action_units = tools_menu.addAction("Use Imperial Units (inches)")
+    app.action_units.setCheckable(True)
+    app.action_units.setChecked(False)
     app.action_units.triggered.connect(app.toggle_units)
 
     # ==========================================

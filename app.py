@@ -295,6 +295,8 @@ class MoldApp(QMainWindow):
         self.btn_save_preset.clicked.connect(self.save_preset)
         self.btn_delete_preset.clicked.connect(self.delete_preset)
         self.btn_generate.clicked.connect(self.start_preview)
+        self.spin_wb.valueChanged.connect(self.update_outer_wb_label)
+        self.spin_truck_l.valueChanged.connect(self.update_outer_wb_label)
 
         for spin in [self.spin_nose_ang, self.spin_nose_len, self.spin_n_trans, self.spin_n_gap, 
                      self.spin_n_c1x, self.spin_n_c1y, self.spin_n_c2x, self.spin_n_s_y]:
@@ -509,6 +511,22 @@ class MoldApp(QMainWindow):
         self.log(f"Clipping plane {'activated' if enabled else 'deactivated'}.", "INFO")
         self.start_preview()
 
+    def toggle_outer_wb_display(self, checked):
+        """Toggles visibility for both label and value parts of the reference."""
+        self.params.ShowOuterWheelbase = checked
+        self.lbl_outer_wb_title.setVisible(checked)
+        self.lbl_outer_wb_val.setVisible(checked)
+        if checked:
+            self.update_outer_wb_label()
+
+    def update_outer_wb_label(self):
+        """Updates only the numeric part of the reference."""
+        if hasattr(self, 'lbl_outer_wb_val'):
+            inner_wb = self.spin_wb.value()
+            truck_l = self.spin_truck_l.value()
+            outer_wb = inner_wb + (truck_l * 2)
+            self.lbl_outer_wb_val.setText(f"{outer_wb:.1f}")
+
     def toggle_units(self):
         self.is_metric = not self.is_metric
         unit = "Metric (mm)" if self.is_metric else "Imperial (in)"
@@ -618,6 +636,26 @@ class MoldApp(QMainWindow):
             
         self.combo_shape_style.blockSignals(False)
         self.log("Community Shapes list updated successfully.", "INFO")
+
+    def toggle_log_widths(self, enabled):
+        self.params.LogTruckWidths = enabled
+        state = "ON" if enabled else "OFF"
+        self.log(f"Truck Width Logging {state}.", "INFO")
+        if enabled and self.current_result:
+            self.start_preview()
+
+    def toggle_units(self):
+        # The checkbox 'action_units' represents "Imperial Mode"
+        is_imperial = self.action_units.isChecked()
+        self.is_metric = not is_imperial
+        self.params.IsMetric = self.is_metric
+        
+        unit_label = "Imperial (in)" if is_imperial else "Metric (mm)"
+        self.log(f"Display units set to {unit_label}.", "INFO")
+        
+        # Trigger re-render to update the logic and logs
+        if self.current_result: 
+            self.start_preview()
 
 if __name__ == "__main__":
     import multiprocessing

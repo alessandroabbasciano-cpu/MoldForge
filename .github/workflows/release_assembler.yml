@@ -56,38 +56,19 @@ jobs:
         generate_release_notes: false
         files: release_assets/*
         body: |
-          🔥 **MOLD F.O.R.G.E. - v1.2.2** 🔥
+          🔥 **MOLD F.O.R.G.E. - v1.3.0** 🔥
 
-          The first standalone, cross-platform, parametric fingerboard mold designer.
-          MoldForge combines the raw power of the OpenCASCADE CAD engine with a lightning-fast native GUI.
+          This update focuses heavily on Quality of Life (QoL), precise physical measurements, and architectural stability for the core CAD engine. We've bridged the gap between mathematical purity and real-world fingerboard manufacturing standards.
 
-          **Installation:**
-          Download the `.zip` file for your OS below, extract the folder anywhere, and run the executable. No installation, no Python environments, no external dependencies required. 
-          *(Mac Users: make sure to read the included `README_MAC.md` to bypass the initial Gatekeeper block).*
+          ### ✨ New Features & UI Tools
+          * **Interactive 3D Measurement Tool:** We've turned your cursor into a digital caliper. Click the new `MEASURE` button in the 3D viewport, pick any two points on your generated mesh, and get instant, real-time distance readouts directly on the screen.
+          * **Outer Wheelbase Reference:** Designing based on outer truck holes? Activate `Show Outer Wheelbase Eq.` in the Tools menu. A new read-only label will dynamically calculate and display your outer wheelbase in real-time without compromising the pure inner-wheelbase math of the core engine.
+          * **Truck Width Logging:** A highly requested diagnostic tool. Enable `Log Truck Widths` in the Tools menu, and the console will automatically calculate and print the precise width of the deck exactly at the truck mounting coordinates.
 
-          **Oh, and read the Wiki before asking how to use it!**
+          ### 🛠 Engine & Architecture Upgrades
+          * **Side Locks Optimization (Under the Hood):** The interlocking Side Locks architecture in the `cq_model.py` core engine has been completely refactored. The boolean operations now utilize optimized clearance calculations, ensuring bulletproof topological stability and flawlessly clean mesh generation for 3D printing.
 
-          📖 **Community:** We opened a Guestbook! Drop by the GitHub Discussions tab and say hi.
+          ### 🐛 Bug Fixes
+          * Fixed an initialization bug where state persistence for the logging toggle and imperial/metric unit preferences were not properly restoring on startup.
 
-          ### 🛠 What's New in v1.2.2:
-
-          **Geometry Fix:**
-          Fixed a regression in the high-res geometry engine that caused smooth transitions to turn into sharp angles. All curves are now back to being ultra-high resolution and smooth as glass. Perfect for pressing veneers without stress points.
-
-          **SideLock:**
-          Nuked the "grooved" sidelock experiment from v1.2.1. It caused unnecessary micro-movements and poor infill during 3D printing.
-
-          ** 🕒 Previously in v1.2.1:**
-
-          ### Hotfixes
-          - **Damn versioning:** We had a minor hiccup with our version tracking and release tagging, which caused some confusion. This update fixes the internal versioning system and ensures that the correct release tags are applied moving forward.
-          - **premature calculation:** We had a minor issue where the application would trigger some calculations prematurely during startup, which could lead to unnecessary CPU usage and potential slowdowns. This update ensures that all parameters are fully loaded before any calculations are initiated, providing a smoother and more efficient startup experience.
-
-          ### New Features
-          - **State Persistence (Autosave):** The application now remembers your exact workspace! It silently saves your parameters and active preset on exit, restoring everything perfectly upon your next startup.
-          - **Cut Base (Flush Sides) Toggle:** Added a dedicated mode for vertical 3D printing. It automatically matches the Base Width to the Core Width to create flush sides, smartly disabling irrelevant hardware like guide holes and base fillets.
-
-          ### Fixed / Improved
-          - **SideLocks (Legacy):** (Superseded by v1.2.2) Attempted a ribbed structure for friction reduction.
-          - **Mold Terminology Correction:** Apparently, we "misgendered" our molds (shoutout to some sexist out there who pointed this out!). We have gracefully swapped the 'Male' and 'Female' designations across the entire UI, logic, and exported filenames to strictly adhere to standard CNC/manufacturing terminology.
-          - **Mold Gap Precision:** Fixed calculation anomalies and boolean constraints regarding the Mold Gap to ensure flawless intersections and spacing.
+          *(Note: As always, MOLD F.O.R.G.E. remains 100% standalone and portable. Just extract the folder and run the executable!)*

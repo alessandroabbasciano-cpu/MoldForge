@@ -18,6 +18,7 @@ class MoldParams:
         # --- TOGGLES & FEATURES ---
         self.AddIndicators = False            # Emboss 'N' and 'T' markers
         self.SideLocks = False                # Interlocking side tabs for mold alignment
+        self.SideLocksGap = 0.15              # Gap in y axis between the interlocking tabs 
         self.AddTopShaper = False             # Add a top shaper to the mold
         self.AddFillet = True                 # Reinforcement curve at the base of the core
         self.FilletRadius = 5.0               # Radius of the base reinforcement
@@ -30,6 +31,9 @@ class MoldParams:
         self.AddMoldTruckPins = False         # Emboss truck hole pins on molds
         self.AddShaperTruckPins = False       # Emboss truck hole pins on shapers
         self.CutBase = False                  # Toggle to set Base Width equal to Core Width
+        self.LogTruckWidths = False           # Flag to print deck width at truck coords
+        self.ShowOuterWheelbase = False       # Toggle to show outer wheelbase equivalent
+        self.IsMetric = True                  # Toggle for Metric (mm) vs Imperial (in)
         
         # --- MOLD DIMENSIONS ---
         self.MoldBaseWidth = 75.0             # Total width of the mold block

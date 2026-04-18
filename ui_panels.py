@@ -76,10 +76,23 @@ def setup_docks(app):
     app.chk_indicators.stateChanged.connect(lambda: app.schedule_update())
     layout_out.addRow(app.chk_indicators)
     
-    app.chk_sidelocks = QCheckBox("Enable SideLocks (Vertical Print)")
+    app.chk_sidelocks = QCheckBox("Enable SideLocks")
     app.chk_sidelocks.setToolTip("Add interlocking side tabs to align the molds perfectly during pressing.")
-    app.chk_sidelocks.stateChanged.connect(lambda: app.schedule_update())
     layout_out.addRow(app.chk_sidelocks)
+    
+    app.spin_sidelocks_gap = add_param(app, layout_out, "SideLocks Y Gap (mm)", 0.05, 0.30, app.params.SideLocksGap, "Clearance between male and female locks. 0.15 is ideal for sliding fit.")
+    app.spin_sidelocks_gap.setSingleStep(0.01) 
+    
+    def update_sidelocks_vis():
+        """Dynamically hides the SideLocks Gap spinner if SideLocks is unchecked."""
+        chk = app.chk_sidelocks.isChecked()
+        app.spin_sidelocks_gap.setVisible(chk)
+        lbl = layout_out.labelForField(app.spin_sidelocks_gap)
+        if lbl: lbl.setVisible(chk)
+        app.schedule_update()
+
+    app.chk_sidelocks.stateChanged.connect(lambda _: update_sidelocks_vis())
+    update_sidelocks_vis() # Inizializza lo stato visivo all'avvio
 
     app.chk_top_shaper = QCheckBox("Add Top Shaper Shell")
     app.chk_top_shaper.setToolTip("Generates the mating top shell next to the Shaper Template. Useful for pressing thin veneers.")
@@ -389,6 +402,16 @@ def setup_docks(app):
     group_deck = QGroupBox("DECK GEOMETRY")
     layout_deck = QFormLayout(group_deck)
     app.spin_wb = add_param(app, layout_deck, "Wheelbase (mm)", 30, 60, app.params.Wheelbase, "Distance between the inner truck holes.")
+    # NEW: Reference row with two separate labels for perfect grid alignment
+    app.lbl_outer_wb_title = QLabel("Outer Eq. (mm):")
+    app.lbl_outer_wb_title.setStyleSheet("color: #66b2ff; font-weight: bold; font-size: 11px;")
+    app.lbl_outer_wb_val = QLabel("0.0")
+    app.lbl_outer_wb_val.setStyleSheet("color: #e67e22; font-weight: bold; font-size: 11px;")
+    # Adding a standard row ensures alignment with other parameters
+    layout_deck.addRow(app.lbl_outer_wb_title, app.lbl_outer_wb_val)
+    # Hide both by default
+    app.lbl_outer_wb_title.setVisible(False)
+    app.lbl_outer_wb_val.setVisible(False)
     app.spin_board_w = add_param(app, layout_deck, "Board Width (mm)", 26, 40, app.params.BoardWidth, "Maximum target width of the fingerboard deck.")
     app.spin_concave = add_param(app, layout_deck, "Concave Drop (mm)", 0, 3.5, app.params.ConcaveDrop, "Depth of the concave curve in the center of the board.")
     app.spin_concave_len = add_param(app, layout_deck, "Concave Length (mm)", 10, 60, app.params.ConcaveLength, "Length of the central concave section before kicks begin.")
