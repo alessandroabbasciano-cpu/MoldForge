@@ -3,7 +3,6 @@
 
 **F**ORGE **O**utputs **R**ealistic **G**narly **E**quipment.
 
-![Version](https://img.shields.io/badge/version-V1.2.1_Standalone-2ecc71.svg)
 ![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-blue.svg)
 ![License](https://img.shields.io/badge/license-AGPLv3-red.svg)
 
