@@ -123,4 +123,21 @@ These percentage-based parameters dynamically map to the colored handles in the 
 * **Blue (X %):** Position of the secondary control point (controls tip "pointiness" vs. "boxiness").
 
 ---
+
+## 🧠 Core Architecture Insights
+
+### Geometric Abstractions & Measurement Standards
+
+Mold F.O.R.G.E. is designed to maintain absolute mathematical purity in its backend (`cq_model.py`).
+
+**The Wheelbase Paradigm (Inner vs. Outer):**
+The CadQuery engine constructs the board strictly using the **Inner Wheelbase** (the distance between the inner truck mounting holes). However, many fingerboard makers design using the **Outer Wheelbase** standard.
+
+To bridge this gap without risking recursive parameter loops or geometric paradoxes, the UI employs a "frontend abstraction." By toggling `Show Outer Wheelbase Eq.` in the Tools menu, the interface dynamically calculates the outer distance (`Inner Wheelbase + (Truck Hole Distance * 2)`) in real-time. This ensures makers get the visual feedback they need while the core CAD engine receives the pure, mathematically stable data it requires.
+
+### Side Locks Architecture
+
+The interlocking Side Locks have been heavily refactored for improved geometric stability. The boolean operations that carve the male and female alignment tabs now utilize optimized clearance calculations, ensuring that the exported STEP files slice flawlessly and the physical 3D printed molds fit together with exact tolerances, preventing lateral shifting during the pressing phase.
+
+---
 **[⬅️ Previous: UI & Workflow](2-User-Interface-&-Workflow-Guide.md)** | **[🏠 Home](1-Introduction.md)** | **[Next: Custom Shapes (DXF) ➡️](4-Custom-Shapes-DXF.md)**
