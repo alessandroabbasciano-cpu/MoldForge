@@ -16,6 +16,12 @@ The central area of the application is your real-time 3D workspace, powered by a
   * **Zoom:** Use the mouse wheel or Right-click and drag.
   * **Pan:** Middle-click (scroll wheel click) and drag.
 * **Camera Overlays (Top-Left):** Quick-snap buttons (**ISO, TOP, FRONT, SIDE**) allow you to instantly align the view to standard engineering perspectives.
+* **Interactive Measurement Tool:** Located in the top-left camera toolbar, the **MEASURE** button turns your cursor into a digital caliper.
+  * **How to use:** Click the `MEASURE` button, then click any two points directly on your 3D model.
+  * **Result:** The exact distance between those two points will be displayed in the UI label next to the button.
+
+  Click the button again to clear the measurement lines.
+
 * **Performance Controls (Top-Right):** Features the **Live Preview** toggle. By default, the engine recalculates the 3D model automatically when you adjust a slider. If you need to make massive parameter changes at once, uncheck this box. The interface will become completely lag-free, and a manual **GENERATE 3D** button will appear for you to click when you are ready to render. *(Note: Activating Extreme Mode will automatically disable Live Preview to prevent calculation loops).*
 
 ---
@@ -58,7 +64,11 @@ The top menu bar is divided into four main categories, mapping exactly to the so
 
 ### ⚙️ Tools Menu
 
+This menu houses advanced application states and diagnostic overlays:
+
 * **Unleash the Beast (Extreme Mode):** Removes all dimensional safety limits. Push the sliders to extreme values (-9999 to 9999) for highly experimental, non-standard mold designs. *Warning: To protect your system, Live Preview is disabled while this mode is active.*
+* **Show Outer Wheelbase Eq.:** A quality-of-life visual toggle. When checked, a read-only label appears under the Wheelbase slider showing the equivalent Outer Wheelbase distance (calculated dynamically based on your truck hole spacing).
+* **Log Truck Widths:** When active, generating a mold will automatically calculate and print the precise width of the deck at the specific truck mounting coordinates to the bottom Log Console.*
 * **Unit: Metric (mm) / Imperial (in):** Instantly converts all console log measurements between Metric and Imperial. *(Note: UI input sliders always remain in mm for engineering precision).*
 
 ### ❓ Help Menu

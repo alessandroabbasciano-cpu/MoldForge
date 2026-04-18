@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file.
 
+## [Edge / Upcoming Release]
+
+**Added:**
+
+* **Outer Wheelbase Reference**: Added a "Show Outer Wheelbase Eq." toggle in the Tools menu. It dynamically calculates and displays the outer truck hole distance in the Deck Geometry panel in real-time, providing a familiar reference without altering the pure inner-wheelbase math of the core engine.
+* **Interactive Measurement Tool**: Added a `MEASURE` button to the 3D viewport toolbar. Users can click any two points on the generated mesh to get precise, real-time distance readouts directly in the UI.
+* **Truck Width Logging**: Added a "Log Truck Widths" toggle in the Tools menu. When active, the engine calculates and prints the exact deck width at the truck mounting coordinates to the console.
+
+ **Changed:**
+
+* **Side Locks Optimization**: Completely refactored the Side Locks architecture in the core geometry engine (`cq_model.py`) for improved boolean stability and cleaner mesh generation.
+
+**Fixed:**
+
+* Fixed a bug where state persistence for the logging toggle and imperial/metric unit preferences were not properly loaded on startup.
+
 ## [1.2.2] - 2026-04-12
 
 **Fixed:**
