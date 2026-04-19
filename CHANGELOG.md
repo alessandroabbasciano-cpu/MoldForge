@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## [Edge / Upcoming Release]
+## [1.3.0] - 2026-04-18
 
 **Added:**
 
