@@ -10,7 +10,6 @@ import math
 from cq_utils import clamp, make_bezier_approx, make_rounded_box, make_logo_solid
 from params import MoldParams
 import shape_loader
-# import logo_utils
 
 def make_shaper_outline(params):
     """
