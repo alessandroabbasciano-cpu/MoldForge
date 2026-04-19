@@ -497,6 +497,72 @@ def setup_docks(app):
     app.dock_right.setWidget(right_panel)
     app.addDockWidget(Qt.RightDockWidgetArea, app.dock_right)
 
+    # --- LOGO / BRANDING GROUP ---
+    group_logo = QGroupBox("LOGO / BRANDING")
+    layout_logo = QFormLayout(group_logo)
+
+    # enable toggle
+    app.chk_logo = QCheckBox("Enable Logo Deboss")
+    app.chk_logo.setChecked(app.params.AddLogo)
+    app.chk_logo.stateChanged.connect(lambda: app.schedule_update())
+    layout_logo.addRow("Enable:", app.chk_logo)
+
+    # invert (mirror for mold readability)
+    app.chk_logo_invert = QCheckBox("Invert (Readable After Pressing)")
+    app.chk_logo_invert.setChecked(app.params.LogoInvert)
+    app.chk_logo_invert.stateChanged.connect(lambda: app.schedule_update())
+    layout_logo.addRow("Invert:", app.chk_logo_invert)
+
+    # text input
+    from PySide6.QtWidgets import QLineEdit
+    app.input_logo_text = QLineEdit()
+    app.input_logo_text.setText(app.params.LogoText)
+    app.input_logo_text.textChanged.connect(lambda: app.schedule_update())
+    layout_logo.addRow("Text:", app.input_logo_text)
+
+    # size
+    app.spin_logo_size = add_param(
+        app, layout_logo,
+        "Size (mm)", 1, 80,
+        app.params.LogoSize,
+        "Overall size of logo text"
+    )
+
+    # depth
+    app.spin_logo_depth = add_param(
+        app, layout_logo,
+        "Depth (mm)", 0.1, 1.5,
+        app.params.LogoDepth,
+        "Emboss/deboss depth"
+    )
+
+    # offset
+    app.spin_logo_offset = add_param(
+        app, layout_logo,
+        "Offset Y (mm)", -50, 50,
+        app.params.LogoOffsetY,
+        "Move logo up/down deck"
+    )
+
+    # spacing between letters
+    app.spin_logo_spacing = add_param(
+        app, layout_logo,
+        "Spacing", 0.2, 1.5,
+        app.params.LogoSpacing,
+        "Spacing between letters (multiplier of size)"
+    )
+
+    # rotation
+    app.spin_logo_rotation = add_param(
+        app, layout_logo,
+        "Rotation (°)", 0, 360,
+        app.params.LogoRotationDeg,
+        "Rotate logo orientation"
+    )
+
+    # add group to UI
+    right_controls_layout.addWidget(group_logo)
+
 
     # ==========================================
     # BOTTOM DOCKS: DESIGNER & CONSOLE

@@ -310,6 +310,16 @@ def update_params_object(app):
     p.TailCtrl2X = app.spin_t_c2x.value()
     p.TailStraightP = app.spin_t_s_y.value()
 
+    # --- LOGO / BRANDING ---
+    if hasattr(app, 'chk_logo'):
+        p.AddLogo = app.chk_logo.isChecked()
+        p.LogoText = app.input_logo_text.text()
+        p.LogoSize = app.spin_logo_size.value()
+        p.LogoDepth = app.spin_logo_depth.value()
+        p.LogoOffsetY = app.spin_logo_offset.value()
+        p.LogoSpacing = app.spin_logo_spacing.value()
+        p.LogoRotationDeg = app.spin_logo_rotation.value()
+        p.LogoInvert = app.chk_logo_invert.isChecked()
 
 def apply_state_to_ui(app, state):
     """
@@ -432,6 +442,13 @@ def apply_state_to_ui(app, state):
         app.chk_sym.blockSignals(True)
         app.chk_sym.setChecked(is_sym)
         app.chk_sym.blockSignals(False)
+
+        if hasattr(app, 'chk_logo'):
+            app.chk_logo.setChecked(state.AddLogo)
+            app.input_logo_text.setText(state.LogoText)
+            app.spin_logo_size.setValue(state.LogoSize)
+            app.spin_logo_depth.setValue(state.LogoDepth)
+            app.spin_logo_offset.setValue(state.LogoOffsetY)
         
         # Enforce mechanical limits on the newly set values
         validate_cross_dependencies(app)

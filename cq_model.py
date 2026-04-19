@@ -7,9 +7,10 @@ production-ready CAD models.
 
 import cadquery as cq
 import math
-from cq_utils import clamp, make_bezier_approx, make_rounded_box
+from cq_utils import clamp, make_bezier_approx, make_rounded_box, make_logo_solid
 from params import MoldParams
 import shape_loader
+# import logo_utils
 
 def make_shaper_outline(params):
     """
@@ -562,6 +563,36 @@ def build_mold(params: MoldParams):
             except Exception: pass
             
             final = final.union(female_locks)
+
+        # --- LOGO / BRANDING ---
+        # Optional logo applied to mold surface to deboss into veneer
+        if params.AddLogo:
+            # Generate logo geometry from text parameters
+            logo = make_logo_solid(params)
+
+            if logo:
+                # Extract underlying solid from Workplane
+                solid = logo.val()
+
+                # Position logo on mold surface
+                # - X = centered
+                # - Y = user-defined offset along mold length
+                # - Z = slightly above surface to avoid coplanar boolean issues
+                solid = solid.translate((
+                    0,
+                    params.LogoOffsetY,
+                    z_mount_target + 0.05
+                ))
+
+                # Apply small vertical edge fillet for smoother geometry
+                # (may fail on small / complex text)
+                try:
+                    solid = solid.edges("|Z").fillet(0.2)
+                except:
+                    pass
+                
+                # add logo to mold
+                final = final.union(solid)
 
         return final
 

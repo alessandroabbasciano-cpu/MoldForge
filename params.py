@@ -90,3 +90,13 @@ class MoldParams:
         self.TailCtrl1X = 100.0               # X-axis position of primary Bezier control point
         self.TailCtrl1Y = 60.0                # Y-axis position of primary Bezier control point
         self.TailCtrl2X = 85.0                # X-axis position of secondary Bezier control point
+
+        # --- LOGO / DEBOSS ---
+        self.AddLogo = False                  # Enable/disable logo generation entirely
+        self.LogoText = "TEXT"                # String rendered as 3D text
+        self.LogoSize = 30.0                  # Approximate letter height in mm
+        self.LogoDepth = 0.5                  # Extrusion depth of text
+        self.LogoOffsetY = 0.0                # Vertical offset along board length
+        self.LogoSpacing = 0.9                # Spacing multiplier between letters
+        self.LogoRotationDeg = 0.0            # Rotation of each letter around Z axis (degrees)
+        self.LogoInvert = True                # Mirror text for mold readability

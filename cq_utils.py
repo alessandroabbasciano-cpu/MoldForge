@@ -73,3 +73,94 @@ def make_rounded_box(width, length, height, radius):
     
     # Draw rectangle, extrude, and select all vertical edges for filleting
     return wp.rect(width, length).extrude(height).edges("|Z").fillet(radius)
+
+def make_logo_solid(params):
+    """
+    Generates a 3D text solid for logo debossing on the mold surface.
+
+    Each letter is created as an individual solid, transformed (mirrored/rotated),
+    then positioned and fused into a single combined logo geometry.
+
+    This function supports:
+    - Per-letter spacing control
+    - Per-letter rotation (orientation)
+    - Optional mirroring for deboss readability.
+
+    Args:
+        params (MoldParams): Parameter object containing logo configuration
+    
+    Returns:
+        cq.Workplane | None:
+            A Workplane containing the fused logo solid, or None if no text is provided.
+    """
+    
+    # Normalize and validate input text
+    text = params.LogoText.strip().upper()
+
+    # Early exit if no valid text
+    if not text:
+        return None
+
+    # Calculate vertical spacing between letters
+    # Spacing is proportional to logo size for consistent scaling
+    spacing = params.LogoSize * params.LogoSpacing
+    n = len(text)
+
+    solids = []
+
+    # Per-letter generation
+    for i, letter in enumerate(text):
+        # Center letters vertically around origin
+        # Ensures symmetric placement regardless of string length
+        y = spacing * (n/2 - i - 0.5)
+
+        # Create individual letter as a solid
+        wp = (
+            cq.Workplane("XY")
+            .text(
+                letter,
+                params.LogoSize,        # Letter height (mm)
+                params.LogoDepth,       # Extrusion depth (mm)
+                kind="bold",
+                combine=True            # Ensures a single clean solid per letter
+            )
+        )
+
+        # Extract underlying solid for transformation
+        solid = wp.val()
+
+        # --- INVERSION (MOLD READABILITY) ---
+        # Mirrored across YZ plane (flip x-axis)
+        # This ensures text appears correct after pressing into material
+        # Must be applied before rotation to maintain correct orientation
+        if params.LogoInvert:
+            solid = solid.mirror("YZ")
+
+        # --- ROTATION (LETTER ORIENTATION) ---
+        # Rotate each letter independently around Z-axis
+        # Allows vertical, angled, or inverted text layouts
+        if params.LogoRotationDeg != 0:
+            solid = solid.rotate(
+                (0, 0, 0),
+                (0, 0, 1),
+                params.LogoRotationDeg
+            )
+
+        # --- POSITIONING ---
+        # Translate letter into final position along board length (Y-axis)
+        solid = solid.translate((0, y, 0))
+
+        solids.append(solid)
+    
+    # Safety check (should rarely trigger)
+    if not solids:
+        return None
+
+    # --- COMBINE ALL LETTERS ---
+    # Fuse individual letter solids into a single continuous geometry
+    logo = solids[0]
+    for s in solids[1:]:
+        logo = logo.fuse(s)
+
+    # Return as Workplane for compatibility with downstream operations
+    return cq.Workplane("XY").add(logo)
