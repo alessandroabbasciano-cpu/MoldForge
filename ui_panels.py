@@ -7,7 +7,7 @@ import os
 from PySide6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel, 
                                QPushButton, QFormLayout, QFrame, QProgressBar,
                                QScrollArea, QComboBox, QCheckBox, QGroupBox, 
-                               QPlainTextEdit, QDockWidget)
+                               QPlainTextEdit, QDockWidget, QLineEdit)
 from PySide6.QtCore import Qt
 from custom_widgets import NoScrollSpinBox, KickShapeEditor
 
@@ -514,7 +514,6 @@ def setup_docks(app):
     layout_logo.addRow("Invert:", app.chk_logo_invert)
 
     # text input
-    from PySide6.QtWidgets import QLineEdit
     app.input_logo_text = QLineEdit()
     app.input_logo_text.setText(app.params.LogoText)
     app.input_logo_text.textChanged.connect(lambda: app.schedule_update())
