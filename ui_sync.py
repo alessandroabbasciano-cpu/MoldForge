@@ -487,10 +487,10 @@ def apply_state_to_ui(app, state):
             app.input_logo_text.setText(state.LogoText)
             app.spin_logo_size.setValue(state.LogoSize)
             app.spin_logo_depth.setValue(state.LogoDepth)
-            app.spin_logo_offset_x.setValue(state.LogoOffsetX)
-            app.spin_logo_offset_y.setValue(state.LogoOffsetY)
+            app.spin_logo_off_x.setValue(state.LogoOffsetX)
+            app.spin_logo_off_y.setValue(state.LogoOffsetY)
             app.spin_logo_spacing.setValue(state.LogoSpacing)
-            app.spin_logo_rotation.setValue(state.LogoRotationDeg)
+            app.spin_logo_rot.setValue(state.LogoRotationDeg)
             app.chk_logo_invert.setChecked(state.LogoInvert)
         
         # Enforce mechanical limits on the newly set values

@@ -94,7 +94,7 @@ class MoldParams:
         # --- LOGO / DEBOSS ---
         self.AddLogo = False                  # Enable/disable logo generation entirely
         self.LogoText = "TEXT"                # String rendered as 3D text
-        self.LogoSize = 30.0                  # Approximate letter height in mm
+        self.LogoSize = 10.0                  # Approximate letter height in mm
         self.LogoDepth = 0.5                  # Extrusion depth of text
         self.LogoOffsetX = 0.0                # Horizontal offset along board length
         self.LogoOffsetY = 0.0                # Vertical offset along board length
