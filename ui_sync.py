@@ -335,9 +335,10 @@ def update_params_object(app):
         p.LogoText = app.input_logo_text.text()
         p.LogoSize = app.spin_logo_size.value()
         p.LogoDepth = app.spin_logo_depth.value()
-        p.LogoOffsetY = app.spin_logo_offset.value()
+        p.LogoOffsetX = app.spin_logo_off_x.value()
+        p.LogoOffsetY = app.spin_logo_off_y.value()
         p.LogoSpacing = app.spin_logo_spacing.value()
-        p.LogoRotationDeg = app.spin_logo_rotation.value()
+        p.LogoRotationDeg = app.spin_logo_rot.value()
         p.LogoInvert = app.chk_logo_invert.isChecked()
 
 def apply_state_to_ui(app, state):
@@ -486,7 +487,11 @@ def apply_state_to_ui(app, state):
             app.input_logo_text.setText(state.LogoText)
             app.spin_logo_size.setValue(state.LogoSize)
             app.spin_logo_depth.setValue(state.LogoDepth)
-            app.spin_logo_offset.setValue(state.LogoOffsetY)
+            app.spin_logo_offset_x.setValue(state.LogoOffsetX)
+            app.spin_logo_offset_y.setValue(state.LogoOffsetY)
+            app.spin_logo_spacing.setValue(state.LogoSpacing)
+            app.spin_logo_rotation.setValue(state.LogoRotationDeg)
+            app.chk_logo_invert.setChecked(state.LogoInvert)
         
         # Enforce mechanical limits on the newly set values
         validate_cross_dependencies(app)

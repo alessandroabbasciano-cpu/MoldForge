@@ -96,6 +96,7 @@ class MoldParams:
         self.LogoText = "TEXT"                # String rendered as 3D text
         self.LogoSize = 30.0                  # Approximate letter height in mm
         self.LogoDepth = 0.5                  # Extrusion depth of text
+        self.LogoOffsetX = 0.0                # Horizontal offset along board length
         self.LogoOffsetY = 0.0                # Vertical offset along board length
         self.LogoSpacing = 0.9                # Spacing multiplier between letters
         self.LogoRotationDeg = 0.0            # Rotation of each letter around Z axis (degrees)

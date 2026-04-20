@@ -482,7 +482,7 @@ def setup_docks(app):
     # --- SHAPER / OUTLINE GROUP ---
     group_shaper = QGroupBox("SHAPER / OUTLINE")
     layout_shaper = QFormLayout(group_shaper)
-    app.spin_shaper_h = add_param(app, layout_shaper, "Template Height (mm)", 1, 30, app.params.ShaperHeight, "Thickness of the 3D printed routing template.")
+    app.spin_shaper_h = add_param(app, layout_shaper, "Shaper Height (mm)", 1, 30, app.params.ShaperHeight, "Thickness of the 3D printed routing template.")
     app.spin_fillet_yellow = add_param(app, layout_shaper, "Edge Rounding (mm)", 0.0, 50.0, app.params.FilletYellow, "Radius of the shape's corner fillets (only applies to Custom Bezier shape).")
     
     lbl_n = QLabel("-- Nose Handles --")
@@ -515,7 +515,6 @@ def setup_docks(app):
     # enable toggle
     app.chk_logo = QCheckBox("Enable Logo Deboss")
     app.chk_logo.setChecked(app.params.AddLogo)
-    app.chk_logo.stateChanged.connect(lambda: app.schedule_update())
     layout_logo.addRow("Enable:", app.chk_logo)
 
     # invert (mirror for mold readability)
@@ -546,8 +545,16 @@ def setup_docks(app):
         "Emboss/deboss depth"
     )
 
-    # offset
-    app.spin_logo_offset = add_param(
+    # offset X
+    app.spin_logo_off_x = add_param(
+        app, layout_logo,
+        "Offset X (mm)", -50, 50,
+        app.params.LogoOffsetX,
+        "Move logo left/right"
+    )
+
+    # offset Y
+    app.spin_logo_off_y = add_param(
         app, layout_logo,
         "Offset Y (mm)", -50, 50,
         app.params.LogoOffsetY,
@@ -563,12 +570,32 @@ def setup_docks(app):
     )
 
     # rotation
-    app.spin_logo_rotation = add_param(
+    app.spin_logo_rot = add_param(
         app, layout_logo,
         "Rotation (°)", 0, 360,
         app.params.LogoRotationDeg,
         "Rotate logo orientation"
     )
+
+    def update_logo_vis():
+        visible = app.chk_logo.isChecked()
+        
+        widgets = [
+            app.chk_logo_invert, app.input_logo_text, app.spin_logo_size,
+            app.spin_logo_depth, app.spin_logo_off_x, app.spin_logo_off_y, 
+            app.spin_logo_spacing, app.spin_logo_rot
+        ]
+        
+        for widget in widgets:
+            widget.setVisible(visible)
+            lbl = layout_logo.labelForField(widget)
+            if lbl:
+                lbl.setVisible(visible)
+                
+        app.schedule_update()
+
+    app.chk_logo.stateChanged.connect(lambda _: update_logo_vis())
+    update_logo_vis() 
 
     # add group to UI
     right_controls_layout.addWidget(group_logo)

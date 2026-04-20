@@ -583,7 +583,7 @@ def build_mold(params: MoldParams):
                 # - Y = user-defined offset along mold length
                 # - Z = slightly above surface to avoid coplanar boolean issues
                 solid = solid.translate((
-                    0,
+                    params.LogoOffsetX,
                     params.LogoOffsetY,
                     z_mount_target + 0.05
                 ))
