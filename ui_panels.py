@@ -88,7 +88,8 @@ def setup_docks(app):
         chk = app.chk_sidelocks.isChecked()
         app.spin_sidelocks_gap.setVisible(chk)
         lbl = layout_out.labelForField(app.spin_sidelocks_gap)
-        if lbl: lbl.setVisible(chk)
+        if lbl: 
+            lbl.setVisible(chk)
         app.schedule_update()
 
     app.chk_sidelocks.stateChanged.connect(lambda _: update_sidelocks_vis())
@@ -129,7 +130,8 @@ def setup_docks(app):
         chk = app.chk_fillet.isChecked()
         app.spin_fillet_rad.setVisible(chk)
         lbl = layout_out.labelForField(app.spin_fillet_rad)
-        if lbl: lbl.setVisible(chk)
+        if lbl: 
+            lbl.setVisible(chk)
         
         if not chk:
             app.spin_fillet_rad.setValue(0.0)
@@ -174,22 +176,26 @@ def setup_docks(app):
         # Diameter
         app.spin_guide_d.setVisible(chk)
         lbl_d = layout_out.labelForField(app.spin_guide_d)
-        if lbl_d: lbl_d.setVisible(chk)
+        if lbl_d: 
+            lbl_d.setVisible(chk)
         
         # Count
         app.combo_guide_count.setVisible(chk)
         lbl_c = layout_out.labelForField(app.combo_guide_count)
-        if lbl_c: lbl_c.setVisible(chk)
+        if lbl_c: 
+            lbl_c.setVisible(chk)
         
         # Offset X
         app.spin_guide_ox.setVisible(chk)
         lbl_ox = layout_out.labelForField(app.spin_guide_ox)
-        if lbl_ox: lbl_ox.setVisible(chk)
+        if lbl_ox: 
+            lbl_ox.setVisible(chk)
         
         # Offset Y
         app.spin_guide_oy.setVisible(chk)
         lbl_oy = layout_out.labelForField(app.spin_guide_oy)
-        if lbl_oy: lbl_oy.setVisible(chk)
+        if lbl_oy: 
+            lbl_oy.setVisible(chk)
         
         if not chk:
             app.spin_guide_d.setValue(0.0)
@@ -303,7 +309,8 @@ def setup_docks(app):
         # Manage visibility of Base Width slider
         app.spin_base_w.setVisible(not chk)
         lbl = layout_dim.labelForField(app.spin_base_w)
-        if lbl: lbl.setVisible(not chk)
+        if lbl: 
+            lbl.setVisible(not chk)
         
         if chk:
             # Force Base Width to match Core Width
@@ -360,17 +367,20 @@ def setup_docks(app):
         # Length
         app.spin_truck_l.setVisible(chk)
         lbl_l = layout_trucks.labelForField(app.spin_truck_l)
-        if lbl_l: lbl_l.setVisible(chk)
+        if lbl_l: 
+            lbl_l.setVisible(chk)
         
         # Width
         app.spin_truck_w.setVisible(chk)
         lbl_w = layout_trucks.labelForField(app.spin_truck_w)
-        if lbl_w: lbl_w.setVisible(chk)
+        if lbl_w: 
+            lbl_w.setVisible(chk)
         
         # Diameter
         app.spin_truck_d.setVisible(chk)
         lbl_d = layout_trucks.labelForField(app.spin_truck_d)
-        if lbl_d: lbl_d.setVisible(chk)
+        if lbl_d: 
+            lbl_d.setVisible(chk)
 
     # Wire the checkbox to the visibility function
     app.chk_modify_trucks.stateChanged.connect(lambda _: update_trucks_vis())
@@ -429,7 +439,8 @@ def setup_docks(app):
         visible = app.chk_spoon.isChecked()
         app.spin_spoon_drop.setVisible(visible)
         lbl = layout_deck.labelForField(app.spin_spoon_drop)
-        if lbl: lbl.setVisible(visible)
+        if lbl: 
+            lbl.setVisible(visible)
         app.schedule_update()
 
     app.chk_spoon.stateChanged.connect(update_spoon_vis)

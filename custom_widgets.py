@@ -54,7 +54,8 @@ class CollapsibleDockTitleBar(QWidget):
 
     def toggle_collapse(self):
         inner_widget = self.dock.widget()
-        if not inner_widget: return
+        if not inner_widget: 
+            return
         
         main_window = self.dock.window()
         
@@ -354,12 +355,14 @@ class KickShapeEditor(QWidget):
                     ty = 3*u**2 * (p1.y() - p0.y()) + 6*u*t * (p2.y() - p1.y()) + 3*t**2 * (p3.y() - p2.y())
                     
                     length = math.hypot(tx, ty)
-                    if length < 1e-5: continue
+                    if length < 1e-5: 
+                        continue
                     
                     # Perpendicular Normal vector
                     nx = -ty / length
                     ny = tx / length
-                    if ny < 0: nx, ny = -nx, -ny
+                    if ny < 0: 
+                        nx, ny = -nx, -ny
                         
                     # Candidate for circle center
                     ox = bx + r_px * nx
@@ -452,7 +455,7 @@ class KickShapeEditor(QWidget):
                 
                 if rounding > 0.1:
                     painter.setPen(QColor("#e74c3c"))
-                    painter.drawText(int(p0.x() + 10), int(p0.y() - 15), f"FILLET FAILED (R too large)")
+                    painter.drawText(int(p0.x() + 10), int(p0.y() - 15), "FILLET FAILED (R too large)")
 
             # Draw handle connector lines (visual aid)
             painter.setPen(QPen(QColor("#3498db"), 1.5, Qt.DotLine))
@@ -486,16 +489,21 @@ class KickShapeEditor(QWidget):
 
     def mousePressEvent(self, event):
         """Detects if a handle was clicked and starts the dragging process."""
-        if not self.is_bezier_mode: return
+        if not self.is_bezier_mode: 
+            return
         rect_s, rect1, rect2 = self.get_handle_rects()
         # Adjusted for larger hit area (10px padding)
-        if rect_s.adjusted(-10, -10, 10, 10).contains(event.position()): self.active_handle = 0
-        elif rect1.adjusted(-10, -10, 10, 10).contains(event.position()): self.active_handle = 1
-        elif rect2.adjusted(-10, -10, 10, 10).contains(event.position()): self.active_handle = 2
+        if rect_s.adjusted(-10, -10, 10, 10).contains(event.position()): 
+            self.active_handle = 0
+        elif rect1.adjusted(-10, -10, 10, 10).contains(event.position()): 
+            self.active_handle = 1
+        elif rect2.adjusted(-10, -10, 10, 10).contains(event.position()): 
+            self.active_handle = 2
 
     def mouseMoveEvent(self, event):
         """Updates handle positions based on mouse movement and triggers UI sync."""
-        if not self.is_bezier_mode or self.active_handle is None: return
+        if not self.is_bezier_mode or self.active_handle is None: 
+            return
         ctx = self.get_board_params()
         _, _, _, max_y, _ = self.get_transform()
         w_half = ctx["width"] / 2.0

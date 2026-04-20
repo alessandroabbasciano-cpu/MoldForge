@@ -4,14 +4,24 @@ Initializes the PySide6 UI, manages the multi-threaded rendering pipeline,
 and orchestrates communication between the UI components and the CadQuery 3D engine.
 """
 
+from PySide6.QtWidgets import QApplication, QMainWindow, QMessageBox, QWidget
+from PySide6.QtCore import Qt, QThread, Signal, QTimer, QUrl, QObject
+from PySide6.QtGui import QTextCursor, QDesktopServices, QIcon
+from community_browser import CommunityBrowserDialog
+
 import os
 import sys
-import json
 import locale
 import tempfile
 import subprocess
-import urllib.request
 import multiprocessing
+import datetime
+# Application Modules
+import cq_model
+import file_manager
+import ui_builder
+import ui_sync
+import viewer_3d
 
 try:
     from version import __version__ # type: ignore # 
@@ -73,20 +83,6 @@ if getattr(sys, 'frozen', False) and sys.platform == 'win32':
         if os.path.exists(dll_path):
             os.add_dll_directory(dll_path)
 
-import datetime
-from PySide6.QtWidgets import QApplication, QMainWindow, QMessageBox, QWidget
-from PySide6.QtCore import Qt, QThread, Signal, QTimer, QUrl, QObject
-from PySide6.QtGui import QTextCursor, QDesktopServices, QIcon
-from community_browser import CommunityBrowserDialog
-import shape_loader
-
-# Application Modules
-import cq_model
-import file_manager
-import ui_builder
-import ui_sync
-import viewer_3d
-
 class EmittingStream(QObject):
     """
     Custom stream object used to intercept standard output (stdout) and 
@@ -113,11 +109,8 @@ class GeneratorWorker(QThread):
         self.params = params
 
     def run(self):
-        import time
-        start_time = time.time()
         try:
             result = cq_model.build_mold(self.params)
-            elapsed = time.time() - start_time
             self.work_finished.emit(result)
         except Exception as e:
             import traceback
@@ -401,7 +394,8 @@ class MoldApp(QMainWindow):
 
     def schedule_update(self):
         """Restarts the delay timer. Pushes the actual calculation 600ms into the future."""
-        if getattr(self, 'is_updating_preset', False): return 
+        if getattr(self, 'is_updating_preset', False): 
+            return 
 
         # --- PRESET MODDED FLAG ---
         if hasattr(self, 'combo_preset'):
@@ -466,11 +460,13 @@ class MoldApp(QMainWindow):
             
     def normal_output_written(self, text):
         t = text.strip()
-        if t: self.log(t, "INFO")
+        if t: 
+            self.log(t, "INFO")
 
     def error_output_written(self, text):
         t = text.strip()
-        if t: self.log(t, "ERROR")
+        if t: 
+            self.log(t, "ERROR")
 
     def log(self, message, type="INFO"):
         timestamp = datetime.datetime.now().strftime("%H:%M:%S")
@@ -485,7 +481,8 @@ class MoldApp(QMainWindow):
         self.log_console.moveCursor(QTextCursor.End)
 
     def flash_widget(self, widget):
-        if not hasattr(widget, "orig_style"): widget.orig_style = widget.styleSheet()
+        if not hasattr(widget, "orig_style"): 
+            widget.orig_style = widget.styleSheet()
         widget.setStyleSheet("background-color: #e67e22; color: #ffffff; font-weight: bold;")
         QTimer.singleShot(500, lambda: widget.setStyleSheet(widget.orig_style))
 
@@ -535,7 +532,8 @@ class MoldApp(QMainWindow):
             self.log("Max Dimensions in the Log will now be displayed in Millimeters (mm).", "INFO")
         else:
             self.log("Max Dimensions in the Log will now be displayed in Inches (in). All input parameters remain in mm.", "INFO")
-        if self.current_result: self.start_preview()
+        if self.current_result: 
+            self.start_preview()
 
     def open_support_link(self):
         QDesktopServices.openUrl(QUrl("https://ko-fi.com/moldforge"))
@@ -644,15 +642,6 @@ class MoldApp(QMainWindow):
         if enabled and self.current_result:
             self.start_preview()
 
-    def toggle_units(self):
-        # The checkbox 'action_units' represents "Imperial Mode"
-        is_imperial = self.action_units.isChecked()
-        self.is_metric = not is_imperial
-        self.params.IsMetric = self.is_metric
-        
-        unit_label = "Imperial (in)" if is_imperial else "Metric (mm)"
-        self.log(f"Display units set to {unit_label}.", "INFO")
-        
         # Trigger re-render to update the logic and logs
         if self.current_result: 
             self.start_preview()

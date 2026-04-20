@@ -5,7 +5,7 @@ setting up the camera toolbar overlay, and assembling the various dock panels.
 """
 
 import sys
-from PySide6.QtWidgets import QLabel, QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QFrame, QGridLayout, QMainWindow, QCheckBox, QSizePolicy
+from PySide6.QtWidgets import QLabel, QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QFrame, QGridLayout, QMainWindow, QCheckBox
 from PySide6.QtCore import Qt
 from pyvistaqt import QtInteractor
 from custom_widgets import CollapsibleDockTitleBar
@@ -111,7 +111,8 @@ def setup_ui(app):
             try:
                 if widget is not None:
                     widget.GetDistanceRepresentation().SetLabelFormat("")
-            except Exception: pass
+            except Exception: 
+                pass
             
             app.log("Measurement Tool ON: Click two points on the 3D model.", "INFO")
         else:

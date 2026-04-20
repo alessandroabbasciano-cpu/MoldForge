@@ -1,3 +1,7 @@
+from PySide6.QtWidgets import (QDialog, QVBoxLayout, QHBoxLayout, QListWidget, 
+                               QPushButton, QLabel, QMessageBox, QApplication, QListWidgetItem)
+from PySide6.QtCore import Qt
+
 import os
 import json
 import urllib.request
@@ -6,9 +10,7 @@ import ssl
 import certifi
 ssl_context = ssl.create_default_context(cafile=certifi.where())
 urllib.request.install_opener(urllib.request.build_opener(urllib.request.HTTPSHandler(context=ssl_context)))
-from PySide6.QtWidgets import (QDialog, QVBoxLayout, QHBoxLayout, QListWidget, 
-                               QPushButton, QLabel, QMessageBox, QApplication, QListWidgetItem)
-from PySide6.QtCore import Qt
+
 
 class CommunityBrowserDialog(QDialog):
     def __init__(self, parent=None, local_shapes_dir="shapes_library"):
@@ -136,6 +138,7 @@ class CommunityBrowserDialog(QDialog):
             return
             
         item = items[0]
+
         if item.data(Qt.UserRole) == "installed":
             self.btn_download.setEnabled(False)
             self.btn_download.setText("Already Installed")
@@ -145,7 +148,9 @@ class CommunityBrowserDialog(QDialog):
 
     def download_selected_shape(self):
         items = self.list_widget.selectedItems()
-        if not items: return
+        if not items: 
+            return
+        
         item = items[0]
         
         # Retrieve the raw file name (e.g. "technicians.dxf") for saving

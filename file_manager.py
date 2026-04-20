@@ -43,7 +43,8 @@ def apply_main_preset(app, preset_name):
     if preset_name == "Default / Reset":
         ui_sync.reset_to_defaults(app)
         return
-    if preset_name not in app.presets_data: return
+    if preset_name not in app.presets_data: 
+        return
     
     data = app.presets_data[preset_name]
     loaded_params = cq_model.MoldParams()
@@ -53,8 +54,10 @@ def apply_main_preset(app, preset_name):
         if hasattr(loaded_params, key):
             # Ensure string booleans from older JSONs are parsed correctly
             if isinstance(value, str):
-                if value.lower() == 'true': value = True
-                elif value.lower() == 'false': value = False
+                if value.lower() == 'true': 
+                    value = True
+                elif value.lower() == 'false': 
+                    value = False
             setattr(loaded_params, key, value)
             
     # Apply the fully assembled object to the UI
@@ -78,8 +81,10 @@ def save_preset(app):
         data = {}
         if os.path.exists(preset_file):
             with open(preset_file, "r") as f:
-                try: data = json.load(f)
-                except Exception: pass
+                try: 
+                    data = json.load(f)
+                except Exception: 
+                    pass
         
         # Commit current UI values to the parameters object
         app.update_params_object()
@@ -112,15 +117,17 @@ def load_config_file(app):
     Ideal for loading parameters exported alongside STL files.
     """
     path, _ = QFileDialog.getOpenFileName(app, "Load Configuration", "", "Text Files (*.txt);;All Files (*)")
-    if not path: return 
+    if not path: 
+        return 
     try:
-        with open(path, 'r') as f: lines = f.readlines()
+        with open(path, 'r') as f: 
+            lines = f.readlines()
         parsed_data = {}
-        parsing_started = False
         
         for line in lines:
             line = line.strip()
-            if line.startswith("---"): parsing_started = True; continue
+            if line.startswith("---"): 
+                continue
             if line and ":" in line:
                 parts = line.split(":", 1)
                 if len(parts) == 2:
@@ -167,19 +174,22 @@ def apply_parsed_data_to_ui(app, data):
             val = float(data["TransitionLength"])
             loaded_params.NoseTransitionLength = val
             loaded_params.TailTransitionLength = val
-        except ValueError: pass
+        except ValueError: 
+            pass
 
     if "KickGap" in data:
         try: 
             val = float(data["KickGap"])
             loaded_params.NoseKickGap = val
             loaded_params.TailKickGap = val
-        except ValueError: pass
+        except ValueError: 
+            pass
 
     # Retain the requested MoldType from the txt file
     if "MoldType" in data:
         idx = app.combo_type.findText(data["MoldType"])
-        if idx >= 0: app.combo_type.setCurrentIndex(idx)
+        if idx >= 0: 
+            app.combo_type.setCurrentIndex(idx)
 
     ui_sync.apply_state_to_ui(app, loaded_params)
 
@@ -242,7 +252,8 @@ def export_step(app):
     Exports the current 3D model exclusively as a STEP file 
     for pure mathematically perfect curves.
     """
-    if not app.current_result: return
+    if not app.current_result: 
+        return
     
     default_name = f"{app.params.MoldType}"
     
@@ -280,7 +291,8 @@ def batch_export(app):
     Automatically creates a dedicated subfolder to prevent cluttering the user's directories.
     """
     save_dir = QFileDialog.getExistingDirectory(app, "Select Export Destination")
-    if not save_dir: return
+    if not save_dir: 
+        return
     
     # Prompt for a Project Name to create a dedicated subfolder
     default_name = f"MoldForged_{datetime.datetime.now().strftime('%y%m%d_%H%M')}"
@@ -290,7 +302,8 @@ def batch_export(app):
         "Enter a name for this project (a dedicated folder will be created):",
         text=default_name
     )
-    if not ok_name or not project_name.strip(): return
+    if not ok_name or not project_name.strip(): 
+        return
     project_name = project_name.strip()
     
     # Create the dedicated subfolder

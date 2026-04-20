@@ -7,7 +7,7 @@ assignees: alessandroabbasciano-cpu
 
 ---
 
-Shape Name: 
+Shape Name:
 
 Designer:
 

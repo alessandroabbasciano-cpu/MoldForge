@@ -25,16 +25,24 @@ def render_mold(app, result):
     # Material presets based on mold type to visually distinguish parts
     if mode == "Female_Mold": 
         color = "#3498db"
-        spec = 0.6; diff = 0.8; spec_p = 30
+        spec = 0.6
+        diff = 0.8
+        spec_p = 30
     elif mode == "Male_Mold": 
         color = "#e74c3c"
-        spec = 0.6; diff = 0.8; spec_p = 30
+        spec = 0.6 
+        diff = 0.8 
+        spec_p = 30
     elif mode == "Shaper_Template": 
         color = "#2ecc71"
-        spec = 0.4; diff = 0.8; spec_p = 15
+        spec = 0.4 
+        diff = 0.8 
+        spec_p = 15
     else: 
         color = "#d4a373" 
-        spec = 0.1; diff = 0.9; spec_p = 5
+        spec = 0.1 
+        diff = 0.9
+        spec_p = 5
         
     # Create a temporary STL file to bridge CadQuery and PyVista
     with tempfile.NamedTemporaryFile(suffix=".stl", delete=False) as tmp:
@@ -68,7 +76,10 @@ def render_mold(app, result):
         if getattr(app, 'is_metric', True): 
             unit_str = "mm"
         else:
-            dim_x /= 25.4; dim_y /= 25.4; dim_z /= 25.4; unit_str = "in"
+            dim_x /= 25.4
+            dim_y /= 25.4
+            dim_z /= 25.4
+            unit_str = "in"
         
         app.log(f"Ready. Max Dimensions: {dim_x:.2f} x {dim_y:.2f} x {dim_z:.2f} {unit_str}", "INFO")
         

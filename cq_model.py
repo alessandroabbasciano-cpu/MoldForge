@@ -411,7 +411,8 @@ def build_mold(params: MoldParams):
 
     def apply_yellow_fillet(solid_obj, radius):
         """Applies rounding to the specific 'Straight' edges of the custom shape."""
-        if radius < 0.1: return solid_obj
+        if radius < 0.1: 
+            return solid_obj
         try:
             pts = [(w_half_b, yy_n), (-w_half_b, yy_n), (w_half_b, yy_t), (-w_half_b, yy_t)]
             sel = YellowEdgeSelector(pts, tol=2.0)
@@ -524,8 +525,10 @@ def build_mold(params: MoldParams):
                 try:
                     needle = cq.Workplane("XY").center(0, y_pos).box(0.1, 0.1, 1000)
                     inter = final.intersect(needle)
-                    if inter.vals(): return inter.val().BoundingBox().zmax
-                except Exception: pass
+                    if inter.vals(): 
+                        return inter.val().BoundingBox().zmax
+                except Exception: 
+                    pass
                 return z_mount_target + max_kick_rise
 
             z_ceil_nose = get_z_ceil((mold_len / 2.0) - 0.1)
@@ -558,8 +561,10 @@ def build_mold(params: MoldParams):
 
             # Combine and Chamfer (1.0mm on top edges)
             female_locks = f_lock_n.union(f_lock_t)
-            try: female_locks = female_locks.edges(">Z").chamfer(1.0) 
-            except Exception: pass
+            try: 
+                female_locks = female_locks.edges(">Z").chamfer(1.0) 
+            except Exception: 
+                pass
             
             final = final.union(female_locks)
 
@@ -587,7 +592,7 @@ def build_mold(params: MoldParams):
                 # (may fail on small / complex text)
                 try:
                     solid = solid.edges("|Z").fillet(0.2)
-                except:
+                except Exception:
                     pass
                 
                 # add logo to mold
@@ -640,8 +645,10 @@ def build_mold(params: MoldParams):
                 try:
                     needle = cq.Workplane("XY").center(fx, y_pos).box(0.1, 0.1, 1000)
                     inter = final.intersect(needle)
-                    if inter.vals(): return inter.val().BoundingBox().zmin
-                except Exception: pass
+                    if inter.vals(): 
+                        return inter.val().BoundingBox().zmin
+                except Exception: 
+                    pass
                 # Fallback manual offset
                 return bbox.zmin + (max_kick_rise + dynamic_core_height - params.MoldCoreHeight) + 2.75
 
@@ -678,8 +685,10 @@ def build_mold(params: MoldParams):
 
             # Combine and Chamfer (1.0mm on bottom edges)
             male_locks = m_lock_n.union(m_lock_t)
-            try: male_locks = male_locks.edges("<Z").chamfer(1.0) 
-            except Exception: pass
+            try: 
+                male_locks = male_locks.edges("<Z").chamfer(1.0) 
+            except Exception: 
+                pass
 
             final = final.union(male_locks)
              

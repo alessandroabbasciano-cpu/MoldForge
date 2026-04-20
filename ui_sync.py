@@ -4,8 +4,6 @@ Acts as the logic controller between the graphical user interface and the underl
 Handles parameter syncing, mechanical limit validation, symmetry mirroring, and interactive 2D editor updates.
 """
 
-from email.policy import default
-
 import cq_model
 import shape_loader
 
@@ -68,7 +66,8 @@ def validate_cross_dependencies(app):
     Ensures that user inputs don't break the physical constraints of the mold or the 3D engine.
     Adjusts limits dynamically and flashes the UI widgets to warn the user of bound collisions.
     """
-    if getattr(app, "_is_validating", False): return
+    if getattr(app, "_is_validating", False): 
+        return
     app._is_validating = True
     
     try:
@@ -166,7 +165,8 @@ def sync_editor_from_spinboxes(app):
     Syncs the 2D Interactive Designer widget with the current spinbox values.
     Also handles loading external DXF files to render their preview on the 2D canvas.
     """
-    if getattr(app, '_updating_from_editor', False): return
+    if getattr(app, '_updating_from_editor', False): 
+        return
     
     style = app.combo_shape_style.currentText()
     is_bezier = (style == "Custom")
@@ -227,24 +227,39 @@ def update_params_object(app):
     p.MoldType = app.combo_type.currentText()
     p.ShapeStyle = app.combo_shape_style.currentText()
     
-    if hasattr(app, 'spin_shape_offset_y'): p.ShapeOffsetY = app.spin_shape_offset_y.value()
-    if hasattr(app, 'chk_sidelocks'): p.SideLocks = app.chk_sidelocks.isChecked()
-    if hasattr(app, 'spin_sidelocks_gap'): p.SideLocksGap = app.spin_sidelocks_gap.value()
-    if hasattr(app, 'chk_top_shaper'): p.AddTopShaper = app.chk_top_shaper.isChecked()
-    if hasattr(app, 'chk_indicators'): p.AddIndicators = app.chk_indicators.isChecked()
+    if hasattr(app, 'spin_shape_offset_y'): 
+        p.ShapeOffsetY = app.spin_shape_offset_y.value()
+    if hasattr(app, 'chk_sidelocks'): 
+        p.SideLocks = app.chk_sidelocks.isChecked()
+    if hasattr(app, 'spin_sidelocks_gap'): 
+        p.SideLocksGap = app.spin_sidelocks_gap.value()
+    if hasattr(app, 'chk_top_shaper'): 
+        p.AddTopShaper = app.chk_top_shaper.isChecked()
+    if hasattr(app, 'chk_indicators'): 
+        p.AddIndicators = app.chk_indicators.isChecked()
     
-    if hasattr(app, 'chk_fillet'): p.AddFillet = app.chk_fillet.isChecked()
-    if hasattr(app, 'spin_fillet_rad'): p.FilletRadius = app.spin_fillet_rad.value()
+    if hasattr(app, 'chk_fillet'): 
+        p.AddFillet = app.chk_fillet.isChecked()
+    if hasattr(app, 'spin_fillet_rad'): 
+        p.FilletRadius = app.spin_fillet_rad.value()
     
-    if hasattr(app, 'chk_guide_d'): p.AddGuideHoles = app.chk_guide_d.isChecked()
-    if hasattr(app, 'spin_guide_d'): p.GuideDiameter = app.spin_guide_d.value()
-    if hasattr(app, 'combo_guide_count'): p.GuideHoleCount = int(app.combo_guide_count.currentText())
-    if hasattr(app, 'spin_guide_ox'): p.GuideOffsetX = app.spin_guide_ox.value()
-    if hasattr(app, 'spin_guide_oy'): p.GuideOffsetY = app.spin_guide_oy.value()
+    if hasattr(app, 'chk_guide_d'): 
+        p.AddGuideHoles = app.chk_guide_d.isChecked()
+    if hasattr(app, 'spin_guide_d'): 
+        p.GuideDiameter = app.spin_guide_d.value()
+    if hasattr(app, 'combo_guide_count'): 
+        p.GuideHoleCount = int(app.combo_guide_count.currentText())
+    if hasattr(app, 'spin_guide_ox'): 
+        p.GuideOffsetX = app.spin_guide_ox.value()
+    if hasattr(app, 'spin_guide_oy'): 
+        p.GuideOffsetY = app.spin_guide_oy.value()
     
-    if hasattr(app, 'chk_mold_pins'): p.AddMoldTruckPins = app.chk_mold_pins.isChecked()
-    if hasattr(app, 'chk_shaper_pins'): p.AddShaperTruckPins = app.chk_shaper_pins.isChecked()
-    if hasattr(app, 'chk_cut_base'): p.CutBase = app.chk_cut_base.isChecked()
+    if hasattr(app, 'chk_mold_pins'): 
+        p.AddMoldTruckPins = app.chk_mold_pins.isChecked()
+    if hasattr(app, 'chk_shaper_pins'): 
+        p.AddShaperTruckPins = app.chk_shaper_pins.isChecked()
+    if hasattr(app, 'chk_cut_base'): 
+        p.CutBase = app.chk_cut_base.isChecked()
 
     if hasattr(app, 'action_log_width'): 
         p.LogTruckWidths = app.action_log_width.isChecked()
@@ -271,8 +286,10 @@ def update_params_object(app):
     p.TubWidth = app.spin_tub.value()
     p.VeneerThickness = app.spin_veneer.value()
     
-    if hasattr(app, 'chk_spoon'): p.AddSpoonKicks = app.chk_spoon.isChecked()
-    if hasattr(app, 'spin_spoon_drop'): p.SpoonDrop = app.spin_spoon_drop.value()
+    if hasattr(app, 'chk_spoon'): 
+        p.AddSpoonKicks = app.chk_spoon.isChecked()
+    if hasattr(app, 'spin_spoon_drop'): 
+        p.SpoonDrop = app.spin_spoon_drop.value()
 
     if hasattr(app, 'chk_flares'):
         p.AddWheelFlares = app.chk_flares.isChecked()
@@ -297,8 +314,10 @@ def update_params_object(app):
     p.TruckHoleDiam = app.spin_truck_d.value()
     
     # --- SHAPER / BEZIER HANDLES ---
-    if hasattr(app, 'spin_shaper_h'): p.ShaperHeight = app.spin_shaper_h.value()
-    if hasattr(app, 'spin_fillet_yellow'): p.FilletYellow = app.spin_fillet_yellow.value()
+    if hasattr(app, 'spin_shaper_h'): 
+        p.ShaperHeight = app.spin_shaper_h.value()
+    if hasattr(app, 'spin_fillet_yellow'): 
+        p.FilletYellow = app.spin_fillet_yellow.value()
 
     p.NoseCtrl1X = app.spin_n_c1x.value()
     p.NoseCtrl1Y = app.spin_n_c1y.value()
@@ -329,8 +348,10 @@ def apply_state_to_ui(app, state):
     app.is_updating_preset = True 
     try:
         # --- COMBO BOXES ---
-        if hasattr(app, 'combo_type'): app.combo_type.setCurrentText(state.MoldType)
-        if hasattr(app, 'combo_shape_style'): app.combo_shape_style.setCurrentText(state.ShapeStyle)
+        if hasattr(app, 'combo_type'): 
+            app.combo_type.setCurrentText(state.MoldType)
+        if hasattr(app, 'combo_shape_style'): 
+            app.combo_shape_style.setCurrentText(state.ShapeStyle)
 
         # --- MOLD DIMENSIONS ---
         app.spin_length.setValue(state.MoldLength)
@@ -364,28 +385,43 @@ def apply_state_to_ui(app, state):
         app.spin_truck_d.setValue(state.TruckHoleDiam)
 
         # --- TOGGLES & FEATURES ---
-        if hasattr(app, 'spin_shape_offset_y'): app.spin_shape_offset_y.setValue(state.ShapeOffsetY)
-        if hasattr(app, 'chk_sidelocks'): app.chk_sidelocks.setChecked(state.SideLocks)
-        if hasattr(app, 'spin_sidelocks_gap'): app.spin_sidelocks_gap.setValue(state.SideLocksGap)
-        if hasattr(app, 'chk_top_shaper'): app.chk_top_shaper.setChecked(state.AddTopShaper)
-        if hasattr(app, 'chk_indicators'): app.chk_indicators.setChecked(state.AddIndicators)
-        if hasattr(app, 'chk_cut_base'): app.chk_cut_base.setChecked(state.CutBase)
+        if hasattr(app, 'spin_shape_offset_y'): 
+            app.spin_shape_offset_y.setValue(state.ShapeOffsetY)
+        if hasattr(app, 'chk_sidelocks'): 
+            app.chk_sidelocks.setChecked(state.SideLocks)
+        if hasattr(app, 'spin_sidelocks_gap'): 
+            app.spin_sidelocks_gap.setValue(state.SideLocksGap)
+        if hasattr(app, 'chk_top_shaper'): 
+            app.chk_top_shaper.setChecked(state.AddTopShaper)
+        if hasattr(app, 'chk_indicators'): 
+            app.chk_indicators.setChecked(state.AddIndicators)
+        if hasattr(app, 'chk_cut_base'): 
+            app.chk_cut_base.setChecked(state.CutBase)
         
-        if hasattr(app, 'chk_fillet'): app.chk_fillet.setChecked(state.AddFillet)
-        if hasattr(app, 'spin_fillet_rad'): app.spin_fillet_rad.setValue(state.FilletRadius)
+        if hasattr(app, 'chk_fillet'): 
+            app.chk_fillet.setChecked(state.AddFillet)
+        if hasattr(app, 'spin_fillet_rad'): 
+            app.spin_fillet_rad.setValue(state.FilletRadius)
 
         if hasattr(app, 'chk_guide_d'): 
             app.chk_guide_d.setChecked(state.AddGuideHoles)
-            if hasattr(app, 'combo_guide_count'): app.combo_guide_count.setCurrentText(str(state.GuideHoleCount))
-            if hasattr(app, 'spin_guide_ox'): app.spin_guide_ox.setValue(state.GuideOffsetX)
-            if hasattr(app, 'spin_guide_oy'): app.spin_guide_oy.setValue(state.GuideOffsetY)
-            
-        if hasattr(app, 'chk_mold_pins'): app.chk_mold_pins.setChecked(state.AddMoldTruckPins)
-        if hasattr(app, 'chk_shaper_pins'): app.chk_shaper_pins.setChecked(state.AddShaperTruckPins)
-        
-        if hasattr(app, 'chk_spoon'): app.chk_spoon.setChecked(state.AddSpoonKicks)
-        if hasattr(app, 'spin_spoon_drop'): app.spin_spoon_drop.setValue(state.SpoonDrop)
-            
+            if hasattr(app, 'combo_guide_count'): 
+                app.combo_guide_count.setCurrentText(str(state.GuideHoleCount))
+            if hasattr(app, 'spin_guide_ox'): 
+                app.spin_guide_ox.setValue(state.GuideOffsetX)
+            if hasattr(app, 'spin_guide_oy'): 
+                app.spin_guide_oy.setValue(state.GuideOffsetY)
+
+        if hasattr(app, 'chk_mold_pins'): 
+            app.chk_mold_pins.setChecked(state.AddMoldTruckPins)
+        if hasattr(app, 'chk_shaper_pins'): 
+            app.chk_shaper_pins.setChecked(state.AddShaperTruckPins)
+
+        if hasattr(app, 'chk_spoon'): 
+            app.chk_spoon.setChecked(state.AddSpoonKicks)
+        if hasattr(app, 'spin_spoon_drop'): 
+            app.spin_spoon_drop.setValue(state.SpoonDrop)
+
         if hasattr(app, 'chk_flares'):
             app.chk_flares.setChecked(state.AddWheelFlares)
             app.spin_flare_h.setValue(state.FlareHeight)
@@ -422,8 +458,10 @@ def apply_state_to_ui(app, state):
             app.params.IsMetric = is_metric_val
             
         # --- SHAPER / BEZIER HANDLES ---
-        if hasattr(app, 'spin_shaper_h'): app.spin_shaper_h.setValue(state.ShaperHeight)
-        if hasattr(app, 'spin_fillet_yellow'): app.spin_fillet_yellow.setValue(state.FilletYellow)
+        if hasattr(app, 'spin_shaper_h'): 
+            app.spin_shaper_h.setValue(state.ShaperHeight)
+        if hasattr(app, 'spin_fillet_yellow'): 
+            app.spin_fillet_yellow.setValue(state.FilletYellow)
 
         app.spin_n_c1x.setValue(state.NoseCtrl1X)
         app.spin_n_c1y.setValue(state.NoseCtrl1Y)
