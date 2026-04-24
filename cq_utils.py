@@ -95,7 +95,7 @@ def make_logo_solid(params):
     """
     
     # Normalize and validate input text
-    text = params.LogoText.strip().upper()
+    text = params.LogoText.strip()
 
     # Early exit if no valid text
     if not text:
@@ -110,22 +110,41 @@ def make_logo_solid(params):
 
     # Per-letter generation
     for i, letter in enumerate(text):
+        
+        # Skip spaces to prevent empty geometry crashes, 
+        # while keeping the index 'i' moving for correct spacing
+        if letter == " ":
+            continue
+
         # Center letters vertically around origin
-        # Ensures symmetric placement regardless of string length
         y = spacing * (n/2 - i - 0.5)
 
-        # Create individual letter as a solid
-        wp = (
-            cq.Workplane("XY")
-            .text(
-                letter,
-                params.LogoSize,        # Letter height (mm)
-                params.LogoDepth,       # Extrusion depth (mm)
-                kind="bold",
-                combine=True            # Ensures a single clean solid per letter
+        # Attempt to create the individual letter
+        try:
+            wp = (
+                cq.Workplane("XY")
+                .text(
+                    letter,
+                    params.LogoSize,        
+                    params.LogoDepth,       
+                    font=params.LogoFont,   
+                    kind="bold",
+                    combine=True            
+                )
             )
-        )
-
+        except Exception:
+            # Silent mechanical fallback if the geometry actually crashes
+            wp = (
+                cq.Workplane("XY")
+                .text(
+                    letter,
+                    params.LogoSize,
+                    params.LogoDepth,
+                    kind="bold",
+                    combine=True
+                )
+            )
+                                        
         # Extract underlying solid for transformation
         solid = wp.val()
 

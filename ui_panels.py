@@ -10,6 +10,7 @@ from PySide6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel,
                                QPlainTextEdit, QDockWidget, QLineEdit)
 from PySide6.QtCore import Qt
 from custom_widgets import NoScrollSpinBox, KickShapeEditor
+from PySide6.QtGui import QFontDatabase
 
 def add_param(app, target_layout, label_text, min_val, max_val, default, tooltip=""):
     """
@@ -485,22 +486,68 @@ def setup_docks(app):
     app.spin_shaper_h = add_param(app, layout_shaper, "Shaper Height (mm)", 1, 30, app.params.ShaperHeight, "Thickness of the 3D printed routing template.")
     app.spin_fillet_yellow = add_param(app, layout_shaper, "Edge Rounding (mm)", 0.0, 50.0, app.params.FilletYellow, "Radius of the shape's corner fillets (only applies to Custom Bezier shape).")
     
-    lbl_n = QLabel("-- Nose Handles --")
-    lbl_n.setStyleSheet("color: #aaa;")
-    layout_shaper.addRow(lbl_n)
+    # --- Nose Handles Button ---
+    app.btn_nose_handles = QPushButton("▼ Nose Handles")
+    app.btn_nose_handles.setFlat(True) # Removes button background
+    app.btn_nose_handles.setStyleSheet("text-align: left; color: #aaa; font-weight: bold;")
+    app.btn_nose_handles.setCursor(Qt.PointingHandCursor) # Changes cursor to hand pointer
+    layout_shaper.addRow(app.btn_nose_handles)
+    
     app.spin_n_s_y = add_param(app, layout_shaper, "Yellow (Y %)", 0, 100, app.params.NoseStraightP, "Length of the straight parallel section before nose tapering starts.")
     app.spin_n_c1x = add_param(app, layout_shaper, "Red (X %)", 0, 100, app.params.NoseCtrl1X, "X-axis position of the primary Bezier control point.")
     app.spin_n_c1y = add_param(app, layout_shaper, "Red (Y %)", 0, 100, app.params.NoseCtrl1Y, "Y-axis position of the primary Bezier control point.")
     app.spin_n_c2x = add_param(app, layout_shaper, "Blue (X %)", 0, 100, app.params.NoseCtrl2X, "X-axis position of the secondary Bezier control point (tip shape).")
     
-    lbl_t = QLabel("-- Tail Handles --")
-    lbl_t.setStyleSheet("color: #aaa;")
-    layout_shaper.addRow(lbl_t)
+    # --- Tail Handles Button ---
+    app.btn_tail_handles = QPushButton("▼ Tail Handles")
+    app.btn_tail_handles.setFlat(True)
+    app.btn_tail_handles.setStyleSheet("text-align: left; color: #aaa; font-weight: bold;")
+    app.btn_tail_handles.setCursor(Qt.PointingHandCursor)
+    layout_shaper.addRow(app.btn_tail_handles)
+    
     app.spin_t_s_y = add_param(app, layout_shaper, "Yellow (Y %)", 0, 100, app.params.TailStraightP, "Length of the straight parallel section before tail tapering starts.")
     app.spin_t_c1x = add_param(app, layout_shaper, "Red (X %)", 0, 100, app.params.TailCtrl1X, "X-axis position of the primary Bezier control point.")
     app.spin_t_c1y = add_param(app, layout_shaper, "Red (Y %)", 0, 100, app.params.TailCtrl1Y, "Y-axis position of the primary Bezier control point.")
     app.spin_t_c2x = add_param(app, layout_shaper, "Blue (X %)", 0, 100, app.params.TailCtrl2X, "X-axis position of the secondary Bezier control point (tip shape).")
+
+    # --- Toggle Functions ---
+    def toggle_nose_handles(state=None):
+        # If state is explicitly provided (True/False), use it. 
+        # Otherwise (on click), toggle current visibility.
+        is_visible = state if state is not None else not app.spin_n_s_y.isVisible()
+        
+        arrow = "▼" if is_visible else "▶"
+        app.btn_nose_handles.setText(f"{arrow} Nose Handles")
+        
+        widgets = [app.spin_n_s_y, app.spin_n_c1x, app.spin_n_c1y, app.spin_n_c2x]
+        for w in widgets:
+            w.setVisible(is_visible)
+            lbl = layout_shaper.labelForField(w)
+            if lbl: 
+                lbl.setVisible(is_visible)
+
+    def toggle_tail_handles(state=None):
+        is_visible = state if state is not None else not app.spin_t_s_y.isVisible()
+        
+        arrow = "▼" if is_visible else "▶"
+        app.btn_tail_handles.setText(f"{arrow} Tail Handles")
+        
+        widgets = [app.spin_t_s_y, app.spin_t_c1x, app.spin_t_c1y, app.spin_t_c2x]
+        for w in widgets:
+            w.setVisible(is_visible)
+            lbl = layout_shaper.labelForField(w)
+            if lbl: 
+                lbl.setVisible(is_visible)
+
+    # IMPORTANT: Use lambda to ensure the button click doesn't pass 
+    # its own arguments to our functions
+    app.btn_nose_handles.clicked.connect(lambda: toggle_nose_handles())
+    app.btn_tail_handles.clicked.connect(lambda: toggle_tail_handles())
     
+    # Force collapse to FALSE explicitly on startup
+    toggle_nose_handles(False)
+    toggle_tail_handles(False)
+
     right_controls_layout.addWidget(group_shaper)
     
     scroll_right.setWidget(scroll_content_right)
@@ -528,6 +575,15 @@ def setup_docks(app):
     app.input_logo_text.setText(app.params.LogoText)
     app.input_logo_text.textChanged.connect(lambda: app.schedule_update())
     layout_logo.addRow("Text:", app.input_logo_text)
+
+    # font selector
+    app.combo_logo_font = QComboBox()
+    # Fetches all installed system fonts dynamically
+    app.combo_logo_font.addItems(QFontDatabase.families())
+    app.combo_logo_font.setCurrentText(app.params.LogoFont)
+    
+    app.combo_logo_font.currentTextChanged.connect(lambda: app.schedule_update())
+    layout_logo.addRow("Font:", app.combo_logo_font)
 
     # size
     app.spin_logo_size = add_param(
@@ -581,9 +637,9 @@ def setup_docks(app):
         visible = app.chk_logo.isChecked()
         
         widgets = [
-            app.chk_logo_invert, app.input_logo_text, app.spin_logo_size,
-            app.spin_logo_depth, app.spin_logo_off_x, app.spin_logo_off_y, 
-            app.spin_logo_spacing, app.spin_logo_rot
+            app.chk_logo_invert, app.input_logo_text, app.combo_logo_font,
+            app.spin_logo_size, app.spin_logo_depth, app.spin_logo_off_x, 
+            app.spin_logo_off_y, app.spin_logo_spacing, app.spin_logo_rot
         ]
         
         for widget in widgets:

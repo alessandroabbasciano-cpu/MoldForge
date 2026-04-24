@@ -93,6 +93,7 @@ class MoldParams:
 
         # --- LOGO / DEBOSS ---
         self.AddLogo = False                  # Enable/disable logo generation entirely
+        self.LogoFont = "Arial Black"         # Safe default font
         self.LogoText = "TEXT"                # String rendered as 3D text
         self.LogoSize = 10.0                  # Approximate letter height in mm
         self.LogoDepth = 0.5                  # Extrusion depth of text

@@ -333,6 +333,8 @@ def update_params_object(app):
     if hasattr(app, 'chk_logo'):
         p.AddLogo = app.chk_logo.isChecked()
         p.LogoText = app.input_logo_text.text()
+        if hasattr(app, 'combo_logo_font'):
+            p.LogoFont = app.combo_logo_font.currentText()
         p.LogoSize = app.spin_logo_size.value()
         p.LogoDepth = app.spin_logo_depth.value()
         p.LogoOffsetX = app.spin_logo_off_x.value()
@@ -485,6 +487,8 @@ def apply_state_to_ui(app, state):
         if hasattr(app, 'chk_logo'):
             app.chk_logo.setChecked(state.AddLogo)
             app.input_logo_text.setText(state.LogoText)
+            if hasattr(app, 'combo_logo_font'):
+                app.combo_logo_font.setCurrentText(getattr(state, 'LogoFont', 'Arial Black'))
             app.spin_logo_size.setValue(state.LogoSize)
             app.spin_logo_depth.setValue(state.LogoDepth)
             app.spin_logo_off_x.setValue(state.LogoOffsetX)
